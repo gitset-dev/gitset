@@ -27,7 +27,7 @@
     "axios-rate-limit": "^1.4.0",
     "bowser": "^2.11.0",
     "cross-spawn": "^7.0.6",
-    "diff": "^7.0.0",
+    "diff": "^8.0.3",
     "drizzle-orm": "^0.33.0",
     "esbuild": "^0.25.2",
     "nanoid": "^5.0.9",
