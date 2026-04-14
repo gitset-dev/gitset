@@ -16,7 +16,11 @@
 
 <hr>
 
-**Gitset v2** is a rebuild. No subscription tiers, no token metering, no proprietary AI lock-in. Bring your own API key, use the suite from the web or your terminal, inspect every line of code.
+### About
+
+**Gitset** is a suite of AI-assisted tools for everything around your code on GitHub — docs, issues, pull requests, releases. Every tool drafts a first pass; you refine it in plain language until it ships.
+
+No subscription tiers. No token metering. No AI vendor lock-in. Bring your own key. Use it on the web or in your terminal. Inspect every line.
 
 Launching **June 1st, 2026**.
 
@@ -47,31 +51,36 @@ The full stack — web app and CLI — is public. Fork it, audit it, self-host i
 
 | Tool | What it does |
 |---|---|
-| **README Generator** | Context-aware documentation for any public or private repo |
-| **Issues Crafter** | Structured issue drafting with template support |
-| **PR Maker** | Branch comparison, AI descriptions, full PR lifecycle |
-| **Tags & Releases Manager** | Release creation with AI-assisted notes |
-| **Gitignore Builder** | Stack-aware `.gitignore` assembly |
-| **Repo Profiler** | Repository analysis and insights |
-| **Backup Automator** | Scheduled backups for your repositories |
+| **README Generator** | Full documentation drafts for any public or private repo. Iterate until it reads the way you want. |
+| **Issues Crafter** | Structured, context-aware issue descriptions. Consistent format across the team. |
+| **PR Maker** | Branch comparison, AI-written bodies, reviewers, labels, merge — the full lifecycle. |
+| **Tags & Releases Manager** | Releases with AI-drafted notes tied to real code changes. |
+| **Gitignore Builder** | Stack-aware `.gitignore` from a language and framework selection. |
+| **Repo Profiler** | AI-generated `description`, `website`, and `topics` for your repositories. |
+| **Backup Automator** | Scheduled repository backups. |
 
-### CLI
+### Templating
 
-A standalone command-line companion. Install once, use everywhere.
+Issues Crafter, PR Maker, README Generator, Tags & Releases Manager, and Gitignore Builder all support custom templates. Define your format once, reuse everywhere. AI fills the blanks; the shape stays yours.
 
-```bash
-npm install -g gitset
-```
+### <img src="https://raw.githubusercontent.com/gitset-dev/gitset/main/public/cli/favicon-48.png" height="22" align="center" /> CLI
+
+The full suite runs in your terminal. `issue`, `pr`, `readme`, and `release` cover the same lifecycle as the web — create, review, update, close, merge — with the same templates. `commit` is CLI-only.
 
 ```
 gitset auth                    # link your account
-gitset commit                  # AI commit messages from staged changes
+gitset commit                  # AI commit messages from staged changes  (CLI only)
+gitset issue                   # full issue lifecycle — create, close, manage
+gitset pr                      # full pull request lifecycle — create, review, merge
+gitset readme                  # generate and update READMEs
+gitset release                 # tags and releases
 gitset gitignore               # generate or extend .gitignore
-gitset release                 # release workflow helpers
-gitset repo                    # repo utilities (badges, licenses, analysis)
-gitset labelspack              # bulk label management
+gitset labelspack              # centralized label management
 gitset dependabot-resolver     # triage and resolve Dependabot alerts
+gitset template                # browse and apply the template library
 ```
+
+> Distribution details coming with the June 1st launch.
 
 ## What's gone
 
