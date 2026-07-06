@@ -1,0 +1,465 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import "../../styles/global.css";
+import { SiteHeader } from "../../components/SiteHeader";
+import { Footer } from "../../components/Footer";
+import getUser from "@/lib/getUser";
+import { toClientUser } from "@/lib/clientUser";
+
+const user = await getUser(Astro.cookies.get("app_auth_token")?.value);
+
+const nav = [
+    { id: "overview", label: "What is Gitset" },
+    { id: "ecosystem", label: "Ecosystem" },
+    { id: "install", label: "Installation" },
+    { id: "auth", label: "Authentication" },
+    { id: "config", label: "Configuration" },
+    { id: "commands", label: "CLI commands" },
+    { id: "tools", label: "Tools" },
+    { id: "examples", label: "Examples" },
+    { id: "workflows", label: "Typical workflow" },
+    { id: "practices", label: "Best practices" },
+    { id: "troubleshooting", label: "Troubleshooting" },
+];
+
+const draftingCommands = [
+    { cmd: "gitset commit", desc: "Draft a commit message from staged changes, refine it, commit." },
+    { cmd: "gitset pr", desc: "Draft a pull-request description from the branch diff. --create opens it via gh." },
+    { cmd: "gitset issue -m \"...\"", desc: "Draft a GitHub issue from one sentence plus local repo context." },
+    { cmd: "gitset readme", desc: "Draft a README from your tracked files. --template uses your own file as the base." },
+    { cmd: "gitset release", desc: "Draft release notes from a commit range — by default, since your last tag." },
+    { cmd: "gitset gitignore", desc: "Detect your stack and generate a matching .gitignore." },
+    { cmd: "gitset repo about", desc: "Draft a repository description and topics, applied via gh." },
+];
+
+const localCommands = [
+    { cmd: "gitset config", desc: "Interactive provider setup — the entry point for everything below." },
+    { cmd: "gitset labelspack", desc: "Apply your reusable label set, replacing GitHub's defaults." },
+    { cmd: "gitset repo backup", desc: "Write a scheduled mirror-backup GitHub Actions workflow." },
+    { cmd: "gitset repo license", desc: "Generate a LICENSE file (MIT, ISC, BSD, Apache-2.0, Unlicense). Offline." },
+    { cmd: "gitset template edit <tool>", desc: "Open (or create) a template in $EDITOR." },
+    { cmd: "gitset dependabot", desc: "List and resolve open Dependabot alerts." },
+    { cmd: "gitset tree · status · init", desc: "Repository structure · git + provider status · scaffold templates." },
+];
+
+const tools = [
+    { name: "README Generator", href: "/tools/readme-generator", desc: "Repo-aware READMEs from your actual code and structure." },
+    { name: "Issue Crafter", href: "/tools/issues-crafter", desc: "One sentence in — a complete, labeled GitHub issue out." },
+    { name: "PR Maker", href: "/tools/pr-maker", desc: "Pull-request descriptions built from your branch diff." },
+    { name: "Release Manager", href: "/tools/tags-releases-manager", desc: "Release notes from your commit range, in your format." },
+    { name: "Commit Generator", href: "/tools/commit-messages-generator", desc: "Conventional commits from any diff — web or terminal." },
+    { name: "Gitignore Builder", href: "/tools/gitignore-builder", desc: "Stack-aware ignore files, generated in seconds." },
+    { name: "Repo Profiler", href: "/tools/repo-profiler", desc: "Descriptions and topics that make your repo discoverable." },
+    { name: "Backup Automator", href: "/tools/backup-automator", desc: "Scheduled mirror backups that run inside your GitHub." },
+];
+
+const troubleshooting = [
+    {
+        problem: "✗ No AI provider configured",
+        fix: "Run gitset config — the interactive wizard sets one up in under a minute. Scripts and CI should use gitset config set <provider> --key <key> --default directly.",
+    },
+    {
+        problem: "✗ Nothing staged",
+        fix: "gitset commit only looks at what git diff --cached shows. Run git add first, or pass --all to stage everything before generating.",
+    },
+    {
+        problem: "gh issue create / gh pr create fails",
+        fix: "The --create and --apply flags shell out to the GitHub CLI. Install gh and run gh auth login once; Gitset never asks for a separate token.",
+    },
+    {
+        problem: "A model id is rejected",
+        fix: "A small set of models are excluded from Gitset regardless of provider. Pick a different model — gitset config shows a curated, working list per provider.",
+    },
+    {
+        problem: "Templates don't seem to apply",
+        fix: "Run gitset init once to scaffold ~/.gitset/templates, then gitset template edit <tool> to customize. Templates are picked up automatically on the next draft — no flag needed.",
+    },
+];
+---
+
+<BaseLayout title="Documentation - Gitset">
+    <Fragment slot="head">
+        <meta charset="utf-8" />
+        <link rel="icon" type="image/png" href="/favicon-96.png" />
+        <meta name="viewport" content="width=device-width" />
+        <meta name="generator" content={Astro.generator} />
+        <meta
+            name="description"
+            content="Gitset documentation: what it is, how the web app and CLI fit together, installation, configuration, every command, and typical workflows."
+        />
+        <script is:inline>
+            (function () {
+                const THEME_STORAGE_KEY = "theme";
+                const stored = localStorage.getItem(THEME_STORAGE_KEY);
+                const prefersDark = window.matchMedia(
+                    "(prefers-color-scheme: dark)",
+                ).matches;
+                const theme =
+                    stored === "light" || stored === "dark"
+                        ? stored
+                        : prefersDark
+                          ? "dark"
+                          : "light";
+                document.documentElement.classList.add(theme);
+            })();
+        </script>
+    </Fragment>
+    <body class="bg-background text-foreground antialiased min-h-screen flex flex-col">
+        <SiteHeader client:load showBackButton={true} user={toClientUser(user?.user)} />
+
+        <main class="flex-1">
+            <div class="border-b border-border">
+                <div class="container mx-auto px-4 py-10 max-w-5xl">
+                    <p class="font-mono text-xs text-muted-foreground tracking-wide uppercase">Documentation</p>
+                    <h1 class="mt-2 text-3xl sm:text-4xl font-bold tracking-tight">
+                        Everything you need to run Gitset
+                    </h1>
+                    <p class="mt-3 max-w-[65ch] text-muted-foreground leading-relaxed">
+                        One reference for the whole ecosystem — the web app and the CLI. No
+                        marketing copy here, just what exists, why, and how to use it.
+                    </p>
+                </div>
+            </div>
+
+            <div class="container mx-auto px-4 py-10 max-w-5xl">
+                <div class="lg:hidden mb-8">
+                    <label for="docs-jump" class="sr-only">Jump to a section</label>
+                    <select
+                        id="docs-jump"
+                        class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono"
+                        onchange="if (this.value) window.location.hash = this.value"
+                    >
+                        <option value="">Jump to a section…</option>
+                        {nav.map((n) => <option value={n.id}>{n.label}</option>)}
+                    </select>
+                </div>
+
+                <div class="lg:grid lg:grid-cols-[200px_1fr] lg:gap-12">
+                    <aside class="hidden lg:block">
+                        <nav class="sticky top-24 space-y-1 text-sm">
+                            {nav.map((n) => (
+                                <a
+                                    href={`#${n.id}`}
+                                    class="block rounded-md px-2 py-1.5 text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+                                >
+                                    {n.label}
+                                </a>
+                            ))}
+                        </nav>
+                    </aside>
+
+                    <div class="min-w-0 space-y-16">
+                        {/* ── 01 · WHAT IS GITSET ─────────────────────────── */}
+                        <section id="overview" class="scroll-mt-24 space-y-4">
+                            <h2 class="flex items-baseline gap-3 text-2xl font-semibold tracking-tight">
+                                <span class="font-mono text-sm text-muted-foreground">01</span>
+                                What is Gitset
+                            </h2>
+                            <p class="max-w-[65ch] text-muted-foreground leading-relaxed">
+                                Gitset is an open-source toolkit for everything around your code
+                                on GitHub: commit messages, issues, pull requests, release notes,
+                                READMEs, labels, and repository upkeep. Every tool drafts from
+                                your repository's real context, and you refine the draft in plain
+                                language until it ships. Nothing is published without your
+                                explicit confirmation.
+                            </p>
+                            <p class="max-w-[65ch] text-muted-foreground leading-relaxed">
+                                Gitset is <strong class="text-foreground">BYOAI</strong> — bring
+                                your own AI key. Anthropic, OpenAI, Gemini, OpenRouter, or any
+                                OpenAI-compatible endpoint. There are no subscriptions, no seats,
+                                and no token metering: you pay your provider directly, at their
+                                price, and Gitset adds nothing on top.
+                            </p>
+                        </section>
+
+                        {/* ── 02 · ECOSYSTEM ──────────────────────────────── */}
+                        <section id="ecosystem" class="scroll-mt-24 space-y-4">
+                            <h2 class="flex items-baseline gap-3 text-2xl font-semibold tracking-tight">
+                                <span class="font-mono text-sm text-muted-foreground">02</span>
+                                Ecosystem
+                            </h2>
+                            <p class="max-w-[65ch] text-muted-foreground leading-relaxed">
+                                Gitset runs in two places, sharing the same drafting engine and
+                                the same templates:
+                            </p>
+                            <div class="grid gap-4 sm:grid-cols-2">
+                                <div class="rounded-lg border border-border p-5 space-y-2">
+                                    <h3 class="font-semibold text-sm">The web app</h3>
+                                    <p class="text-sm text-muted-foreground leading-relaxed">
+                                        Sign in with GitHub, connect a repository, and every tool
+                                        publishes what you approve in one click. Keeps a version
+                                        history per draft.
+                                    </p>
+                                </div>
+                                <div class="rounded-lg border border-border p-5 space-y-2">
+                                    <div class="flex items-center gap-2">
+                                        <img
+                                            src="https://raw.githubusercontent.com/gitset-dev/gitset/main/public/cli/favicon-48.png"
+                                            alt=""
+                                            class="h-5 w-5 rounded-sm"
+                                        />
+                                        <h3 class="font-semibold text-sm">The CLI</h3>
+                                    </div>
+                                    <p class="text-sm text-muted-foreground leading-relaxed">
+                                        Runs entirely on your machine. No account, no login. Your
+                                        code and your key go directly to your AI provider —
+                                        never to a Gitset server.
+                                    </p>
+                                </div>
+                            </div>
+                            <p class="max-w-[65ch] text-sm text-muted-foreground leading-relaxed">
+                                A private API handles generation and storage for the web app —
+                                the provider abstraction and prompt layer are shared with the
+                                CLI's source, so both stay behaviorally identical. The web app
+                                and the CLI are open source (MPL-2.0); that internal API is not.
+                            </p>
+                        </section>
+
+                        {/* ── 03 · INSTALLATION ───────────────────────────── */}
+                        <section id="install" class="scroll-mt-24 space-y-4">
+                            <h2 class="flex items-baseline gap-3 text-2xl font-semibold tracking-tight">
+                                <span class="font-mono text-sm text-muted-foreground">03</span>
+                                Installation
+                            </h2>
+                            <div class="grid gap-4 sm:grid-cols-2">
+                                <div class="rounded-lg border border-border p-5 space-y-3">
+                                    <h3 class="font-semibold text-sm">Web</h3>
+                                    <p class="text-sm text-muted-foreground leading-relaxed">
+                                        Nothing to install. Go to
+                                        <a href="/" class="text-brand hover:underline">gitset.dev</a>
+                                        and sign in with GitHub.
+                                    </p>
+                                </div>
+                                <div class="rounded-lg border border-border p-5 space-y-3">
+                                    <h3 class="font-semibold text-sm flex items-center gap-2">
+                                        <img
+                                            src="https://raw.githubusercontent.com/gitset-dev/gitset/main/public/cli/favicon-48.png"
+                                            alt=""
+                                            class="h-4 w-4 rounded-sm"
+                                        />
+                                        CLI
+                                    </h3>
+                                    <div class="rounded-md border border-border bg-muted/50 p-3">
+                                        <code class="text-xs font-mono">npm install -g @gitset-dev/cli</code>
+                                    </div>
+                                    <p class="text-xs text-muted-foreground">
+                                        Requires Node.js 18+. Publishing commands (--create,
+                                        --apply) use the GitHub CLI (gh) with your existing login.
+                                    </p>
+                                </div>
+                            </div>
+                        </section>
+
+                        {/* ── 04 · AUTHENTICATION ─────────────────────────── */}
+                        <section id="auth" class="scroll-mt-24 space-y-4">
+                            <h2 class="flex items-baseline gap-3 text-2xl font-semibold tracking-tight">
+                                <span class="font-mono text-sm text-muted-foreground">04</span>
+                                Authentication
+                            </h2>
+                            <p class="max-w-[65ch] text-muted-foreground leading-relaxed">
+                                The web app uses GitHub OAuth — one sign-in, three scopes
+                                (<code class="text-xs">user:email</code>, <code class="text-xs">repo</code>,
+                                <code class="text-xs">read:org</code>), each used only for what it
+                                says. Revoke it anytime from GitHub's own settings.
+                            </p>
+                            <p class="max-w-[65ch] text-muted-foreground leading-relaxed">
+                                The CLI has <strong class="text-foreground">no login at all</strong>.
+                                There's no account to create and no session to expire — you
+                                configure a provider key once (see below) and every command runs
+                                locally from there.
+                            </p>
+                        </section>
+
+                        {/* ── 05 · CONFIGURATION ──────────────────────────── */}
+                        <section id="config" class="scroll-mt-24 space-y-4">
+                            <h2 class="flex items-baseline gap-3 text-2xl font-semibold tracking-tight">
+                                <span class="font-mono text-sm text-muted-foreground">05</span>
+                                Configuration
+                            </h2>
+                            <p class="max-w-[65ch] text-muted-foreground leading-relaxed">
+                                Everything lives locally in <code class="text-xs">~/.gitset</code>.
+                                Start with the interactive setup — it's the same entry point
+                                whether you're configuring your first provider or your fifth:
+                            </p>
+                            <div class="rounded-md border border-border bg-muted/50 p-3">
+                                <code class="text-xs font-mono">gitset config</code>
+                            </div>
+                            <p class="max-w-[65ch] text-sm text-muted-foreground leading-relaxed">
+                                It walks you through picking a provider, pasting a key (masked
+                                as you type), and choosing a model — the recommended one is
+                                pre-selected. Run it again later to add a provider, change the
+                                default, or switch color themes for a light or dark terminal.
+                                Prefer flags for scripts or CI?
+                            </p>
+                            <div class="rounded-md border border-border bg-muted/50 p-3">
+                                <code class="text-xs font-mono">gitset config set anthropic --key sk-... --default</code>
+                            </div>
+                            <p class="max-w-[65ch] text-sm text-muted-foreground leading-relaxed">
+                                Templates work the same way on both surfaces: define your commit
+                                style, issue structure, PR format, README skeleton, or
+                                release-notes layout once, and every draft follows it. On the
+                                CLI, <code class="text-xs">gitset init</code> scaffolds editable
+                                files in <code class="text-xs">~/.gitset/templates</code>, and
+                                <code class="text-xs">gitset template edit &lt;tool&gt;</code>
+                                opens one in your editor. On the web, each tool has a template
+                                manager with a curated library you can try without ever
+                                overwriting your own saved template.
+                            </p>
+                            <p class="max-w-[65ch] text-sm text-muted-foreground leading-relaxed">
+                                <strong class="text-foreground">Label Pack</strong> follows the
+                                same pattern for GitHub labels: define a reusable set once
+                                (locally via <code class="text-xs">gitset labelspack</code>, or
+                                on the web from Issue Crafter or PR Maker) and apply it to any
+                                repository, replacing GitHub's defaults.
+                            </p>
+                        </section>
+
+                        {/* ── 06 · CLI COMMANDS ───────────────────────────── */}
+                        <section id="commands" class="scroll-mt-24 space-y-6">
+                            <h2 class="flex items-baseline gap-3 text-2xl font-semibold tracking-tight">
+                                <span class="font-mono text-sm text-muted-foreground">06</span>
+                                CLI commands
+                            </h2>
+
+                            <div class="space-y-3">
+                                <h3 class="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+                                    Drafting (uses your provider key)
+                                </h3>
+                                <div class="rounded-lg border border-border divide-y divide-border overflow-hidden">
+                                    {draftingCommands.map((c) => (
+                                        <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 p-3">
+                                            <code class="text-xs font-mono text-brand shrink-0 sm:w-56">{c.cmd}</code>
+                                            <p class="text-xs text-muted-foreground">{c.desc}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div class="space-y-3">
+                                <h3 class="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+                                    Local (no AI)
+                                </h3>
+                                <div class="rounded-lg border border-border divide-y divide-border overflow-hidden">
+                                    {localCommands.map((c) => (
+                                        <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 p-3">
+                                            <code class="text-xs font-mono text-brand shrink-0 sm:w-56">{c.cmd}</code>
+                                            <p class="text-xs text-muted-foreground">{c.desc}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                            <p class="text-xs text-muted-foreground">
+                                Common flags on drafting commands: <code class="text-xs">--provider</code>,
+                                <code class="text-xs">--model</code>, <code class="text-xs">--yes</code>,
+                                <code class="text-xs">--json</code>, <code class="text-xs">--print</code>.
+                                Run <code class="text-xs">gitset help &lt;command&gt;</code> for the full
+                                list on any command.
+                            </p>
+                        </section>
+
+                        {/* ── 07 · TOOLS ──────────────────────────────────── */}
+                        <section id="tools" class="scroll-mt-24 space-y-4">
+                            <h2 class="flex items-baseline gap-3 text-2xl font-semibold tracking-tight">
+                                <span class="font-mono text-sm text-muted-foreground">07</span>
+                                Tools
+                            </h2>
+                            <p class="max-w-[65ch] text-muted-foreground leading-relaxed">
+                                Every tool exists on the web; most exist as a CLI command too
+                                (see above). Same drafting logic, same templates, either surface.
+                            </p>
+                            <div class="grid gap-3 sm:grid-cols-2">
+                                {tools.map((t) => (
+                                    <a
+                                        href={t.href}
+                                        class="rounded-lg border border-border p-4 hover:border-brand/60 transition-colors"
+                                    >
+                                        <p class="font-medium text-sm">{t.name}</p>
+                                        <p class="mt-1 text-xs text-muted-foreground leading-relaxed">{t.desc}</p>
+                                    </a>
+                                ))}
+                            </div>
+                        </section>
+
+                        {/* ── 08 · EXAMPLES ───────────────────────────────── */}
+                        <section id="examples" class="scroll-mt-24 space-y-4">
+                            <h2 class="flex items-baseline gap-3 text-2xl font-semibold tracking-tight">
+                                <span class="font-mono text-sm text-muted-foreground">08</span>
+                                Examples
+                            </h2>
+                            <p class="max-w-[65ch] text-muted-foreground leading-relaxed">
+                                A refinement instruction is just a plain-language sentence — no
+                                special syntax:
+                            </p>
+                            <div class="rounded-lg border border-border bg-[#0d1117] p-4 font-mono text-xs text-[#e6edf3] leading-relaxed overflow-x-auto">
+                                <div><span class="text-[#6CE0DB]">$</span> gitset commit</div>
+                                <div class="text-white/50">Proposed: "fix(auth): handle null user in login"</div>
+                                <div><span class="text-[#6CE0DB]">&gt;</span> mention issue #128</div>
+                                <div class="text-white/50">Proposed: "fix(auth): handle null user in login (#128)"</div>
+                                <div><span class="text-[#6CE0DB]">&gt;</span> a</div>
+                                <div class="text-[#6CE0DB]">✓ committed</div>
+                            </div>
+                            <p class="max-w-[65ch] text-muted-foreground leading-relaxed">
+                                Scripting or CI can skip the interactive loop entirely:
+                            </p>
+                            <div class="rounded-md border border-border bg-muted/50 p-3">
+                                <code class="text-xs font-mono">gitset commit --yes --print</code>
+                            </div>
+                        </section>
+
+                        {/* ── 09 · TYPICAL WORKFLOW ───────────────────────── */}
+                        <section id="workflows" class="scroll-mt-24 space-y-4">
+                            <h2 class="flex items-baseline gap-3 text-2xl font-semibold tracking-tight">
+                                <span class="font-mono text-sm text-muted-foreground">09</span>
+                                Typical workflow
+                            </h2>
+                            <ol class="max-w-[65ch] space-y-3 text-sm text-muted-foreground leading-relaxed list-decimal list-inside">
+                                <li>Make changes, stage them, and run <code class="text-xs">gitset commit</code> to draft the message.</li>
+                                <li>Push the branch, then <code class="text-xs">gitset pr --create</code> to draft and open the pull request.</li>
+                                <li>Reviewers ask for changes on the web app, where you can see version history side by side.</li>
+                                <li>Merged and ready to ship? <code class="text-xs">gitset release</code> drafts the notes from the commit range since your last tag.</li>
+                            </ol>
+                        </section>
+
+                        {/* ── 10 · BEST PRACTICES ─────────────────────────── */}
+                        <section id="practices" class="scroll-mt-24 space-y-4">
+                            <h2 class="flex items-baseline gap-3 text-2xl font-semibold tracking-tight">
+                                <span class="font-mono text-sm text-muted-foreground">10</span>
+                                Best practices
+                            </h2>
+                            <ul class="max-w-[65ch] space-y-2 text-sm text-muted-foreground leading-relaxed list-disc list-inside">
+                                <li>Run <code class="text-xs">gitset init</code> once per machine and adjust the scaffolded templates — the defaults are a reasonable starting point, not a house style.</li>
+                                <li>Prefer <code class="text-xs">gitset config</code>'s wizard over hand-typing keys; it validates the model choice for you.</li>
+                                <li>Use <code class="text-xs">--print</code> to preview a draft without writing or publishing anything, especially the first few times with a new template.</li>
+                                <li>Rotate provider keys the same way you'd rotate any API key — <code class="text-xs">gitset config</code> lets you replace one without touching anything else.</li>
+                                <li>In CI, always pass <code class="text-xs">--yes</code> (or read <code class="text-xs">--json</code> output) — interactive prompts will otherwise hang a non-interactive shell.</li>
+                            </ul>
+                        </section>
+
+                        {/* ── 11 · TROUBLESHOOTING ────────────────────────── */}
+                        <section id="troubleshooting" class="scroll-mt-24 space-y-4">
+                            <h2 class="flex items-baseline gap-3 text-2xl font-semibold tracking-tight">
+                                <span class="font-mono text-sm text-muted-foreground">11</span>
+                                Troubleshooting
+                            </h2>
+                            <div class="space-y-3">
+                                {troubleshooting.map((t) => (
+                                    <div class="rounded-lg border border-border p-4">
+                                        <p class="font-mono text-xs text-foreground">{t.problem}</p>
+                                        <p class="mt-1.5 text-sm text-muted-foreground leading-relaxed">{t.fix}</p>
+                                    </div>
+                                ))}
+                            </div>
+                            <p class="text-sm text-muted-foreground">
+                                Something else? <a href="/faq" class="text-brand hover:underline">Check the FAQ</a>,
+                                <a href="/contact" class="text-brand hover:underline">reach out</a>, or
+                                <a href="https://github.com/gitset-dev" target="_blank" rel="noreferrer" class="text-brand hover:underline">read the source</a> —
+                                Gitset is open source end to end (except the private API).
+                            </p>
+                        </section>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <Footer client:idle />
+    </body>
+</BaseLayout>

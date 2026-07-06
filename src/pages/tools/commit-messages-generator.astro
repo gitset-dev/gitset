@@ -1,0 +1,706 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import "@/styles/global.css";
+import { SiteHeader } from "@/components/SiteHeader";
+import getUser from "@/lib/getUser";
+import { toClientUser } from "@/lib/clientUser";
+import { RepositorySelectorIsland } from "@/components/RepositorySelectorIsland";
+import { Footer } from "@/components/Footer";
+
+const user = await getUser(Astro.cookies.get("app_auth_token")?.value);
+
+if (!user) {
+    return Astro.redirect("/?login=1&next=" + encodeURIComponent(Astro.url.pathname));
+}
+
+const BACKEND_URL = "/api/commit";
+---
+
+<BaseLayout title="Commit Generator - Gitset">
+    <Fragment slot="head">
+        <meta charset="utf-8" />
+        <link rel="icon" type="image/png" href="/favicon-96.png" />
+        <meta name="viewport" content="width=device-width" />
+        <meta name="generator" content={Astro.generator} />
+        <script is:inline>
+            (function () {
+                const THEME_STORAGE_KEY = "theme";
+                const stored = localStorage.getItem(THEME_STORAGE_KEY);
+                const prefersDark = window.matchMedia(
+                    "(prefers-color-scheme: dark)",
+                ).matches;
+                const theme =
+                    stored === "light" || stored === "dark"
+                        ? stored
+                        : prefersDark
+                          ? "dark"
+                          : "light";
+                document.documentElement.classList.add(theme);
+            })();
+        </script>
+    </Fragment>
+    <body
+        class="bg-background text-foreground antialiased min-h-screen flex flex-col"
+    >
+        <SiteHeader client:load user={toClientUser(user.user)} />
+
+        <main class="flex-1 container mx-auto px-4 py-8 max-w-6xl">
+            <div class="mb-6 flex items-center gap-3">
+                <div class="p-2 bg-brand/10 rounded-lg">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="h-6 w-6 text-brand"
+                    >
+                        <polyline points="4 17 10 11 4 5"></polyline>
+                        <line x1="12" x2="20" y1="19" y2="19"></line>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold tracking-tight">
+                        Commit Generator
+                    </h1>
+                    <p class="text-sm text-muted-foreground">
+                        Turn your staged changes into a polished commit message
+                        — then refine it until it's exactly right.
+                    </p>
+                </div>
+            </div>
+
+            <div class="grid gap-8 lg:grid-cols-2">
+
+                <div class="space-y-6">
+
+                    <div
+                        class="rounded-lg border border-border bg-card p-4 space-y-3"
+                    >
+                        <div class="flex items-center justify-between gap-2">
+                            <p class="text-sm font-medium">
+                                1 · Copy your staged changes
+                            </p>
+                            <div
+                                class="flex rounded-md border border-border overflow-hidden text-xs"
+                                role="tablist"
+                                aria-label="Operating system"
+                            >
+                                <button
+                                    type="button"
+                                    data-os="mac"
+                                    class="os-tab px-2.5 py-1 hover:bg-muted"
+                                    role="tab">macOS</button
+                                >
+                                <button
+                                    type="button"
+                                    data-os="win"
+                                    class="os-tab px-2.5 py-1 hover:bg-muted border-l border-border"
+                                    role="tab">Windows</button
+                                >
+                                <button
+                                    type="button"
+                                    data-os="linux"
+                                    class="os-tab px-2.5 py-1 hover:bg-muted border-l border-border"
+                                    role="tab">Linux</button
+                                >
+                            </div>
+                        </div>
+                        <p class="text-xs text-muted-foreground">
+                            A <strong>diff</strong> is the exact text of the
+                            changes you've staged with <code>git add</code>.
+                            Run this in your repository — it copies the diff to
+                            your clipboard:
+                        </p>
+                        <div class="flex items-center gap-2">
+                            <pre
+                                class="flex-1 rounded-md bg-muted px-3 py-2 text-xs font-mono overflow-x-auto"><code id="diff-command">git diff --cached | pbcopy</code></pre>
+                            <button
+                                id="copy-command-btn"
+                                type="button"
+                                class="shrink-0 inline-flex items-center rounded-md border border-input bg-background px-3 py-2 text-xs font-medium hover:bg-accent"
+                            >
+                                Copy
+                            </button>
+                        </div>
+                        <p class="text-xs text-muted-foreground">
+                            Then paste below. Only the text you paste is sent to
+                            your AI provider — Gitset never accesses your
+                            repository.
+                        </p>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label
+                            for="diff-input"
+                            class="text-sm font-medium leading-none"
+                        >
+                            2 · Paste the diff
+                        </label>
+                        <textarea
+                            id="diff-input"
+                            placeholder="diff --git a/src/app.js b/src/app.js..."
+                            class="field-sizing-content flex min-h-[220px] w-full rounded-md border border-input bg-transparent px-3 py-2 shadow-xs transition-[color,box-shadow] placeholder:text-muted-foreground focus-visible:outline-1 focus-visible:ring-4 focus-visible:ring-ring/10 focus-visible:outline-ring/50 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm font-mono text-xs resize-none"
+                        ></textarea>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="grid gap-3 sm:grid-cols-2">
+                            <div class="space-y-2">
+                                <label
+                                    for="style-select"
+                                    class="text-sm font-medium leading-none"
+                                >
+                                    Commit style
+                                </label>
+                                <select
+                                    id="style-select"
+                                    class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs focus-visible:outline-1 focus-visible:ring-4 focus-visible:ring-ring/10"
+                                >
+                                    <option value="conventional"
+                                        >Conventional (feat/fix/chore…)</option
+                                    >
+                                    <option value="plain">Plain</option>
+                                </select>
+                            </div>
+                            <div class="space-y-2">
+                                <label
+                                    for="context-input"
+                                    class="text-sm font-medium leading-none"
+                                >
+                                    Additional context (optional)
+                                </label>
+                                <input
+                                    id="context-input"
+                                    placeholder="e.g. fixes the login bug from issue #123"
+                                    class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-xs placeholder:text-muted-foreground focus-visible:outline-1 focus-visible:ring-4 focus-visible:ring-ring/10 md:text-sm"
+                                />
+                            </div>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="text-sm font-medium leading-none">
+                                Repository context (optional)
+                            </label>
+                            <RepositorySelectorIsland
+                                client:load
+                                githubToken={toClientUser(user.user)
+                                    ?.githubOauthToken}
+                                elementId="repo-input"
+                                placeholder="Select or enter repository (owner/repo)"
+                                showBranchSelector={true}
+                            />
+                        </div>
+
+                        <details
+                            id="template-details"
+                            class="rounded-lg border border-border bg-card"
+                        >
+                            <summary
+                                class="cursor-pointer select-none px-4 py-3 text-sm font-medium flex items-center justify-between"
+                            >
+                                <span
+                                    >Commit template
+                                    <span
+                                        id="template-badge"
+                                        class="hidden ml-2 rounded-full bg-brand/10 text-brand px-2 py-0.5 text-xs"
+                                        >saved template active</span
+                                    ></span
+                                >
+                                <span class="text-xs text-muted-foreground"
+                                    >customize</span
+                                >
+                            </summary>
+                            <div class="px-4 pb-4 space-y-2">
+                                <p class="text-xs text-muted-foreground">
+                                    Describe the exact shape you want — a
+                                    prefix, a ticket-id convention, your team's
+                                    format. Saved to your account and applied
+                                    to every web generation. (The CLI keeps its
+                                    own local templates — run
+                                    <code>gitset template</code>.)
+                                </p>
+                                <textarea
+                                    id="template-input"
+                                    placeholder={`e.g. Subject must start with [ACME-<ticket>]. Body: bullet list of changes, then "Refs:" line.`}
+                                    class="flex min-h-[80px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-xs font-mono shadow-xs placeholder:text-muted-foreground focus-visible:outline-1 focus-visible:ring-4 focus-visible:ring-ring/10 resize-none"
+                                ></textarea>
+                                <div class="flex items-center gap-2">
+                                    <button
+                                        id="save-template-btn"
+                                        type="button"
+                                        class="inline-flex items-center rounded-md border border-input bg-background px-3 py-1.5 text-xs font-medium hover:bg-accent"
+                                    >
+                                        Save template
+                                    </button>
+                                    <span
+                                        id="template-status"
+                                        class="text-xs text-muted-foreground"
+                                    ></span>
+                                </div>
+                            </div>
+                        </details>
+                    </div>
+
+                    <div
+                        id="form-error"
+                        role="alert"
+                        class="hidden rounded-lg border border-red-500/40 bg-red-500/10 p-3 text-sm text-red-600 dark:text-red-400"
+                    >
+                    </div>
+
+                    <button
+                        id="generate-btn"
+                        class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-[color,box-shadow] disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 [&_svg]:shrink-0 ring-ring/10 dark:ring-ring/20 dark:outline-ring/40 outline-ring/50 focus-visible:ring-4 focus-visible:outline-1 aria-invalid:focus-visible:ring-0 bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 h-9 px-4 py-2 w-full"
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            class="mr-2 h-4 w-4"
+                        >
+                            <path
+                                d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"
+                            ></path>
+                            <path d="M20 3v4"></path>
+                            <path d="M22 5h-4"></path>
+                            <path d="M4 17v2"></path>
+                            <path d="M5 18H3"></path>
+                        </svg>
+                        Generate Commit Message
+                    </button>
+
+                    <div
+                        class="rounded-lg border border-border bg-muted/40 p-4 text-sm space-y-1"
+                    >
+                        <p class="font-medium flex items-center gap-1.5">
+                            <img
+                                src="https://raw.githubusercontent.com/gitset-dev/gitset/main/public/cli/favicon-48.png"
+                                alt=""
+                                class="h-4 w-4 rounded-sm"
+                            />
+                            Working in a terminal? Skip the copy-paste.
+                        </p>
+                        <p class="text-muted-foreground text-xs">
+                            <code>gitset commit</code> reads your staged diff, generates,
+                            lets you refine interactively, and commits — all locally
+                            with your own key. Same templates, same styles.
+                        </p>
+                        <pre
+                            class="mt-2 rounded-md bg-muted px-3 py-2 text-xs font-mono overflow-x-auto"><code>npm i -g @gitset-dev/cli && gitset commit</code></pre>
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <div
+                        class="rounded-xl border border-border bg-card text-card-foreground shadow-sm h-full flex flex-col"
+                    >
+                        <div
+                            class="p-4 border-b border-border flex justify-between items-center"
+                        >
+                            <h3
+                                class="font-semibold leading-none tracking-tight"
+                            >
+                                Generated Message <span
+                                    id="version-badge"
+                                    class="hidden ml-1 text-xs font-normal text-muted-foreground"
+                                ></span>
+                            </h3>
+                            <button
+                                id="copy-btn-top"
+                                class="hidden items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium border border-input bg-background shadow-xs hover:bg-accent hover:text-accent-foreground h-8 px-3"
+                            >
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="24"
+                                    height="24"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    class="mr-2 h-3 w-3"
+                                >
+                                    <rect
+                                        width="14"
+                                        height="14"
+                                        x="8"
+                                        y="8"
+                                        rx="2"
+                                        ry="2"></rect>
+                                    <path
+                                        d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"
+                                    ></path>
+                                </svg>
+                                Copy
+                            </button>
+                        </div>
+                        <div class="p-6 flex-1 bg-muted/30 relative group">
+                            <div
+                                id="loading-state"
+                                class="hidden absolute inset-0 items-center justify-center bg-background/50 backdrop-blur-sm z-10"
+                            >
+                                <div class="flex flex-col items-center gap-2">
+                                    <div
+                                        class="animate-spin rounded-full h-8 w-8 border-b-2 border-brand"
+                                    >
+                                    </div>
+                                    <p
+                                        id="loading-text"
+                                        class="text-sm text-muted-foreground"
+                                    >
+                                        Analyzing diff...
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div
+                                id="empty-state"
+                                class="h-full flex flex-col items-center justify-center text-center text-muted-foreground p-8"
+                            >
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="24"
+                                    height="24"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    class="h-12 w-12 mb-4 opacity-20"
+                                >
+                                    <polyline points="4 17 10 11 4 5"
+                                    ></polyline>
+                                    <line x1="12" x2="20" y1="19" y2="19"
+                                    ></line>
+                                </svg>
+                                <p>
+                                    Copy your staged diff (step 1), paste it,
+                                    and generate.
+                                </p>
+                            </div>
+
+                            <div
+                                id="result-container"
+                                class="hidden h-full flex-col"
+                            >
+                                <pre
+                                    id="result-content"
+                                    class="flex-1 font-mono text-sm whitespace-pre-wrap wrap-break-word p-4 rounded-md bg-background border border-border overflow-auto">
+                                </pre>
+
+                                <div class="mt-4 space-y-2">
+                                    <label
+                                        for="refine-input"
+                                        class="text-xs font-medium text-muted-foreground"
+                                    >
+                                        Not quite right? Tell the AI what to
+                                        change:
+                                    </label>
+                                    <div class="flex items-center gap-2">
+                                        <input
+                                            id="refine-input"
+                                            placeholder="e.g. mention the issue number, make it shorter…"
+                                            class="flex h-9 flex-1 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-xs placeholder:text-muted-foreground focus-visible:outline-1 focus-visible:ring-4 focus-visible:ring-ring/10"
+                                        />
+                                        <button
+                                            id="refine-btn"
+                                            class="shrink-0 inline-flex items-center rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+                                        >
+                                            Refine
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div
+                                    class="mt-4 flex items-center justify-between pt-4 border-t border-border"
+                                >
+                                    <div
+                                        id="provider-info"
+                                        class="text-xs text-muted-foreground"
+                                    >
+                                    </div>
+                                    <button
+                                        id="copy-btn-bottom"
+                                        class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium border border-input bg-background shadow-xs hover:bg-accent hover:text-accent-foreground h-8 px-3"
+                                    >
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            width="24"
+                                            height="24"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            stroke-width="2"
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            class="mr-2 h-3 w-3"
+                                        >
+                                            <rect
+                                                width="14"
+                                                height="14"
+                                                x="8"
+                                                y="8"
+                                                rx="2"
+                                                ry="2"></rect>
+                                            <path
+                                                d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"
+                                            ></path>
+                                        </svg>
+                                        Copy
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <script define:vars={{ BACKEND_URL }}>
+            const $ = (id) => document.getElementById(id);
+            const diffInput = $("diff-input");
+            const contextInput = $("context-input");
+            const repoInput = $("repo-input");
+            const styleSelect = $("style-select");
+            const generateBtn = $("generate-btn");
+            const loadingState = $("loading-state");
+            const loadingText = $("loading-text");
+            const emptyState = $("empty-state");
+            const resultContainer = $("result-container");
+            const resultContent = $("result-content");
+            const providerInfo = $("provider-info");
+            const copyBtnTop = $("copy-btn-top");
+            const copyBtnBottom = $("copy-btn-bottom");
+            const formError = $("form-error");
+            const refineInput = $("refine-input");
+            const refineBtn = $("refine-btn");
+            const versionBadge = $("version-badge");
+            const templateInput = $("template-input");
+            const templateBadge = $("template-badge");
+            const templateStatus = $("template-status");
+            const saveTemplateBtn = $("save-template-btn");
+            const diffCommand = $("diff-command");
+            const copyCommandBtn = $("copy-command-btn");
+
+            let draftId = null;
+            let savedTemplate = "";
+
+            const OS_COMMANDS = {
+                mac: "git diff --cached | pbcopy",
+                win: "git diff --cached | clip",
+                linux: "git diff --cached | xclip -selection clipboard",
+            };
+            const detectOS = () => {
+                const p = (navigator.platform || "").toLowerCase();
+                const ua = (navigator.userAgent || "").toLowerCase();
+                if (p.includes("mac")) return "mac";
+                if (p.includes("win") || ua.includes("windows")) return "win";
+                return "linux";
+            };
+            function selectOS(os) {
+                diffCommand.textContent = OS_COMMANDS[os] || OS_COMMANDS.linux;
+                document.querySelectorAll(".os-tab").forEach((t) => {
+                    const active = t.dataset.os === os;
+                    t.classList.toggle("bg-muted", active);
+                    t.classList.toggle("font-medium", active);
+                    t.setAttribute("aria-selected", String(active));
+                });
+            }
+            document.querySelectorAll(".os-tab").forEach((t) =>
+                t.addEventListener("click", () => selectOS(t.dataset.os)),
+            );
+            selectOS(detectOS());
+
+            copyCommandBtn.addEventListener("click", () => {
+                navigator.clipboard
+                    .writeText(diffCommand.textContent)
+                    .then(() => {
+                        copyCommandBtn.textContent = "Copied!";
+                        setTimeout(
+                            () => (copyCommandBtn.textContent = "Copy"),
+                            2000,
+                        );
+                    });
+            });
+
+            function showError(msg) {
+                formError.textContent = msg;
+                formError.classList.remove("hidden");
+            }
+            function clearError() {
+                formError.classList.add("hidden");
+                formError.textContent = "";
+            }
+
+            (async () => {
+                try {
+                    const r = await fetch(BACKEND_URL, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ action: "get_template" }),
+                    });
+                    const d = await r.json();
+                    if (r.ok && d.template) {
+                        savedTemplate = d.template;
+                        templateInput.value = d.template;
+                        templateBadge.classList.remove("hidden");
+                    }
+                } catch {}
+            })();
+
+            saveTemplateBtn.addEventListener("click", async () => {
+                templateStatus.textContent = "Saving…";
+                try {
+                    const r = await fetch(BACKEND_URL, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            action: "save_template",
+                            template: templateInput.value,
+                        }),
+                    });
+                    if (!r.ok) throw new Error();
+                    savedTemplate = templateInput.value;
+                    templateBadge.classList.toggle("hidden", !savedTemplate.trim());
+                    templateStatus.textContent = "Saved — applied to your web generations.";
+                } catch {
+                    templateStatus.textContent = "Could not save. Try again.";
+                }
+                setTimeout(() => (templateStatus.textContent = ""), 4000);
+            });
+
+            function setBusy(busy, text) {
+                if (busy) {
+                    loadingText.textContent = text;
+                    loadingState.classList.remove("hidden");
+                    loadingState.classList.add("flex");
+                } else {
+                    loadingState.classList.add("hidden");
+                    loadingState.classList.remove("flex");
+                }
+                generateBtn.disabled = busy;
+                refineBtn.disabled = busy;
+            }
+
+            function renderResult(data) {
+                resultContent.textContent =
+                    data.commit_message || data.message || "";
+                draftId = data.draft_id || draftId;
+                if (data.version_number && data.version_number > 1) {
+                    versionBadge.textContent = `v${data.version_number}`;
+                    versionBadge.classList.remove("hidden");
+                } else {
+                    versionBadge.classList.add("hidden");
+                }
+                providerInfo.textContent = data.provider
+                    ? `via ${data.provider}`
+                    : "";
+                emptyState.classList.add("hidden");
+                resultContainer.classList.remove("hidden");
+                resultContainer.classList.add("flex");
+                copyBtnTop.classList.remove("hidden");
+                copyBtnTop.classList.add("inline-flex");
+            }
+
+            async function callCommit(payload, busyText) {
+                clearError();
+                setBusy(true, busyText);
+                try {
+                    const response = await fetch(BACKEND_URL, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(payload),
+                    });
+                    const data = await response.json();
+                    if (!response.ok) {
+                        throw new Error(
+                            data.error || "Failed to generate commit message",
+                        );
+                    }
+                    renderResult(data);
+                } catch (error) {
+                    showError(error.message);
+                } finally {
+                    setBusy(false);
+                }
+            }
+
+            generateBtn.addEventListener("click", () => {
+                const diff = diffInput.value.trim();
+                if (!diff) {
+                    showError(
+                        "Paste your staged diff first — step 1 above shows how to copy it.",
+                    );
+                    diffInput.focus();
+                    return;
+                }
+                draftId = null;
+                const tpl = templateInput.value.trim();
+                callCommit(
+                    {
+                        diff,
+                        context: contextInput.value.trim(),
+                        repoContext: (repoInput?.value || "").trim(),
+                        style: styleSelect.value,
+
+                        ...(tpl && tpl !== savedTemplate
+                            ? { custom_template: tpl }
+                            : {}),
+                    },
+                    "Analyzing diff...",
+                );
+            });
+
+            function doRefine() {
+                const instruction = refineInput.value.trim();
+                if (!instruction || !draftId) return;
+                callCommit(
+                    {
+                        diff: diffInput.value.trim(),
+                        draft_id: draftId,
+                        instruction,
+                    },
+                    "Refining...",
+                );
+                refineInput.value = "";
+            }
+            refineBtn.addEventListener("click", doRefine);
+            refineInput.addEventListener("keydown", (e) => {
+                if (e.key === "Enter") doRefine();
+            });
+
+            function copyToClipboard(btn) {
+                navigator.clipboard
+                    .writeText(resultContent.textContent)
+                    .then(() => {
+                        const originalHTML = btn.innerHTML;
+                        btn.innerHTML =
+                            '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 h-3 w-3"><polyline points="20 6 9 17 4 12"></polyline></svg> Copied!';
+                        setTimeout(() => {
+                            btn.innerHTML = originalHTML;
+                        }, 2000);
+                    });
+            }
+            copyBtnTop.addEventListener("click", () =>
+                copyToClipboard(copyBtnTop),
+            );
+            copyBtnBottom.addEventListener("click", () =>
+                copyToClipboard(copyBtnBottom),
+            );
+        </script>
+        <Footer client:idle />
+    </body>
+</BaseLayout>

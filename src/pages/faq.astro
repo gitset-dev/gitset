@@ -1,0 +1,117 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import "../styles/global.css";
+import { SiteHeader } from "../components/SiteHeader";
+import { Footer } from "../components/Footer";
+import getUser from "@/lib/getUser";
+import { toClientUser } from "@/lib/clientUser";
+
+const user = await getUser(Astro.cookies.get("app_auth_token")?.value);
+
+const faqs = [
+    {
+        question: "What is Gitset?",
+        answer: "Gitset is an open-source toolkit for everything around your code on GitHub: commit messages, issues, pull requests, release notes, READMEs, labels, and repository upkeep. Every tool drafts from your repository's real context; you refine the draft in plain language until it ships. It runs on the web and in your terminal.",
+    },
+    {
+        question: "Is Gitset free?",
+        answer: "Yes. There are no subscriptions, no token packages, and no usage metering. You bring your own AI provider key (BYOAI) and pay your provider directly for what you use — Gitset adds nothing on top.",
+    },
+    {
+        question: "How does the drafting work?",
+        answer: "You connect your own AI provider — Anthropic, OpenAI, Google Gemini, OpenRouter, or any OpenAI-compatible endpoint — and pick a model. Gitset reads your repository's context (diffs, structure, key files), sends a focused prompt to your provider with your key, and returns a draft. You refine it in plain language, as many rounds as you need, and nothing is published until you say so.",
+    },
+    {
+        question: "Is my code safe? What about my API keys?",
+        answer: "Your provider keys are encrypted at rest (AES-256-GCM), never sent to the browser, never logged, and used only for the requests you run. Your code is read transiently to build a draft and is not retained, and nothing is used for model training. The CLI goes further: it runs entirely on your machine — your code and keys never touch a Gitset server. All of this is verifiable in the source code.",
+    },
+    {
+        question: "Which AI providers and models can I use?",
+        answer: "Anthropic (Claude), OpenAI, Google Gemini, and OpenRouter out of the box, plus any OpenAI-compatible endpoint via a custom base URL (DeepSeek, self-hosted models, and more). Pick from curated current models or type any model id, and switch providers or models at any time.",
+    },
+    {
+        question: "What's the difference between the web app and the CLI?",
+        answer: "Same tools, same templates, two surfaces. The web app connects to GitHub, keeps your version history, and publishes what you approve in one click. The CLI lives in your terminal, needs no account, and never contacts a Gitset server — it talks directly to your AI provider and to GitHub through the gh CLI. Install it with: npm install -g @gitset-dev/cli",
+    },
+    {
+        question: "Can I make everything follow my formats?",
+        answer: "Yes — that's the point. Every generator accepts your own template: define your commit style, issue structure, PR format, README skeleton, or release-notes layout once and every draft follows it. There's also a curated template library (Conventional Commits, Keep a Changelog, gitmoji, and more) you can try without ever overwriting your own saved template. Label Pack does the same for labels: define your set once and apply it to any repository, replacing GitHub's defaults.",
+    },
+    {
+        question: "Can I use Gitset with private repositories?",
+        answer: "Yes. Sign in with GitHub and both public and private repositories work. Repository access can be revoked at any time from your GitHub settings.",
+    },
+    {
+        question: "What license is Gitset under? Can I contribute?",
+        answer: "The web app and the CLI are licensed under the Mozilla Public License 2.0 (MPL-2.0). Contributions are welcome — fork, patch, open a pull request, like any open-source project. The MPL keeps the code open: anyone who modifies Gitset's files must publish those changes. The Gitset name and logo are not covered by the code license.",
+    },
+    {
+        question: "How do I delete my account and data?",
+        answer: "From your dashboard, in one click — it permanently removes your account and associated data. You can also revoke Gitset's GitHub access at any time from GitHub's own settings. The CLI stores everything locally in ~/.gitset, so deleting that folder removes every trace.",
+    },
+];
+---
+
+<BaseLayout title="FAQ - Gitset">
+    <Fragment slot="head">
+        <meta charset="utf-8" />
+        <link rel="icon" type="image/png" href="/favicon-96.png" />
+        <meta name="viewport" content="width=device-width" />
+        <meta name="generator" content={Astro.generator} />
+        <meta
+            name="description"
+            content="Frequently asked questions about Gitset features, pricing, and security."
+        />
+        <script is:inline>
+            (function () {
+                const THEME_STORAGE_KEY = "theme";
+                const stored = localStorage.getItem(THEME_STORAGE_KEY);
+                const prefersDark = window.matchMedia(
+                    "(prefers-color-scheme: dark)",
+                ).matches;
+                const theme =
+                    stored === "light" || stored === "dark"
+                        ? stored
+                        : prefersDark
+                          ? "dark"
+                          : "light";
+                document.documentElement.classList.add(theme);
+            })();
+        </script>
+    </Fragment>
+    <body
+        class="bg-background text-foreground antialiased min-h-screen flex flex-col"
+    >
+        <SiteHeader client:load showBackButton={true} user={toClientUser(user?.user)} />
+        <main class="flex-1 container mx-auto px-4 py-12 max-w-4xl">
+            <div class="space-y-12">
+                <div class="text-center space-y-3">
+                    <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">
+                        Frequently Asked Questions
+                    </h1>
+                    <p class="text-lg text-muted-foreground">
+                        Everything you need to know about Gitset.
+                    </p>
+                </div>
+
+                <div class="space-y-4">
+                    {
+                        faqs.map((faq) => (
+                            <div class="rounded-xl border border-border bg-card shadow-sm hover:shadow-md transition-shadow">
+                                <div class="p-6 space-y-3">
+                                    <h3 class="font-semibold text-lg leading-tight tracking-tight text-foreground">
+                                        {faq.question}
+                                    </h3>
+                                    <p class="text-sm text-muted-foreground leading-relaxed">
+                                        {faq.answer}
+                                    </p>
+                                </div>
+                            </div>
+                        ))
+                    }
+                </div>
+            </div>
+        </main>
+        <Footer client:idle />
+    </body>
+</BaseLayout>

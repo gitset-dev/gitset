@@ -1,0 +1,71 @@
+# Cloud Build pipeline for gitset-web.
+# On push to main, the GitHub trigger runs these steps:
+#   1. Build the container from Dockerfile (Astro SSR build is inside).
+#   2. Push to Artifact Registry under us-east1-docker.pkg.dev/$PROJECT_ID/gitset/web
+#   3. Deploy a new Cloud Run revision wired to the runtime SA + Secret Manager.
+#
+# Secrets bound at deploy time (must exist with a version in Secret Manager):
+#   DB_URL, DB_TOKEN, GITHUB_AUTH_CLIENT, GITHUB_AUTH_SECRET
+#
+# Env vars passed in via substitutions (set on the trigger config; cannot
+# default safely because they include URLs that only exist after Core is
+# deployed and after the GitHub OAuth app callback is updated):
+#   _CORE_API_URL          → CORE_API_URL  (Cloud Run URL of gitset-core)
+#   _CALLBACK_URL          → GITHUB_AUTH_CALLBACK_URL
+#
+# The runtime SA must have roles/secretmanager.secretAccessor on each secret.
+
+substitutions:
+  _SERVICE: gitset-web
+  _REGION: us-east1
+  # Runtime service account email — supplied by the deploy trigger (or
+  # --substitutions on manual submits). Not hardcoded here.
+  _RUNTIME_SA: ''
+  _CORE_API_URL: ''
+  _CALLBACK_URL: ''
+  # Image tag. Defaults to 'latest' for manual `gcloud builds submit`.
+  # The GitHub trigger sets _TAG=$SHORT_SHA for immutable, per-commit tags.
+  _TAG: latest
+
+steps:
+  - id: build
+    name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - --tag=us-east1-docker.pkg.dev/$PROJECT_ID/gitset/web:${_TAG}
+      - --tag=us-east1-docker.pkg.dev/$PROJECT_ID/gitset/web:latest
+      - --file=Dockerfile
+      - .
+
+  - id: push
+    name: gcr.io/cloud-builders/docker
+    args: [push, --all-tags, us-east1-docker.pkg.dev/$PROJECT_ID/gitset/web]
+
+  - id: deploy
+    name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+    entrypoint: gcloud
+    args:
+      - run
+      - deploy
+      - ${_SERVICE}
+      - --image=us-east1-docker.pkg.dev/$PROJECT_ID/gitset/web:${_TAG}
+      - --region=${_REGION}
+      - --platform=managed
+      - --service-account=${_RUNTIME_SA}
+      - --allow-unauthenticated
+      - --port=8080
+      - --memory=512Mi
+      - --cpu=1
+      - --min-instances=0
+      - --max-instances=4
+      - --concurrency=80
+      - --timeout=120s
+      - --set-env-vars=NODE_ENV=production,CORE_API_URL=${_CORE_API_URL},GITHUB_AUTH_CALLBACK_URL=${_CALLBACK_URL}
+      - --set-secrets=DB_URL=DB_URL:latest,DB_TOKEN=DB_TOKEN:latest,GITHUB_AUTH_CLIENT=GITHUB_AUTH_CLIENT:latest,GITHUB_AUTH_SECRET=GITHUB_AUTH_SECRET:latest
+
+images:
+  - us-east1-docker.pkg.dev/$PROJECT_ID/gitset/web:${_TAG}
+  - us-east1-docker.pkg.dev/$PROJECT_ID/gitset/web:latest
+
+options:
+  logging: CLOUD_LOGGING_ONLY

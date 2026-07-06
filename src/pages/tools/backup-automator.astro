@@ -1,0 +1,485 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import "@/styles/global.css";
+import { SiteHeader } from "@/components/SiteHeader";
+import { Footer } from "@/components/Footer";
+import getUser from "@/lib/getUser";
+import { toClientUser } from "@/lib/clientUser";
+import { RepositorySelectorIsland } from "@/components/RepositorySelectorIsland";
+
+const user = await getUser(Astro.cookies.get("app_auth_token")?.value);
+
+if (!user) {
+    return Astro.redirect("/?login=1&next=" + encodeURIComponent(Astro.url.pathname));
+}
+---
+
+<BaseLayout title="Backup Automator - Gitset">
+    <Fragment slot="head">
+        <meta charset="utf-8" />
+        <link rel="icon" type="image/png" href="/favicon-96.png" />
+        <meta name="viewport" content="width=device-width" />
+        <meta name="generator" content={Astro.generator} />
+        <script is:inline>
+            (function () {
+                const THEME_STORAGE_KEY = "theme";
+                const stored = localStorage.getItem(THEME_STORAGE_KEY);
+                const prefersDark = window.matchMedia(
+                    "(prefers-color-scheme: dark)",
+                ).matches;
+                const theme =
+                    stored === "light" || stored === "dark"
+                        ? stored
+                        : prefersDark
+                          ? "dark"
+                          : "light";
+                document.documentElement.classList.add(theme);
+            })();
+        </script>
+    </Fragment>
+    <body
+        class="bg-background text-foreground antialiased min-h-screen flex flex-col"
+    >
+        <SiteHeader client:load user={toClientUser(user.user)} />
+        <main class="flex-1 container mx-auto px-4 py-8 max-w-3xl">
+            <div class="mb-8 flex items-center gap-3">
+                <div class="p-2 bg-brand/10 rounded-lg">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="h-6 w-6 text-brand"
+                    >
+                        <path
+                            d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"
+                        ></path>
+                        <path d="M3 3v5h5"></path>
+                        <path d="M12 7v5l4 2"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold tracking-tight">
+                        Backup Automator
+                    </h1>
+                    <p class="text-sm text-muted-foreground">
+                        Automatic mirror backups of your repository — set up in
+                        two minutes, owned entirely by you.
+                    </p>
+                </div>
+            </div>
+
+            <div
+                class="mb-8 rounded-lg border border-brand/30 bg-brand/5 p-4 flex gap-3 items-start"
+            >
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="h-5 w-5 text-brand shrink-0 mt-0.5"
+                >
+                    <path
+                        d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"
+                    ></path>
+                    <path d="m9 12 2 2 4-4"></path>
+                </svg>
+                <div class="text-sm space-y-1">
+                    <p class="font-medium">
+                        Your backups run inside your GitHub — Gitset never
+                        touches your tokens.
+                    </p>
+                    <p class="text-muted-foreground text-xs">
+                        The backup is a GitHub Actions workflow that mirrors
+                        your repository to a destination you control, on a
+                        schedule you choose. The credential lives as a secret
+                        in <em>your</em> repository settings. Even if Gitset
+                        disappeared tomorrow, your backups would keep running.
+                    </p>
+                </div>
+            </div>
+
+            <div class="space-y-6">
+
+                <section
+                    class="rounded-lg border border-border bg-card p-5 space-y-3"
+                >
+                    <h2 class="text-sm font-semibold flex items-center gap-2">
+                        <span
+                            class="flex h-6 w-6 items-center justify-center rounded-full bg-brand/10 text-brand text-xs"
+                            >1</span
+                        >
+                        Choose the repository to back up
+                    </h2>
+                    <RepositorySelectorIsland
+                        client:load
+                        githubToken={toClientUser(user.user)?.githubOauthToken}
+                        elementId="backup-repo"
+                        placeholder="Select or enter repository (owner/repo)"
+                        showBranchSelector={false}
+                    />
+                    <div class="flex items-center gap-2">
+                        <label
+                            for="branch-input"
+                            class="text-xs text-muted-foreground shrink-0"
+                            >Default branch:</label
+                        >
+                        <input
+                            id="branch-input"
+                            value="main"
+                            class="flex h-8 w-32 rounded-md border border-input bg-transparent px-2 py-1 text-xs font-mono shadow-xs focus-visible:outline-1 focus-visible:ring-4 focus-visible:ring-ring/10"
+                        />
+                    </div>
+                </section>
+
+                <section
+                    class="rounded-lg border border-border bg-card p-5 space-y-3"
+                >
+                    <h2 class="text-sm font-semibold flex items-center gap-2">
+                        <span
+                            class="flex h-6 w-6 items-center justify-center rounded-full bg-brand/10 text-brand text-xs"
+                            >2</span
+                        >
+                        Pick a schedule
+                    </h2>
+                    <div
+                        class="grid grid-cols-3 gap-2"
+                        role="radiogroup"
+                        aria-label="Backup schedule"
+                    >
+                        <button
+                            type="button"
+                            data-schedule="daily"
+                            class="schedule-opt rounded-md border border-border px-3 py-2 text-sm hover:bg-muted"
+                            role="radio"
+                        >
+                            Daily
+                            <span class="block text-xs text-muted-foreground"
+                                >every midnight</span
+                            >
+                        </button>
+                        <button
+                            type="button"
+                            data-schedule="weekly"
+                            class="schedule-opt rounded-md border border-border px-3 py-2 text-sm hover:bg-muted"
+                            role="radio"
+                        >
+                            Weekly
+                            <span class="block text-xs text-muted-foreground"
+                                >Sundays 00:00</span
+                            >
+                        </button>
+                        <button
+                            type="button"
+                            data-schedule="monthly"
+                            class="schedule-opt rounded-md border border-border px-3 py-2 text-sm hover:bg-muted"
+                            role="radio"
+                        >
+                            Monthly
+                            <span class="block text-xs text-muted-foreground"
+                                >1st, 00:00</span
+                            >
+                        </button>
+                    </div>
+                    <p class="text-xs text-muted-foreground">
+                        You can also trigger a backup manually anytime from the
+                        repository's Actions tab.
+                    </p>
+                </section>
+
+                <section
+                    class="rounded-lg border border-border bg-card p-5 space-y-3"
+                >
+                    <h2 class="text-sm font-semibold flex items-center gap-2">
+                        <span
+                            class="flex h-6 w-6 items-center justify-center rounded-full bg-brand/10 text-brand text-xs"
+                            >3</span
+                        >
+                        Add the workflow to your repository
+                    </h2>
+                    <p class="text-xs text-muted-foreground">
+                        One file: <code
+                            >.github/workflows/gitset-backup.yml</code
+                        >. Review it below, then commit it straight from
+                        GitHub's editor — you stay in control of every line.
+                    </p>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <a
+                            id="create-on-github"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-disabled="true"
+                            class="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 aria-disabled:opacity-50 aria-disabled:pointer-events-none"
+                        >
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="currentColor"
+                                class="h-4 w-4"
+                            >
+                                <path
+                                    d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.55v-1.94c-3.2.7-3.87-1.54-3.87-1.54-.53-1.33-1.28-1.69-1.28-1.69-1.05-.71.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11.1 11.1 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.12 3.05.74.81 1.18 1.83 1.18 3.09 0 4.41-2.69 5.38-5.25 5.66.41.36.78 1.05.78 2.13v3.16c0 .3.2.67.8.55C20.22 21.38 23.5 17.08 23.5 12c0-6.35-5.15-11.5-11.5-11.5z"
+                                ></path>
+                            </svg>
+                            Create file on GitHub
+                        </a>
+                        <button
+                            id="copy-yaml"
+                            type="button"
+                            class="inline-flex items-center rounded-md border border-input bg-background px-3 py-2 text-sm font-medium hover:bg-accent"
+                        >
+                            Copy YAML
+                        </button>
+                        <button
+                            id="download-yaml"
+                            type="button"
+                            class="inline-flex items-center rounded-md border border-input bg-background px-3 py-2 text-sm font-medium hover:bg-accent"
+                        >
+                            Download
+                        </button>
+                    </div>
+                    <p
+                        id="repo-hint"
+                        class="text-xs text-amber-600 dark:text-amber-400"
+                    >
+                        Pick a repository in step 1 to enable one-click
+                        creation.
+                    </p>
+                    <details class="rounded-md border border-border">
+                        <summary
+                            class="cursor-pointer select-none px-3 py-2 text-xs font-medium text-muted-foreground"
+                        >
+                            Preview the workflow file
+                        </summary>
+                        <pre
+                            id="yaml-preview"
+                            class="px-3 pb-3 text-xs font-mono overflow-x-auto whitespace-pre"></pre>
+                    </details>
+                    <p class="text-xs text-muted-foreground">
+                        Prefer the terminal? <code
+                            >gitset repo backup --schedule <span
+                                id="cli-schedule">daily</span
+                            ></code
+                        > writes the same file locally.
+                    </p>
+                </section>
+
+                <section
+                    class="rounded-lg border border-border bg-card p-5 space-y-3"
+                >
+                    <h2 class="text-sm font-semibold flex items-center gap-2">
+                        <span
+                            class="flex h-6 w-6 items-center justify-center rounded-full bg-brand/10 text-brand text-xs"
+                            >4</span
+                        >
+                        Point it at your mirror (one secret, in your GitHub)
+                    </h2>
+                    <ol
+                        class="list-decimal ml-5 space-y-2 text-sm text-muted-foreground"
+                    >
+                        <li>
+                            <a
+                                href="https://github.com/new"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="text-brand underline underline-offset-4"
+                                >Create an empty private repository</a
+                            > to receive the mirror (e.g.
+                            <code id="mirror-name">your-repo-backup</code>).
+                        </li>
+                        <li>
+                            <a
+                                href="https://github.com/settings/personal-access-tokens/new"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="text-brand underline underline-offset-4"
+                                >Create a fine-grained token</a
+                            > with <strong>Contents: Read and write</strong> on
+                            just that mirror repository.
+                        </li>
+                        <li>
+                            <a
+                                id="secret-link"
+                                href="https://github.com"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="text-brand underline underline-offset-4"
+                                >Add a repository secret</a
+                            > named <code>BACKUP_MIRROR_URL</code> with the
+                            value:
+                            <pre
+                                class="mt-1 rounded-md bg-muted px-3 py-2 text-xs font-mono overflow-x-auto"><code>https://&lt;user&gt;:&lt;TOKEN&gt;@github.com/&lt;user&gt;/&lt;mirror-repo&gt;.git</code></pre>
+                        </li>
+                        <li>
+                            Done. Trigger the first run from
+                            <a
+                                id="actions-link"
+                                href="https://github.com"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="text-brand underline underline-offset-4"
+                                >the Actions tab</a
+                            > ("Gitset Backup Mirror" → Run workflow), or wait for
+                            the schedule.
+                        </li>
+                    </ol>
+                    <p class="text-xs text-muted-foreground">
+                        The token lives only in your repository's encrypted
+                        secrets — Gitset never sees it, and this page never
+                        asks for it.
+                    </p>
+                </section>
+            </div>
+        </main>
+
+        <script is:inline>
+            const SCHEDULES = {
+                daily: "0 0 * * *",
+                weekly: "0 0 * * 0",
+                monthly: "0 0 1 * *",
+            };
+
+            const YAML_LINES = [
+                "name: Gitset Backup Mirror",
+                "# Pushes this repository to a mirror you control.",
+                "# Set repo secret BACKUP_MIRROR_URL, e.g.",
+                "#   https://<user>:<TOKEN>@github.com/<user>/<repo>-backup.git",
+                "# (Create the token yourself in GitHub → Settings → Developer settings.",
+                "#  Gitset never sees or stores it.)",
+                "on:",
+                "  schedule:",
+                "    - cron: '__CRON__'",
+                "  workflow_dispatch:",
+                "permissions:",
+                "  contents: read",
+                "jobs:",
+                "  mirror:",
+                "    runs-on: ubuntu-latest",
+                "    steps:",
+                "      - uses: actions/checkout@v4",
+                "        with: { fetch-depth: 0 }",
+                "      - name: Push mirror",
+                "        run: |",
+                '          if [ -z "${{ secrets.BACKUP_MIRROR_URL }}" ]; then',
+                '            echo "::error::Set the BACKUP_MIRROR_URL repo secret."; exit 1',
+                "          fi",
+                '          git push --mirror "${{ secrets.BACKUP_MIRROR_URL }}"',
+                "",
+            ];
+
+            const repoInput = document.getElementById("backup-repo");
+            const branchInput = document.getElementById("branch-input");
+            const createLink = document.getElementById("create-on-github");
+            const copyBtn = document.getElementById("copy-yaml");
+            const downloadBtn = document.getElementById("download-yaml");
+            const yamlPreview = document.getElementById("yaml-preview");
+            const repoHint = document.getElementById("repo-hint");
+            const cliSchedule = document.getElementById("cli-schedule");
+            const mirrorName = document.getElementById("mirror-name");
+            const secretLink = document.getElementById("secret-link");
+            const actionsLink = document.getElementById("actions-link");
+
+            let schedule = "daily";
+            let lastRepo = null;
+
+            const currentYaml = () =>
+                YAML_LINES.join("\n").replace("__CRON__", SCHEDULES[schedule]);
+
+            const currentRepo = () => {
+                const v = (repoInput?.value || "").trim();
+                return /^[\w.-]+\/[\w.-]+$/.test(v) ? v : null;
+            };
+
+            function sync() {
+                const yaml = currentYaml();
+                yamlPreview.textContent = yaml;
+                cliSchedule.textContent = schedule;
+
+                document.querySelectorAll(".schedule-opt").forEach((b) => {
+                    const active = b.dataset.schedule === schedule;
+                    b.classList.toggle("border-brand", active);
+                    b.classList.toggle("bg-brand/5", active);
+                    b.setAttribute("aria-checked", String(active));
+                });
+
+                const repo = currentRepo();
+                if (repo) {
+                    const branch =
+                        (branchInput.value || "main").trim() || "main";
+                    createLink.href =
+                        "https://github.com/" +
+                        repo +
+                        "/new/" +
+                        encodeURIComponent(branch) +
+                        "?filename=" +
+                        encodeURIComponent(
+                            ".github/workflows/gitset-backup.yml",
+                        ) +
+                        "&value=" +
+                        encodeURIComponent(yaml);
+                    createLink.setAttribute("aria-disabled", "false");
+                    secretLink.href =
+                        "https://github.com/" +
+                        repo +
+                        "/settings/secrets/actions/new";
+                    actionsLink.href = "https://github.com/" + repo + "/actions";
+                    mirrorName.textContent = repo.split("/")[1] + "-backup";
+                    repoHint.classList.add("hidden");
+                } else {
+                    createLink.removeAttribute("href");
+                    createLink.setAttribute("aria-disabled", "true");
+                    secretLink.href = "https://github.com";
+                    actionsLink.href = "https://github.com";
+                    repoHint.classList.remove("hidden");
+                }
+            }
+
+            document.querySelectorAll(".schedule-opt").forEach((b) =>
+                b.addEventListener("click", () => {
+                    schedule = b.dataset.schedule;
+                    sync();
+                }),
+            );
+            branchInput.addEventListener("input", sync);
+
+            setInterval(() => {
+                const now = currentRepo();
+                if (now !== lastRepo) {
+                    lastRepo = now;
+                    sync();
+                }
+            }, 500);
+
+            copyBtn.addEventListener("click", () => {
+                navigator.clipboard.writeText(currentYaml()).then(() => {
+                    copyBtn.textContent = "Copied!";
+                    setTimeout(() => (copyBtn.textContent = "Copy YAML"), 2000);
+                });
+            });
+
+            downloadBtn.addEventListener("click", () => {
+                const blob = new Blob([currentYaml()], { type: "text/yaml" });
+                const a = document.createElement("a");
+                a.href = URL.createObjectURL(blob);
+                a.download = "gitset-backup.yml";
+                a.click();
+                URL.revokeObjectURL(a.href);
+            });
+
+            sync();
+        </script>
+        <Footer client:idle />
+    </body>
+</BaseLayout>

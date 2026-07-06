@@ -1,0 +1,67 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import "../styles/global.css";
+import { SiteHeader } from "../components/SiteHeader";
+import { Footer } from "../components/Footer";
+import getUser from "@/lib/getUser";
+import { toClientUser } from "@/lib/clientUser";
+
+const user = await getUser(Astro.cookies.get("app_auth_token")?.value);
+---
+
+<BaseLayout title="Page not found - Gitset">
+    <Fragment slot="head">
+        <meta charset="utf-8" />
+        <link rel="icon" type="image/png" href="/favicon-96.png" />
+        <meta name="viewport" content="width=device-width" />
+        <meta name="robots" content="noindex" />
+        <meta name="description" content="This page could not be found." />
+        <script is:inline>
+            (function () {
+                const THEME_STORAGE_KEY = "theme";
+                const stored = localStorage.getItem(THEME_STORAGE_KEY);
+                const prefersDark = window.matchMedia(
+                    "(prefers-color-scheme: dark)",
+                ).matches;
+                const theme =
+                    stored === "light" || stored === "dark"
+                        ? stored
+                        : prefersDark
+                          ? "dark"
+                          : "light";
+                document.documentElement.classList.add(theme);
+            })();
+        </script>
+    </Fragment>
+    <body
+        class="bg-background text-foreground antialiased min-h-screen flex flex-col"
+    >
+        <SiteHeader client:load showBackButton={true} user={toClientUser(user?.user)} />
+        <main
+            class="flex-1 container mx-auto px-4 py-24 max-w-2xl flex flex-col items-center justify-center text-center gap-4"
+        >
+            <p class="text-sm font-mono text-muted-foreground">404</p>
+            <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">
+                Page not found
+            </h1>
+            <p class="text-muted-foreground max-w-md">
+                The page you're looking for doesn't exist or has moved.
+            </p>
+            <div class="flex items-center gap-3 mt-4">
+                <a
+                    href="/"
+                    class="inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90"
+                >
+                    Back to home
+                </a>
+                <a
+                    href="/dashboard"
+                    class="inline-flex items-center rounded-md border border-border px-4 py-2 text-sm font-medium hover:bg-accent"
+                >
+                    Go to dashboard
+                </a>
+            </div>
+        </main>
+        <Footer client:idle />
+    </body>
+</BaseLayout>

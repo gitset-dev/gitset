@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /dashboard
+Disallow: /account
+
+Sitemap: https://gitset.dev/sitemap.xml

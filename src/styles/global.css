@@ -1,0 +1,160 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@plugin "@tailwindcss/typography";
+
+@custom-variant dark (&:is(.dark *));
+
+/* Design tokens: see DESIGN.md at the workspace root. Brand accent is a
+   teal pair — "--primary" is the button/surface fill, "--brand" is the
+   content color (text, icons, links, checkmarks) drawn on top of the page
+   background; neutrals are warm ink/paper, not cold gray. There is no
+   separate "success" or "CLI" green — every affirmative/checkmark color in
+   the app is the brand teal (fixed #6CE0DB on permanently-dark surfaces
+   like the terminal demo and the AI providers modal, which don't follow
+   site light/dark mode; the mode-aware --brand variable everywhere else). */
+@theme {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-brand: var(--brand);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-lg: var(--radius);
+  --radius-xl: 0.5rem;
+  --font-sans: var(--font-sans, "IBM Plex Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+  --font-mono: var(--font-mono, "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace);
+
+  @keyframes typing {
+    0%,
+    100% {
+      transform: translateY(0);
+      opacity: 0.5;
+    }
+    50% {
+      transform: translateY(-2px);
+      opacity: 1;
+    }
+  }
+
+  @keyframes loading-dots {
+    0%,
+    100% {
+      opacity: 0;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes thin-pulse {
+    0%,
+    100% {
+      transform: scale(0.95);
+      opacity: 0.8;
+    }
+    50% {
+      transform: scale(1.05);
+      opacity: 0.4;
+    }
+  }
+}
+
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-border);
+  }
+
+  :root {
+    --background: hsl(40 20% 98%);
+    --foreground: hsl(30 10% 12%);
+    --card: hsl(40 15% 100%);
+    --card-foreground: hsl(30 10% 12%);
+    --popover: hsl(40 15% 100%);
+    --popover-foreground: hsl(30 10% 12%);
+    --primary: hsl(30 10% 12%);
+    --primary-foreground: hsl(40 20% 98%);
+    --brand: #197672;
+    --secondary: hsl(35 15% 92%);
+    --secondary-foreground: hsl(30 10% 12%);
+    --muted: hsl(38 15% 94%);
+    --muted-foreground: hsl(30 8% 42%);
+    --accent: hsl(38 15% 94%);
+    --accent-foreground: hsl(30 10% 12%);
+    --destructive: hsl(6 70% 45%);
+    --destructive-foreground: hsl(40 20% 98%);
+    --warning: hsl(20 85% 45%);
+    --warning-foreground: hsl(40 20% 98%);
+    --info: hsl(210 40% 42%);
+    --info-foreground: hsl(40 20% 98%);
+    --border: hsl(35 15% 88%);
+    --input: hsl(35 15% 88%);
+    --ring: #197672;
+    --radius: 0.375rem;
+  }
+
+  .dark {
+    --background: hsl(30 8% 7%);
+    --foreground: hsl(40 15% 95%);
+    --card: hsl(30 8% 9%);
+    --card-foreground: hsl(40 15% 95%);
+    --popover: hsl(30 8% 9%);
+    --popover-foreground: hsl(40 15% 95%);
+    --primary: hsl(40 15% 95%);
+    --primary-foreground: hsl(30 10% 12%);
+    --brand: #6CE0DB;
+    --secondary: hsl(30 8% 14%);
+    --secondary-foreground: hsl(40 15% 95%);
+    --muted: hsl(30 8% 14%);
+    --muted-foreground: hsl(35 8% 60%);
+    --accent: hsl(30 8% 16%);
+    --accent-foreground: hsl(40 15% 95%);
+    --destructive: hsl(6 70% 55%);
+    --destructive-foreground: hsl(40 15% 95%);
+    --warning: hsl(20 85% 55%);
+    --warning-foreground: hsl(30 10% 10%);
+    --info: hsl(210 45% 62%);
+    --info-foreground: hsl(30 10% 10%);
+    --border: hsl(30 8% 18%);
+    --input: hsl(30 8% 18%);
+    --ring: #6CE0DB;
+  }
+
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    min-height: 100vh;
+  }
+}
+
+code {
+  font-family: var(--font-mono);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}

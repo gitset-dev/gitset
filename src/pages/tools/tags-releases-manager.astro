@@ -1,0 +1,79 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import "@/styles/global.css";
+import { SiteHeader } from "@/components/SiteHeader";
+import getUser from "@/lib/getUser";
+import { toClientUser } from "@/lib/clientUser";
+import { ReleaseCreator } from "@/components/tools/ReleaseCreator";
+
+const user = await getUser(Astro.cookies.get("app_auth_token")?.value);
+
+if (!user) {
+    return Astro.redirect("/?login=1&next=" + encodeURIComponent(Astro.url.pathname));
+}
+---
+
+<BaseLayout title="Release Manager - Gitset">
+    <Fragment slot="head">
+        <meta charset="utf-8" />
+        <link rel="icon" href="/favicon.ico" />
+        <meta name="viewport" content="width=device-width" />
+        <meta name="generator" content={Astro.generator} />
+        <script is:inline>
+            (function () {
+                const THEME_STORAGE_KEY = "theme";
+                const stored = localStorage.getItem(THEME_STORAGE_KEY);
+                const prefersDark = window.matchMedia(
+                    "(prefers-color-scheme: dark)",
+                ).matches;
+                const theme =
+                    stored === "light" || stored === "dark"
+                        ? stored
+                        : prefersDark
+                          ? "dark"
+                          : "light";
+                document.documentElement.classList.add(theme);
+            })();
+        </script>
+    </Fragment>
+    <body
+        class="bg-background text-foreground antialiased min-h-screen flex flex-col"
+    >
+        <SiteHeader client:load user={toClientUser(user.user)} />
+
+        <main class="flex-1 container mx-auto px-4 py-8 max-w-6xl">
+            <div class="mb-6 flex items-center gap-3">
+                <div class="p-2 bg-brand/10 rounded-lg">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="h-6 w-6 text-brand"
+                    >
+                        <path
+                            d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"
+                        ></path>
+                        <path d="M7 7h.01"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold tracking-tight">
+                        Release Manager
+                    </h1>
+                    <p class="text-sm text-muted-foreground">
+                        Generate professional release notes from your commit
+                        history.
+                    </p>
+                </div>
+            </div>
+
+            <ReleaseCreator client:load user={toClientUser(user.user)} />
+        </main>
+    </body>
+</BaseLayout>

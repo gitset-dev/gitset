@@ -1,0 +1,111 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import "../styles/global.css";
+import { SiteHeader } from "../components/SiteHeader";
+import { Footer } from "../components/Footer";
+import { StatusDashboard } from "../components/StatusDashboard";
+import getUser from "@/lib/getUser";
+import { toClientUser } from "@/lib/clientUser";
+
+const user = await getUser(Astro.cookies.get("app_auth_token")?.value);
+---
+
+<BaseLayout title="GitHub Services Status - Gitset">
+    <Fragment slot="head">
+        <meta charset="utf-8" />
+        <link rel="icon" type="image/png" href="/favicon-96.png" />
+        <meta name="viewport" content="width=device-width" />
+        <meta name="generator" content={Astro.generator} />
+        <meta
+            name="description"
+            content="Real-time status of GitHub services and API availability with detailed incident tracking and service monitoring."
+        />
+        <meta property="og:title" content="GitHub Services Status - Gitset" />
+        <meta
+            property="og:description"
+            content="Monitor GitHub services status in real-time"
+        />
+        <script is:inline>
+            (function () {
+                const THEME_STORAGE_KEY = "theme";
+                const stored = localStorage.getItem(THEME_STORAGE_KEY);
+                const prefersDark = window.matchMedia(
+                    "(prefers-color-scheme: dark)",
+                ).matches;
+                const theme =
+                    stored === "light" || stored === "dark"
+                        ? stored
+                        : prefersDark
+                          ? "dark"
+                          : "light";
+                document.documentElement.classList.add(theme);
+            })();
+        </script>
+    </Fragment>
+    <body
+        class="bg-background text-foreground antialiased min-h-screen flex flex-col"
+    >
+        <SiteHeader client:load showBackButton={true} user={toClientUser(user?.user)} />
+        <main class="flex-1 container mx-auto px-4 py-12 max-w-6xl">
+            <div class="space-y-8">
+                <div class="text-center space-y-3">
+                    <h1 class="text-4xl font-bold tracking-tight sm:text-5xl">
+                        GitHub Services Status
+                    </h1>
+                    <p class="text-lg text-muted-foreground max-w-2xl mx-auto">
+                        Real-time monitoring of GitHub services and API
+                        availability. Click on any service to view detailed
+                        uptime statistics and incident history.
+                    </p>
+                </div>
+
+                <StatusDashboard client:load />
+
+                <div class="rounded-lg border bg-card p-6 mt-8">
+                    <h3 class="text-lg font-semibold mb-4">
+                        About This Status Page
+                    </h3>
+                    <div class="space-y-3 text-sm text-muted-foreground">
+                        <p>
+                            This page displays real-time status information for
+                            GitHub services, including API endpoints, Git
+                            operations, GitHub Pages, GitHub Actions, and more.
+                            Data is sourced directly from GitHub's official
+                            status API at githubstatus.com.
+                        </p>
+                        <p>
+                            Status updates are refreshed automatically every
+                            minute. You can also manually refresh the data using
+                            the refresh button. Click on any service card to
+                            view detailed uptime statistics, historical
+                            performance, and service-specific incidents.
+                        </p>
+                        <div class="flex flex-wrap gap-4 mt-4 pt-4 border-t">
+                            <div class="flex items-center gap-2">
+                                <span class="w-3 h-3 bg-green-600 rounded-full"
+                                ></span>
+                                <span>Operational</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="w-3 h-3 bg-yellow-600 rounded-full"
+                                ></span>
+                                <span>Degraded Performance</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="w-3 h-3 bg-orange-600 rounded-full"
+                                ></span>
+                                <span>Partial Outage</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="w-3 h-3 bg-red-600 rounded-full"
+                                ></span>
+                                <span>Major Outage</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <Footer client:idle />
+    </body>
+</BaseLayout>

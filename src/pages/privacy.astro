@@ -1,0 +1,163 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import "../styles/global.css";
+import { SiteHeader } from "../components/SiteHeader";
+import { Footer } from "../components/Footer";
+import getUser from "@/lib/getUser";
+import { toClientUser } from "@/lib/clientUser";
+
+const user = await getUser(Astro.cookies.get("app_auth_token")?.value);
+
+const sections: { title: string; paragraphs: string[]; bullets?: string[] }[] = [
+    {
+        title: "1. Overview",
+        paragraphs: [
+            "Gitset stores the minimum it needs to work and nothing it doesn't. There is no advertising, no third-party analytics, and no tracking. This page lists exactly what is collected, where it goes, and how to delete it.",
+            "Gitset is open source under the MPL-2.0 license, so every claim on this page can be checked against the code.",
+        ],
+    },
+    {
+        title: "2. What we store",
+        paragraphs: [
+            "When you sign in with GitHub and use the web app, Gitset stores:",
+        ],
+        bullets: [
+            "Your GitHub profile basics from OAuth: username, email address, and avatar.",
+            "The GitHub access token that lets Gitset read repository context and publish what you approve.",
+            "Your own AI provider keys, encrypted at rest with AES-256-GCM. They are never sent to your browser and never written to logs.",
+            "Your tool settings and templates (for example, your saved commit format or label pack).",
+            "The drafts you generate and their version history, so you can switch between versions.",
+            "Operational logs for security and debugging, with secrets redacted before anything is written.",
+        ],
+    },
+    {
+        title: "3. What we never store",
+        paragraphs: [
+            "Your source code is read transiently to build a draft and is not retained. Gitset does not train models on your data, does not sell or share data with third parties for their own purposes, and does not embed advertising or analytics services.",
+        ],
+    },
+    {
+        title: "4. Where your data goes",
+        paragraphs: [
+            "Gitset sends data only to the services required to do what you asked:",
+        ],
+        bullets: [
+            "GitHub — to read repository context and to publish issues, pull requests, releases, labels, and metadata you explicitly approve. GitHub's Privacy Statement applies.",
+            "Your AI provider — the one you chose and configured with your own key (Anthropic, OpenAI, Google Gemini, OpenRouter, or a compatible endpoint). The content needed to draft (diffs, file excerpts, your instructions) is sent to them under their privacy policy. Gitset has no relationship with your provider and never sees your bill.",
+            "Turso — the database where account data, settings, encrypted keys, and drafts are stored.",
+            "Google Cloud — where the service is hosted.",
+        ],
+    },
+    {
+        title: "5. Cookies",
+        paragraphs: [
+            "Gitset uses exactly two cookies: a session cookie that keeps you signed in, and a short-lived state cookie that protects the OAuth sign-in flow. Your theme preference is kept in your browser's local storage. There are no advertising or tracking cookies.",
+        ],
+    },
+    {
+        title: "6. The CLI",
+        paragraphs: [
+            "The Gitset CLI collects nothing. It has no account, sends no telemetry, and never contacts a Gitset server. Your provider keys and configuration live in ~/.gitset on your machine with owner-only permissions, and your repository content goes directly from your machine to your AI provider — nowhere else.",
+        ],
+    },
+    {
+        title: "7. Retention and deletion",
+        paragraphs: [
+            "Your data is retained while your account exists. You can delete your account at any time from the dashboard — this permanently removes your account and associated data. You can also revoke Gitset's GitHub access at any time from your GitHub settings (Settings → Applications → Authorized OAuth Apps), which immediately disables repository access.",
+            "For any deletion request or question, write to support@gitset.dev.",
+        ],
+    },
+    {
+        title: "8. Security",
+        paragraphs: [
+            "Provider keys are encrypted at rest with AES-256-GCM. All traffic uses TLS. GitHub access is requested with the narrowest scopes the features need, and repository writes happen only on your explicit confirmation. The code that implements all of this is public.",
+            "No system is perfectly secure. If a breach affecting your data ever occurs, you will be notified with what happened and what it affects.",
+        ],
+    },
+    {
+        title: "9. Changes to this policy",
+        paragraphs: [
+            "Updates to this policy are published on this page with an updated date. Material changes will be highlighted.",
+        ],
+    },
+    {
+        title: "10. Contact",
+        paragraphs: [
+            "Privacy questions: support@gitset.dev.",
+        ],
+    },
+];
+---
+
+<BaseLayout title="Privacy Policy - Gitset">
+    <Fragment slot="head">
+        <meta charset="utf-8" />
+        <link rel="icon" type="image/png" href="/favicon-96.png" />
+        <meta name="viewport" content="width=device-width" />
+        <meta name="generator" content={Astro.generator} />
+        <meta
+            name="description"
+            content="Gitset's Privacy Policy: minimal data, provider keys encrypted at rest, no analytics, no tracking, self-service account deletion. The CLI collects nothing."
+        />
+        <script is:inline>
+            (function () {
+                const THEME_STORAGE_KEY = "theme";
+                const stored = localStorage.getItem(THEME_STORAGE_KEY);
+                const prefersDark = window.matchMedia(
+                    "(prefers-color-scheme: dark)",
+                ).matches;
+                const theme =
+                    stored === "light" || stored === "dark"
+                        ? stored
+                        : prefersDark
+                          ? "dark"
+                          : "light";
+                document.documentElement.classList.add(theme);
+            })();
+        </script>
+    </Fragment>
+    <body
+        class="bg-background text-foreground antialiased min-h-screen flex flex-col"
+    >
+        <SiteHeader client:load showBackButton={true} user={toClientUser(user?.user)} />
+        <main class="flex-1 container mx-auto px-4 py-12 max-w-4xl">
+            <div class="space-y-8">
+                <div class="text-center space-y-3">
+                    <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">
+                        Privacy Policy
+                    </h1>
+                    <p class="text-sm text-muted-foreground">
+                        Last updated: July 5, 2026
+                    </p>
+                </div>
+
+                <div
+                    class="rounded-xl border border-border bg-card shadow-sm p-8 space-y-8"
+                >
+                    {sections.map((s) => (
+                        <div class="space-y-3">
+                            <h2 class="text-xl font-semibold text-foreground">
+                                {s.title}
+                            </h2>
+                            {s.paragraphs.map((p) => (
+                                <p class="text-sm text-muted-foreground leading-relaxed">
+                                    {p}
+                                </p>
+                            ))}
+                            {s.bullets && (
+                                <ul class="list-disc pl-5 space-y-1.5">
+                                    {s.bullets.map((b) => (
+                                        <li class="text-sm text-muted-foreground leading-relaxed">
+                                            {b}
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </main>
+        <Footer client:idle />
+    </body>
+</BaseLayout>

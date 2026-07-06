@@ -1,0 +1,188 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import "../styles/global.css";
+import { SiteHeader } from "../components/SiteHeader";
+import { Footer } from "../components/Footer";
+import getUser from "@/lib/getUser";
+import { toClientUser } from "@/lib/clientUser";
+
+const user = await getUser(Astro.cookies.get("app_auth_token")?.value);
+
+const sections: { title: string; paragraphs: string[]; bullets?: string[] }[] = [
+    {
+        title: "1. The Service",
+        paragraphs: [
+            "Gitset is an open-source toolkit for everything around your code on GitHub: commit messages, issues, pull requests, release notes, READMEs, labels, repository metadata, .gitignore files, and backups. Every tool drafts from your repository's context, and you refine the draft until you decide to use it.",
+            "Gitset runs in two places: this web app and the Gitset CLI. The web app requires a GitHub account and your own AI provider key. The CLI runs entirely on your machine and does not use a Gitset account at all.",
+            "By using Gitset you agree to these Terms. If you do not agree, do not use the Service.",
+        ],
+    },
+    {
+        title: "2. Your GitHub account",
+        paragraphs: [
+            "You sign in with GitHub OAuth. Gitset requests three scopes, each tied to a function you can see:",
+        ],
+        bullets: [
+            "user:email — to identify your account.",
+            "repo — to read repository context for drafting, and to publish issues, pull requests, releases, and labels when you explicitly ask it to.",
+            "read:org — to list organization repositories in the repository picker.",
+        ],
+    },
+    {
+        title: "3. Revoking access",
+        paragraphs: [
+            "You can revoke Gitset's access at any time from your GitHub settings (Settings → Applications → Authorized OAuth Apps → Gitset → Revoke). Revoking access immediately disables every feature that interacts with your repositories.",
+            "You can also delete your Gitset account entirely from the dashboard, which permanently removes your account and associated data.",
+        ],
+    },
+    {
+        title: "4. Your AI provider key (BYOAI)",
+        paragraphs: [
+            "Gitset does not include or resell AI usage. You bring your own API key from the provider of your choice (Anthropic, OpenAI, Google Gemini, OpenRouter, or any compatible endpoint).",
+            "Your key is stored encrypted at rest (AES-256-GCM), is never sent to your browser, is never written to logs, and is used exclusively to run the requests you initiate. You can replace or remove it at any time.",
+            "Your relationship with your AI provider is your own: their terms of service, their privacy policy, and their billing apply to every request Gitset sends on your behalf. Gitset adds no charge on top.",
+        ],
+    },
+    {
+        title: "5. AI-generated content",
+        paragraphs: [
+            "Everything Gitset generates is a draft. AI output can be wrong, incomplete, or inappropriate for your project. You are responsible for reviewing every draft before you use or publish it, and you are solely responsible for the content you publish to your repositories.",
+            "Gitset does not guarantee the accuracy, quality, or fitness of generated content. Generated content belongs to you; Gitset claims no ownership over it or over anything in your repositories.",
+        ],
+    },
+    {
+        title: "6. Actions on your repositories",
+        paragraphs: [
+            "Gitset writes to your repositories only when you explicitly confirm an action — publishing an issue, opening a pull request, creating a release, applying labels or metadata, or committing a workflow file. Some actions overwrite existing state (for example, applying a label pack replaces existing labels). Review each confirmation carefully; you are responsible for changes made to your repositories through your account.",
+        ],
+    },
+    {
+        title: "7. Fees",
+        paragraphs: [
+            "Gitset is free. There are no plans, subscriptions, seats, or token quotas, and the Service processes no payments. The only cost of using Gitset is what your AI provider bills you directly for your own API usage.",
+        ],
+    },
+    {
+        title: "8. Acceptable use",
+        paragraphs: [
+            "You agree not to use Gitset for unlawful, harmful, or abusive purposes. This includes, without limitation:",
+        ],
+        bullets: [
+            "Attempting to compromise the security of the Service or of any GitHub repository.",
+            "Using the Service to generate or distribute malware, spam, or deceptive content.",
+            "Scraping the Service or accessing it through automated means outside its intended interfaces.",
+            "Interfering with other users' access to the Service.",
+        ],
+    },
+    {
+        title: "9. Open source and intellectual property",
+        paragraphs: [
+            "Gitset's web app and CLI source code are licensed under the Mozilla Public License 2.0 (MPL-2.0). Your rights to the code are defined by that license, not by these Terms.",
+            "The Gitset name and logo are not covered by the source-code license. You may not use them to present a modified version of the software as the official Gitset.",
+        ],
+    },
+    {
+        title: "10. Disclaimers",
+        paragraphs: [
+            'The Service is provided "as is" and "as available", without warranties of any kind, express or implied. Gitset depends on third-party services — GitHub and the AI provider you choose — and is not responsible for their availability, their output, or changes to their APIs, pricing, or policies.',
+        ],
+    },
+    {
+        title: "11. Limitation of liability",
+        paragraphs: [
+            "To the maximum extent permitted by law, Gitset and its author shall not be liable for any indirect, incidental, special, consequential, or punitive damages, or any loss of profits, data, or goodwill, resulting from your use of or inability to use the Service.",
+        ],
+    },
+    {
+        title: "12. Termination",
+        paragraphs: [
+            "You can stop using Gitset at any time by deleting your account from the dashboard and revoking OAuth access on GitHub. Gitset may suspend or terminate access for violations of these Terms.",
+        ],
+    },
+    {
+        title: "13. Changes to these Terms",
+        paragraphs: [
+            "These Terms may be updated as the Service evolves. Changes are published on this page with an updated date. Continued use of the Service after a change constitutes acceptance of the updated Terms.",
+        ],
+    },
+    {
+        title: "14. Contact",
+        paragraphs: [
+            "Questions about these Terms: support@gitset.dev.",
+        ],
+    },
+];
+---
+
+<BaseLayout title="Terms of Service - Gitset">
+    <Fragment slot="head">
+        <meta charset="utf-8" />
+        <link rel="icon" type="image/png" href="/favicon-96.png" />
+        <meta name="viewport" content="width=device-width" />
+        <meta name="generator" content={Astro.generator} />
+        <meta
+            name="description"
+            content="Gitset's Terms of Service: an open-source, bring-your-own-AI-key toolkit. No fees, explicit GitHub scopes, your content stays yours."
+        />
+        <script is:inline>
+            (function () {
+                const THEME_STORAGE_KEY = "theme";
+                const stored = localStorage.getItem(THEME_STORAGE_KEY);
+                const prefersDark = window.matchMedia(
+                    "(prefers-color-scheme: dark)",
+                ).matches;
+                const theme =
+                    stored === "light" || stored === "dark"
+                        ? stored
+                        : prefersDark
+                          ? "dark"
+                          : "light";
+                document.documentElement.classList.add(theme);
+            })();
+        </script>
+    </Fragment>
+    <body
+        class="bg-background text-foreground antialiased min-h-screen flex flex-col"
+    >
+        <SiteHeader client:load showBackButton={true} user={toClientUser(user?.user)} />
+        <main class="flex-1 container mx-auto px-4 py-12 max-w-4xl">
+            <div class="space-y-8">
+                <div class="text-center space-y-3">
+                    <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">
+                        Terms of Service
+                    </h1>
+                    <p class="text-sm text-muted-foreground">
+                        Last updated: July 5, 2026
+                    </p>
+                </div>
+
+                <div
+                    class="rounded-xl border border-border bg-card shadow-sm p-8 space-y-8"
+                >
+                    {sections.map((s) => (
+                        <div class="space-y-3">
+                            <h2 class="text-xl font-semibold text-foreground">
+                                {s.title}
+                            </h2>
+                            {s.paragraphs.map((p) => (
+                                <p class="text-sm text-muted-foreground leading-relaxed">
+                                    {p}
+                                </p>
+                            ))}
+                            {s.bullets && (
+                                <ul class="list-disc pl-5 space-y-1.5">
+                                    {s.bullets.map((b) => (
+                                        <li class="text-sm text-muted-foreground leading-relaxed">
+                                            {b}
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </main>
+        <Footer client:idle />
+    </body>
+</BaseLayout>

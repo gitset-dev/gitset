@@ -1,0 +1,454 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import "../styles/global.css";
+import { SiteHeader } from "../components/SiteHeader";
+import { Footer } from "../components/Footer";
+import getUser from "@/lib/getUser";
+import { toClientUser } from "@/lib/clientUser";
+const user = await getUser(Astro.cookies.get("app_auth_token")?.value);
+const loggedIn = !!user?.user;
+
+// Icon markup is the exact inner SVG of the matching lucide-react component
+// used in SiteHeader's Tools dropdown (BookText, CircleDot, GitPullRequest,
+// Tag, Terminal, the custom GitBranchMinus, Github, History) — same icon,
+// same shape, wherever a tool is referenced across the site.
+const tools = [
+    {
+        href: "/tools/readme-generator",
+        name: "README Generator",
+        desc: "Repo-aware READMEs from your actual code and structure.",
+        icon: '<path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20"/><path d="M8 11h8"/><path d="M8 7h6"/>',
+    },
+    {
+        href: "/tools/issues-crafter",
+        name: "Issue Crafter",
+        desc: "One sentence in — a complete, labeled GitHub issue out.",
+        icon: '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="1"/>',
+    },
+    {
+        href: "/tools/pr-maker",
+        name: "PR Maker",
+        desc: "Pull-request descriptions built from your branch diff.",
+        icon: '<circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M13 6h3a2 2 0 0 1 2 2v7"/><line x1="6" x2="6" y1="9" y2="21"/>',
+    },
+    {
+        href: "/tools/tags-releases-manager",
+        name: "Release Manager",
+        desc: "Release notes from your commit range, in your format.",
+        icon: '<path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/>',
+    },
+    {
+        href: "/tools/commit-messages-generator",
+        name: "Commit Generator",
+        desc: "Conventional commits from any diff — web or terminal.",
+        icon: '<path d="M12 19h8"/><path d="m4 17 6-6-6-6"/>',
+    },
+    {
+        href: "/tools/gitignore-builder",
+        name: "Gitignore Builder",
+        desc: "Stack-aware ignore files, generated in seconds.",
+        icon: '<path d="M15 6a9 9 0 0 0-9 9V3"/><path d="M21 18h-6"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/>',
+    },
+    {
+        href: "/tools/repo-profiler",
+        name: "Repo Profiler",
+        desc: "Descriptions and topics that make your repo discoverable.",
+        icon: '<path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/>',
+    },
+    {
+        href: "/tools/backup-automator",
+        name: "Backup Automator",
+        desc: "Scheduled mirror backups that run inside your GitHub.",
+        icon: '<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/>',
+    },
+];
+---
+
+<BaseLayout title="Gitset — AI writes the draft. You stay in control.">
+    <Fragment slot="head">
+        <meta charset="utf-8" />
+        <link rel="icon" href="/favicon.ico" />
+        <meta name="viewport" content="width=device-width" />
+        <meta name="generator" content={Astro.generator} />
+        <meta
+            name="description"
+            content="Open-source, bring-your-own-AI GitHub automation. Generate READMEs, issues, PRs, releases and commit messages with your own AI key — then refine every result until it ships exactly the way you want."
+        />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://gitset.dev/" />
+        <meta property="og:title" content="Gitset — AI writes the draft. You stay in control." />
+        <meta
+            property="og:description"
+            content="Open-source, BYOAI GitHub automation. Your key, your rules, your workflow — refined until it's exactly right."
+        />
+        <meta property="og:image" content="https://gitset.dev/gitset-poster.jpg" />
+        <meta property="twitter:card" content="summary_large_image" />
+        <meta property="twitter:url" content="https://gitset.dev/" />
+        <meta property="twitter:title" content="Gitset — AI writes the draft. You stay in control." />
+        <meta
+            property="twitter:description"
+            content="Open-source, BYOAI GitHub automation. Your key, your rules, your workflow — refined until it's exactly right."
+        />
+        <meta property="twitter:image" content="https://gitset.dev/gitset-poster.jpg" />
+        <script is:inline>
+            (function () {
+                const THEME_STORAGE_KEY = "theme";
+                const stored = localStorage.getItem(THEME_STORAGE_KEY);
+                const theme =
+                    stored === "light" || stored === "dark" ? stored : "dark";
+                document.documentElement.classList.add(theme);
+            })();
+        </script>
+    </Fragment>
+    <body class="bg-background text-foreground antialiased min-h-screen flex flex-col">
+        <SiteHeader client:load showBackButton={false} user={toClientUser(user?.user)} />
+
+        <main class="flex-1">
+            {/* ── HERO ─────────────────────────────────────────────── */}
+            <section class="relative overflow-hidden">
+                <div class="absolute inset-0 z-0">
+                    <video
+                        poster="/gitset-poster.jpg"
+                        autoplay
+                        loop
+                        muted
+                        playsinline
+                        class="w-full h-full object-cover opacity-25 dark:opacity-30"
+                    >
+                        <source src="/gitset-video.webm" type="video/webm" />
+                        <source src="/gitset-video.mp4" type="video/mp4" />
+                    </video>
+                    <div class="absolute inset-0 bg-gradient-to-b from-background/70 via-background/85 to-background"></div>
+                </div>
+
+                <div class="relative z-10 container mx-auto px-4 pt-20 pb-16 sm:pt-28 max-w-5xl text-center">
+                    <a
+                        href="https://github.com/gitset-dev"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="inline-flex items-center gap-2 rounded-full border border-border bg-card/70 backdrop-blur px-4 py-1.5 text-xs font-medium text-muted-foreground hover:border-brand/50 hover:text-foreground transition-colors"
+                    >
+                        <span class="h-1.5 w-1.5 rounded-full bg-brand animate-pulse"></span>
+                        Open source · Bring your own AI · No subscriptions
+                    </a>
+
+                    <h1 class="mt-8 text-4xl sm:text-6xl font-bold tracking-tight leading-[1.05]">
+                        AI writes the draft.
+                        <span class="block mt-2 text-brand">
+                            You stay in control.
+                        </span>
+                    </h1>
+
+                    <p class="mt-6 mx-auto max-w-2xl text-base sm:text-lg text-muted-foreground leading-relaxed">
+                        Gitset automates your GitHub busywork — READMEs, issues, pull requests,
+                        releases, commit messages — with <strong class="text-foreground">your own AI key</strong>.
+                        Every result is a draft you refine until it ships exactly the way you want.
+                    </p>
+
+                    <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+                        <a
+                            href="#tools"
+                            class="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary/90 transition-colors"
+                        >
+                            Explore the Tools
+                        </a>
+                        <span class="text-xs font-medium text-muted-foreground uppercase tracking-wide">or</span>
+                        <button
+                            id="npm-copy"
+                            type="button"
+                            class="group inline-flex items-center gap-2 rounded-lg border border-border bg-card/70 backdrop-blur px-5 py-3 text-sm font-mono text-muted-foreground hover:border-brand/50 hover:text-foreground transition-colors"
+                        >
+                            <span class="text-brand">$</span>
+                            npm i -g @gitset-dev/cli
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-50 group-hover:opacity-100 transition-opacity"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg>
+                        </button>
+                    </div>
+
+                    <p class="mt-6 text-xs text-muted-foreground">
+                        Works with your key from
+                        <span class="text-foreground font-medium">OpenAI</span> ·
+                        <span class="text-foreground font-medium">Anthropic</span> ·
+                        <span class="text-foreground font-medium">Gemini</span> ·
+                        <span class="text-foreground font-medium">OpenRouter</span> ·
+                        any OpenAI-compatible endpoint
+                    </p>
+                </div>
+
+                {/* ── LIVE-STYLE TERMINAL DEMO ─────────────────────── */}
+                <div class="relative z-10 container mx-auto px-4 pb-20 max-w-3xl">
+                    <div class="rounded-xl border border-border bg-[#0d1117] shadow-2xl shadow-black/40 overflow-hidden text-left">
+                        <div class="flex items-center gap-2 px-4 py-3 border-b border-white/10 bg-white/5">
+                            <span class="h-3 w-3 rounded-full bg-[#ff5f57]"></span>
+                            <span class="h-3 w-3 rounded-full bg-[#febc2e]"></span>
+                            <span class="h-3 w-3 rounded-full bg-[#28c840]"></span>
+                            <img
+                                src="https://raw.githubusercontent.com/gitset-dev/gitset/main/public/cli/favicon-48.png"
+                                alt=""
+                                class="ml-3 h-3.5 w-3.5 rounded-sm"
+                            />
+                            <span class="ml-1.5 text-xs text-white/40 font-mono">gitset — config + commit</span>
+                        </div>
+                        <div
+                            id="terminal"
+                            class="p-5 font-mono text-[13px] leading-relaxed min-h-[400px] text-[#e6edf3]"
+                            aria-label="Demo of gitset config and gitset commit"
+                        >
+                            <div><span class="text-[#6CE0DB]">$</span> gitset config</div>
+                            <div class="text-white/50">Pick your AI provider: Anthropic (Claude)</div>
+                            <div class="text-white/50">Paste your API key: ••••••••••••••••••••••</div>
+                            <div class="text-white/50">Model (default): claude-sonnet-4-6 (recommended)</div>
+                            <div class="text-[#6CE0DB]">✓ anthropic configured (default)</div>
+                            <div class="mt-2"><span class="text-[#6CE0DB]">$</span> gitset commit</div>
+                            <div class="text-white/50">✓ 2 files staged · generating with <span class="text-white/70">your key</span> (anthropic)</div>
+                            <div class="mt-2 pl-3 border-l-2 border-white/15">feat(auth): handle null user in login</div>
+                            <div class="text-white/50">accept · refine · regenerate · edit&nbsp; <span class="text-[#6CE0DB]">r</span></div>
+                            <div><span class="text-[#6CE0DB]">&gt;</span> mention issue #128</div>
+                            <div class="text-white/50">… refining <span class="text-white/70">(v2)</span></div>
+                            <div class="mt-1 pl-3 border-l-2 border-[#6CE0DB]/50">feat(auth): handle null user in login <span class="text-[#6CE0DB]">(#128)</span></div>
+                            <div><span class="text-[#6CE0DB]">&gt;</span> a</div>
+                            <div class="text-[#6CE0DB]">✓ committed 3f2a1c9 — exactly how you wanted it</div>
+                        </div>
+                    </div>
+                    <p class="mt-4 text-center text-xs text-muted-foreground">
+                        The refinement loop — nothing ships until you say so. Same flow on the web and in your terminal.
+                    </p>
+                </div>
+            </section>
+
+            {/* ── HOW IT WORKS ─────────────────────────────────────── */}
+            <section class="border-t border-border bg-muted/20">
+                <div class="container mx-auto px-4 py-16 max-w-5xl">
+                    <div class="grid gap-8 sm:grid-cols-3">
+                        <div class="space-y-2">
+                            <p class="font-mono text-sm text-brand">01</p>
+                            <h3 class="font-semibold">Connect GitHub</h3>
+                            <p class="text-sm text-muted-foreground">
+                                One sign-in. Your repos, branches, issues and releases — ready to work with.
+                            </p>
+                        </div>
+                        <div class="space-y-2">
+                            <p class="font-mono text-sm text-brand">02</p>
+                            <h3 class="font-semibold">Bring your AI key</h3>
+                            <p class="text-sm text-muted-foreground">
+                                Plug in any provider, pick any model, switch anytime. Encrypted, never logged — you pay your provider directly, with zero markup.
+                            </p>
+                        </div>
+                        <div class="space-y-2">
+                            <p class="font-mono text-sm text-brand">03</p>
+                            <h3 class="font-semibold">Draft → refine → ship</h3>
+                            <p class="text-sm text-muted-foreground">
+                                Every output is a draft with version history. Tell the AI what to change until it's exactly right — then publish to GitHub in one click.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* ── TOOLS GRID ───────────────────────────────────────── */}
+            <section id="tools" class="container mx-auto px-4 py-20 max-w-6xl scroll-mt-24">
+                <div class="text-center mb-12">
+                    <h2 class="text-2xl sm:text-3xl font-bold tracking-tight">
+                        Every repetitive GitHub task, automated
+                    </h2>
+                    <p class="mt-3 text-muted-foreground max-w-xl mx-auto text-sm">
+                        Eight tools, one philosophy: the AI accelerates, you decide.
+                        Templates, styles and label packs make every output yours.
+                    </p>
+                </div>
+                <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                    {tools.map((t) => (
+                        <a
+                            href={t.href}
+                            class="group rounded-xl border border-border bg-card p-5 hover:border-brand/60 hover:shadow-lg hover:shadow-brand/5 transition-all"
+                        >
+                            <div class="h-10 w-10 rounded-lg bg-brand/10 flex items-center justify-center mb-4 group-hover:bg-brand/15 transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-brand" set:html={t.icon} />
+                            </div>
+                            <h3 class="font-semibold text-sm">{t.name}</h3>
+                            <p class="mt-1.5 text-xs text-muted-foreground leading-relaxed">{t.desc}</p>
+                        </a>
+                    ))}
+                </div>
+            </section>
+
+            {/* ── BYOAI / TRUST BAND ───────────────────────────────── */}
+            <section class="border-t border-border bg-muted/20">
+                <div class="container mx-auto px-4 py-16 max-w-5xl">
+                    <div class="grid gap-8 sm:grid-cols-3 text-center sm:text-left">
+                        <div class="space-y-2">
+                            <h3 class="font-semibold flex items-center justify-center sm:justify-start gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-brand"><circle cx="7.5" cy="15.5" r="5.5"></circle><path d="m21 2-9.6 9.6"></path><path d="m15.5 7.5 3 3L22 7l-3-3"></path></svg>
+                                Your key, your costs
+                            </h3>
+                            <p class="text-sm text-muted-foreground">
+                                No token packages, no metering, no markup. Gitset orchestrates — your provider bills you directly.
+                            </p>
+                        </div>
+                        <div class="space-y-2">
+                            <h3 class="font-semibold flex items-center justify-center sm:justify-start gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-brand"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path><path d="m9 12 2 2 4-4"></path></svg>
+                                Private by architecture
+                            </h3>
+                            <p class="text-sm text-muted-foreground">
+                                Keys encrypted at rest, never sent to your browser. The CLI runs 100% on your machine — your code never touches our servers.
+                            </p>
+                        </div>
+                        <div class="space-y-2">
+                            <h3 class="font-semibold flex items-center justify-center sm:justify-start gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-brand"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+                                Open source
+                            </h3>
+                            <p class="text-sm text-muted-foreground">
+                                Web and CLI in the open. Audit the privacy claims yourself — that's the point.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* ── FINAL CTA ────────────────────────────────────────── */}
+            <section class="container mx-auto px-4 py-20 max-w-3xl text-center">
+                <h2 class="text-2xl sm:text-3xl font-bold tracking-tight">
+                    Ship your GitHub busywork in minutes, not evenings.
+                </h2>
+                <p class="mt-3 text-muted-foreground text-sm">
+                    Free, open source, and yours to control.
+                </p>
+                <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
+                    {!loggedIn && (
+                        <a href="/api/auth/github" class="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors">
+                            Get started with GitHub
+                        </a>
+                    )}
+                    <a href="/faq" class="inline-flex items-center rounded-lg border border-border px-6 py-3 text-sm font-medium hover:bg-muted transition-colors">
+                        Read the FAQ
+                    </a>
+                </div>
+            </section>
+        </main>
+
+        <Footer client:idle />
+
+        <script is:inline>
+            (function () {
+                var btn = document.getElementById("npm-copy");
+                if (btn) {
+                    btn.addEventListener("click", function () {
+                        navigator.clipboard.writeText("npm i -g @gitset-dev/cli").then(function () {
+                            var prev = btn.innerHTML;
+                            btn.innerHTML = '<span class="text-brand">✓ copied</span>';
+                            setTimeout(function () { btn.innerHTML = prev; }, 1600);
+                        });
+                    });
+                }
+
+                var term = document.getElementById("terminal");
+                if (!term) return;
+                var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+                if (reduced) return; // keep the static final frame
+
+                // Anonymized, scripted demo — configure a provider once, then draft a
+                // commit. No real keys/paths, ever (the bullets below are literal
+                // placeholder characters, not a masked real string).
+                var FRAMES = [
+                    { t: "cmd", text: "gitset config", d: 200 },
+                    { t: "dim", text: "Pick your AI provider: Anthropic (Claude)", d: 350 },
+                    { t: "dim", prefix: "Paste your API key: ", text: "••••••••••••••••••••••", d: 300 },
+                    { t: "dim", text: "Model (default): claude-sonnet-4-6 (recommended)", d: 350 },
+                    { t: "ok", text: "✓ anthropic configured (default)", d: 700 },
+                    { t: "cmd", text: "gitset commit", cls: "mt-2", d: 200 },
+                    { t: "dim", text: "✓ 2 files staged · generating with your key (anthropic)", d: 400 },
+                    { t: "box", text: "feat(auth): handle null user in login", d: 500 },
+                    { t: "dim", text: "accept · refine · regenerate · edit", suffix: "r", d: 350 },
+                    { t: "inp", text: "mention issue #128", d: 200 },
+                    { t: "dim", text: "… refining (v2)", d: 400 },
+                    { t: "box2", text: "feat(auth): handle null user in login (#128)", d: 500 },
+                    { t: "inp", text: "a", d: 200 },
+                    { t: "ok", text: "✓ committed 3f2a1c9 — exactly how you wanted it", d: 2600 },
+                ];
+
+                function esc(s) {
+                    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+                }
+
+                // Reveals text tied to requestAnimationFrame instead of a fixed
+                // per-character setInterval — stays smooth regardless of tab load
+                // and costs nothing on a hidden tab. Two speeds, not one: AI/system
+                // output streams in fast and uniform; a human "typing" a command or
+                // an instruction is slower, with a little natural rhythm (a gentle
+                // wobble) instead of a robotically constant cadence.
+                var STREAM_CHARS_PER_MS = 0.22; // ~220 cps — AI output / system lines
+                var TYPE_CHARS_PER_MS = 0.055; // ~55 cps base — human-typed commands/input
+                var HUMAN_TYPES = { cmd: true, inp: true };
+
+                function typeInto(node, prefixHtml, text, suffixHtml, done, human) {
+                    node.innerHTML = prefixHtml + '<span class="cursor">▊</span>';
+                    if (!text) {
+                        node.innerHTML = prefixHtml + (suffixHtml || "");
+                        done();
+                        return;
+                    }
+                    var rate = human ? TYPE_CHARS_PER_MS : STREAM_CHARS_PER_MS;
+                    var start = null;
+                    var revealed = 0;
+                    function frame(ts) {
+                        if (start === null) start = ts;
+                        var elapsed = ts - start;
+                        var target = human
+                            ? Math.floor(elapsed * rate * (1 + Math.sin(elapsed * 0.02) * 0.35))
+                            : Math.ceil(elapsed * rate);
+                        target = Math.max(0, Math.min(text.length, target));
+                        if (target > revealed) revealed = target;
+                        node.innerHTML = prefixHtml + esc(text.slice(0, revealed)) + '<span class="cursor">▊</span>';
+                        if (revealed < text.length) {
+                            requestAnimationFrame(frame);
+                        } else {
+                            node.innerHTML = prefixHtml + esc(text) + (suffixHtml || "");
+                            done();
+                        }
+                    }
+                    requestAnimationFrame(frame);
+                }
+
+                function run() {
+                    term.innerHTML = "";
+                    var idx = 0;
+                    function next() {
+                        if (idx >= FRAMES.length) {
+                            setTimeout(run, 1400);
+                            return;
+                        }
+                        var f = FRAMES[idx++];
+                        var node = document.createElement("div");
+                        if (f.cls) node.className = f.cls;
+                        term.appendChild(node);
+
+                        var prefixHtml = f.prefix ? '<span class="text-white/50">' + f.prefix + "</span>" : "";
+                        if (f.t === "cmd") prefixHtml = '<span class="text-[#6CE0DB]">$</span> ';
+                        else if (f.t === "inp") prefixHtml = '<span class="text-[#6CE0DB]">&gt;</span> ';
+                        else if (f.t === "dim" && !f.prefix) node.className = (node.className + " text-white/50").trim();
+                        else if (f.t === "ok") node.className = (node.className + " text-[#6CE0DB]").trim();
+                        else if (f.t === "box") node.className = (node.className + " mt-2 pl-3 border-l-2 border-white/15").trim();
+                        else if (f.t === "box2") node.className = (node.className + " mt-1 pl-3 border-l-2 border-[#6CE0DB]/50").trim();
+
+                        var suffixHtml = f.suffix ? '&nbsp;&nbsp;<span class="text-[#6CE0DB]">' + f.suffix + "</span>" : "";
+                        typeInto(node, prefixHtml, f.text, suffixHtml, function () {
+                            setTimeout(next, f.d || 250);
+                        }, HUMAN_TYPES[f.t] === true);
+                    }
+                    next();
+                }
+                run();
+            })();
+        </script>
+        <style is:inline>
+            .cursor {
+                animation: blink 1s step-end infinite;
+                color: #6CE0DB;
+            }
+            @keyframes blink {
+                50% { opacity: 0; }
+            }
+        </style>
+    </body>
+</BaseLayout>

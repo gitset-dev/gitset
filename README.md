@@ -1,120 +1,102 @@
 <div align="center">
-  <a href="https://github.com/gitset-dev" target="_blank">
-    <img src="https://github.com/gitset-dev/gitset/blob/main/public/favicon-192.png" alt="Gitset" width="96" />
+  <a href="https://gitset.dev" target="_blank">
+    <img src="public/favicon-192.png" alt="Gitset" width="88" />
   </a>
 
-  <h3>
-    <a href="https://gitset.dev" target="_blank">Gitset v2 — Open Source, BYOAI, Built for Developers</a>
-  </h3>
+  <h1>Gitset</h1>
+
+  <p><strong><code>Draft. Refine. Ship.</code></strong></p>
 
   <p>
-    <a href="https://github.com/gitset-dev"><img src="https://img.shields.io/badge/status-coming%20soon-8EF0EE?style=flat-square" alt="status" /></a>
-    <a href="https://github.com/gitset-dev"><img src="https://img.shields.io/badge/launch-June%201st%2C%202026-white?style=flat-square" alt="launch" /></a>
-    <a href="https://github.com/gitset-dev/gitset/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MPL%202.0-blue?style=flat-square" alt="license" /></a>
+    <img src="https://img.shields.io/badge/license-MPL--2.0-blue?style=flat-square" alt="MPL-2.0" />
+    <img src="https://img.shields.io/badge/model-BYOAI-white?style=flat-square" alt="BYOAI" />
+    <a href="https://gitset.dev"><img src="https://img.shields.io/badge/web-gitset.dev-2dd4bf?style=flat-square" alt="gitset.dev" /></a>
   </p>
 </div>
 
-<hr>
+---
 
-### About
+Gitset is an open-source toolkit for everything around your code on GitHub:
+commit messages, issues, pull requests, release notes, READMEs, labels, and
+repository upkeep. Every tool drafts from your repository's real context; you
+refine the draft in plain language until it ships. Bring your own AI key —
+Anthropic, OpenAI, Gemini, or any compatible endpoint. No subscriptions. No
+metering.
 
-**Gitset** is a suite of AI-assisted tools for everything around your code on GitHub — docs, issues, pull requests, releases. Every tool drafts a first pass; you refine it in plain language until it ships.
+This repository is the **web app**: the interface at [gitset.dev](https://gitset.dev),
+its GitHub OAuth flow, and its GitHub integration. The same tools also run in
+your terminal — see [the CLI](#the-cli).
 
-No subscription tiers. No token metering. No AI vendor lock-in. Bring your own key. Use it on the web or in your terminal. Inspect every line.
+## The toolkit
 
-Launching **June 1st, 2026**.
-
-## What's new
-
-### Bring Your Own AI (BYOAI)
-
-The old token system is gone. Plug in your own provider key and Gitset routes every AI operation through it:
-
-- **Anthropic** (Claude)
-- **OpenAI** (ChatGPT)
-- **Google** (Gemini)
-- **OpenRouter** (multi-model gateway)
-
-No per-operation quotas. No monthly caps enforced by us. You control the budget, the model, and the data.
-
-### Free initially
-
-During the rollout period, the hosted suite at [gitset.dev](https://gitset.dev) is free. No credit card, no gated features.
-
-### Open Source
-
-The full stack — web app and CLI — is public. Fork it, audit it, self-host it.
-
-## The Suite
-
-### Web
-
-| Tool | What it does |
+| Tool | What disappears from your day |
 |---|---|
-| **README Generator** | Full documentation drafts for any public or private repo. Iterate until it reads the way you want. |
-| **Issues Crafter** | Structured, context-aware issue descriptions. Consistent format across the team. |
-| **PR Maker** | Branch comparison, AI-written bodies, reviewers, labels, merge — the full lifecycle. |
-| **Tags & Releases Manager** | Releases with AI-drafted notes tied to real code changes. |
-| **Gitignore Builder** | Stack-aware `.gitignore` from a language and framework selection. |
-| **Repo Profiler** | AI-generated `description`, `website`, and `topics` for your repositories. |
-| **Backup Automator** | Scheduled repository backups. |
+| **Issue Crafter** | Writing the same structured bug report for the third time. One sentence in, a complete labeled issue out. |
+| **PR Maker** | PR descriptions nobody reads twice. Drafted from your branch diff, published when you approve. |
+| **Release Manager** | Release notes assembled from memory. Drafted from your actual commit range, in your format. |
+| **README Generator** | The README that went stale two features ago. Drafted from your tracked files, refined until it reads right. |
+| **Commit Generator** | Commit messages written at 2 a.m. Conventional Commits (or your style) from any diff. |
+| **Label Pack** | Recreating your label set on every new repository. Define it once, apply it anywhere. |
+| **Backup Automator** | Wondering if you'd survive losing GitHub. A scheduled mirror backup that runs inside *your* GitHub. |
+| **Repo Profiler** | Empty description and topics fields. Drafted from your code, applied in one click. |
+| **Gitignore Builder** | Copy-pasting `.gitignore` snippets. Stack-aware, generated in seconds. |
 
-### Templating
+Every generator accepts **your own template** — define your format once and
+every draft follows it — and includes a curated library (Conventional
+Commits, Keep a Changelog, gitmoji, and more) that never overwrites your
+saved templates.
 
-Issues Crafter, PR Maker, README Generator, Tags & Releases Manager, and Gitignore Builder all support custom templates. Define your format once, reuse everywhere. AI fills the blanks; the shape stays yours.
+## How your data is treated
 
-### <img src="https://raw.githubusercontent.com/gitset-dev/gitset/main/public/cli/favicon-48.png" height="22" align="center" /> CLI
+- Your AI provider keys are encrypted at rest (AES-256-GCM), never sent to
+  the browser, never logged.
+- Your code is read transiently to build drafts and is not retained. Nothing
+  is used for model training.
+- No analytics, no trackers, exactly two cookies (session + OAuth state).
+- Account deletion is self-service, from the dashboard.
 
-The full suite runs in your terminal. `issue`, `pr`, `readme`, and `release` cover the same lifecycle as the web — create, review, update, close, merge — with the same templates. `commit` is CLI-only.
+Details: [Privacy Policy](https://gitset.dev/privacy) ·
+[Terms](https://gitset.dev/terms). Every claim is checkable in this codebase.
 
+## The CLI
+
+<img src="public/cli/favicon-48.png" alt="" width="20" align="center" /> The
+Gitset CLI runs the same tools entirely on your machine — no account, no
+telemetry, your keys in `~/.gitset`, your code going to your provider and
+nowhere else.
+
+```sh
+npm install -g @gitset-dev/cli
+gitset config set anthropic --key sk-... --default
+gitset commit
 ```
-gitset auth                    # link your account
-gitset commit                  # AI commit messages from staged changes  (CLI only)
-gitset issue                   # full issue lifecycle — create, close, manage
-gitset pr                      # full pull request lifecycle — create, review, merge
-gitset readme                  # generate and update READMEs
-gitset release                 # tags and releases
-gitset gitignore               # generate or extend .gitignore
-gitset labelspack              # centralized label management
-gitset dependabot-resolver     # triage and resolve Dependabot alerts
-gitset template                # browse and apply the template library
-```
 
-> Distribution details coming with the June 1st launch.
-
-## What's gone
-
-The following v1 surfaces are **deprecated** and will not return:
-
-- **Gitset MCP** — replaced by the standalone CLI
-- **Desktop app** — the web and CLI cover every workflow
-- **Code Decommenter** — out of scope for v2
-- **Dependencies Handler** — superseded by `dependabot-resolver` in the CLI
-- **Token-based plans** (Basic / Pro / Enterprise) — replaced by BYOAI
-
-Active subscriptions from v1 have been refunded. Any leftover token credits roll over as free usage in v2.
-
-## Waitlist
-
-Reserve early access at [gitset.dev](https://gitset.dev).
+Docs: [gitset.dev/docs/cli](https://gitset.dev/docs/cli) · Source:
+[gitset-dev/gitset-cli-v2](https://github.com/gitset-dev/gitset-cli-v2)
 
 ## Development
 
-This repository hosts the `coming-soon` landing page.
+Stack: [Astro](https://astro.build) (SSR, Node adapter) · React ·
+Tailwind CSS · [Turso](https://turso.tech) (libSQL) with Drizzle ORM.
 
-```bash
-npm install
-npm run dev
+```sh
+pnpm install
+cp .env.example .env   # fill in: Turso DB, GitHub OAuth app, API base URL
+pnpm dev               # http://localhost:4321
 ```
 
-Built with Next.js, Tailwind, and Framer Motion.
+`pnpm build` builds for production; `pnpm start` serves `dist/`. The AI
+generation endpoints are served by the Gitset API (configured via
+`CORE_API_URL`); everything else — auth, GitHub integration, UI — lives in
+this repository.
+
+## Contributing
+
+Issues and pull requests are welcome. Keep the voice of any user-facing copy
+consistent with the existing pages, and run `pnpm astro check` before
+submitting.
 
 ## License
 
-MPL 2.0. See [LICENSE](LICENSE).
-
----
-
-<div align="center">
-  <sub>Questions? <a href="mailto:support@gitset.dev">support@gitset.dev</a></sub>
-</div>
+[MPL-2.0](LICENSE) © Iván Luna. The Gitset name and logo are not covered by
+the code license.
