@@ -90,6 +90,48 @@ const tools = [
             content="Open-source, BYOAI GitHub automation. Your key, your rules, your workflow — refined until it's exactly right."
         />
         <meta property="twitter:image" content="https://gitset.dev/gitset-poster.jpg" />
+        <script type="application/ld+json" set:html={JSON.stringify({
+            "@context": "https://schema.org",
+            "@graph": [
+                {
+                    "@type": "Organization",
+                    "@id": "https://gitset.dev/#organization",
+                    "name": "Gitset",
+                    "url": "https://gitset.dev",
+                    "logo": "https://gitset.dev/favicon-192.png",
+                    "sameAs": [
+                        "https://github.com/gitset-dev",
+                        "https://www.npmjs.com/package/@gitset-dev/cli",
+                        "https://linkedin.com/company/gitset-dev",
+                    ],
+                },
+                {
+                    "@type": "SoftwareApplication",
+                    "@id": "https://gitset.dev/#webapp",
+                    "name": "Gitset",
+                    "applicationCategory": "DeveloperApplication",
+                    "operatingSystem": "Web",
+                    "url": "https://gitset.dev",
+                    "description": "Open-source, bring-your-own-AI GitHub automation. Generate READMEs, issues, PRs, releases and commit messages with your own AI key.",
+                    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+                    "publisher": { "@id": "https://gitset.dev/#organization" },
+                },
+                {
+                    "@type": "SoftwareApplication",
+                    "@id": "https://gitset.dev/#cli",
+                    "name": "Gitset CLI",
+                    "alternateName": "@gitset-dev/cli",
+                    "applicationCategory": "DeveloperApplication",
+                    "operatingSystem": "macOS, Linux, Windows",
+                    "url": "https://gitset.dev/docs",
+                    "downloadUrl": "https://www.npmjs.com/package/@gitset-dev/cli",
+                    "description": "The terminal companion to Gitset. Draft commit messages, pull requests, issues, READMEs, and release notes from local repository context, using your own AI provider key. Runs entirely on your machine.",
+                    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+                    "isPartOf": { "@id": "https://gitset.dev/#organization" },
+                    "publisher": { "@id": "https://gitset.dev/#organization" },
+                },
+            ],
+        })} />
         <script is:inline>
             (function () {
                 const THEME_STORAGE_KEY = "theme";

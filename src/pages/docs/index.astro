@@ -87,6 +87,43 @@ const troubleshooting = [
             name="description"
             content="Gitset documentation: what it is, how the web app and CLI fit together, installation, configuration, every command, and typical workflows."
         />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://gitset.dev/docs" />
+        <meta property="og:title" content="Documentation - Gitset" />
+        <meta
+            property="og:description"
+            content="Gitset documentation: what it is, how the web app and CLI fit together, installation, configuration, every command, and typical workflows."
+        />
+        <meta property="og:image" content="https://gitset.dev/gitset-poster.jpg" />
+        <meta property="twitter:card" content="summary_large_image" />
+        <meta property="twitter:url" content="https://gitset.dev/docs" />
+        <meta property="twitter:title" content="Documentation - Gitset" />
+        <meta
+            property="twitter:description"
+            content="Gitset documentation: what it is, how the web app and CLI fit together, installation, configuration, every command, and typical workflows."
+        />
+        <meta property="twitter:image" content="https://gitset.dev/gitset-poster.jpg" />
+        <script type="application/ld+json" set:html={JSON.stringify({
+            "@context": "https://schema.org",
+            "@graph": [
+                {
+                    "@type": "TechArticle",
+                    "@id": "https://gitset.dev/docs/#article",
+                    "headline": "Gitset Documentation",
+                    "url": "https://gitset.dev/docs",
+                    "about": { "@id": "https://gitset.dev/#cli" },
+                    "publisher": { "@id": "https://gitset.dev/#organization" },
+                    "description": "Installation, configuration, every CLI command, and the web/CLI ecosystem, for the Gitset CLI (@gitset-dev/cli).",
+                },
+                {
+                    "@type": "SoftwareSourceCode",
+                    "name": "Gitset CLI",
+                    "codeRepository": "https://github.com/gitset-dev/gitset-cli-v2",
+                    "programmingLanguage": "JavaScript",
+                    "isPartOf": { "@id": "https://gitset.dev/#cli" },
+                },
+            ],
+        })} />
         <script is:inline>
             (function () {
                 const THEME_STORAGE_KEY = "theme";
