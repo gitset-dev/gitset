@@ -6,8 +6,8 @@ export function Footer() {
     return (
         <footer className="border-t bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
             <div className="flex flex-col gap-8 py-8 md:py-12 px-4 sm:px-8">
-                <div className="grid grid-cols-2 gap-8 md:grid-cols-4 lg:grid-cols-5">
-                    <div className="col-span-2 flex flex-col gap-4 lg:col-span-2">
+                <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
+                    <div className="col-span-2 flex flex-col gap-4">
                         <div className="flex items-center gap-2">
                             <img src="/favicon-96.png" alt="Gitset Logo" className="h-8 w-8" />
                             <span className="text-xl font-bold">Gitset</span>
@@ -39,10 +39,6 @@ export function Footer() {
                         <a href="/changelog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Changelog</a>
                         <a href="/faq" className="text-sm text-muted-foreground hover:text-foreground transition-colors">FAQ</a>
                         <a href="/status" className="text-sm text-muted-foreground hover:text-foreground transition-colors">GitHub Status</a>
-                    </div>
-
-                    <div className="flex flex-col gap-2 2xl:justify-self-center">
-                        <h3 className="text-sm font-semibold">Company</h3>
                         <a href="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Contact</a>
                         <a href="/privacy" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Privacy Policy</a>
                         <a href="/terms" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Terms of Service</a>
