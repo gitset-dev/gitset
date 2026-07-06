@@ -11,12 +11,16 @@ interface Props {
 }
 
 const { title } = Astro.props;
+const canonicalURL = new URL(Astro.url.pathname, "https://gitset.dev").toString();
 ---
 
 <!doctype html>
 <html lang="en">
     <head>
         {title && <title>{title}</title>}
+        <link rel="canonical" href={canonicalURL} />
+        <link rel="manifest" href="/manifest.json" />
+        <link rel="apple-touch-icon" href="/favicon-192.png" />
         <slot name="head" />
     </head>
     <body>
