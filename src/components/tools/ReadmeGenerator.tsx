@@ -628,7 +628,7 @@ export function ReadmeGenerator({ user }: ReadmeGeneratorProps) {
                     />
                 </div>
 
-                <CollapsibleComposer collapsed={loading}>
+                <CollapsibleComposer collapsed={loading || Boolean(currentVersion) || Boolean(error)} dimmed={loading}>
                     <div className="space-y-2">
                         <label className="text-sm font-medium leading-none">Description</label>
                         <p className="text-xs text-muted-foreground">What does your project do?</p>

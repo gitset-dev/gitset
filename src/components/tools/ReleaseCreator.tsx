@@ -607,7 +607,7 @@ export function ReleaseCreator({ user, initialRepo = '' }: ReleaseCreatorProps) 
                             </div>
 
                             {manualMode ? (
-                                <CollapsibleComposer collapsed={loading}>
+                                <CollapsibleComposer collapsed={loading || Boolean(currentVersion) || Boolean(error)} dimmed={loading}>
                                     <Textarea
                                         placeholder="Paste commits or write notes manually..."
                                         value={rawCommits}

@@ -617,7 +617,7 @@ export function IssueCrafter({ user, backendUrl }: IssueCrafterProps) {
                                 </div>
                             </div>
 
-                            <CollapsibleComposer collapsed={loading}>
+                            <CollapsibleComposer collapsed={loading || Boolean(currentVersion) || Boolean(error)} dimmed={loading}>
                                 {generationMode === 'auto' ? (
                                     <textarea
                                         value={description}

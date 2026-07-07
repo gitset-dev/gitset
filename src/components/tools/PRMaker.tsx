@@ -658,7 +658,7 @@ export function PRMaker({ user }: PRMakerProps) {
                             <label className="text-sm font-medium leading-none">
                                 PR Description / Context (Optional)
                             </label>
-                            <CollapsibleComposer collapsed={loading}>
+                            <CollapsibleComposer collapsed={loading || Boolean(currentVersion) || Boolean(error)} dimmed={loading}>
                                 <textarea
                                     value={description}
                                     onChange={(e) => setDescription(e.target.value)}
