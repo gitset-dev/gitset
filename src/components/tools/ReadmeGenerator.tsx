@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Loader2, Copy, Sparkles, FileText, Github, Check, AlertCircle, Scale, Eraser } from 'lucide-react';
 import { BranchSelector } from '../BranchSelector';
 import ToolErrorNotice from './ToolErrorNotice';
+import CollapsibleComposer from './CollapsibleComposer';
 
 interface User {
     gitsetKey: string;
@@ -627,27 +628,31 @@ export function ReadmeGenerator({ user }: ReadmeGeneratorProps) {
                     />
                 </div>
 
-                <div className="space-y-2">
-                    <label className="text-sm font-medium leading-none">Description</label>
-                    <p className="text-xs text-muted-foreground">What does your project do?</p>
-                    <Textarea
-                        placeholder="A brief description of the project's purpose and features..."
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                        className="min-h-[100px] resize-none"
-                    />
-                </div>
+                <CollapsibleComposer collapsed={loading}>
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium leading-none">Description</label>
+                        <p className="text-xs text-muted-foreground">What does your project do?</p>
+                        <Textarea
+                            placeholder="A brief description of the project's purpose and features..."
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                            disabled={loading}
+                            className="min-h-[100px] resize-none"
+                        />
+                    </div>
 
-                <div className="space-y-2">
-                    <label className="text-sm font-medium leading-none">Dependencies / Tech Stack</label>
-                    <p className="text-xs text-muted-foreground">List main technologies (e.g. React, Node.js, Tailwind)</p>
-                    <Textarea
-                        placeholder="React, TypeScript, Vite, etc."
-                        value={dependencies}
-                        onChange={(e) => setDependencies(e.target.value)}
-                        className="min-h-[80px] resize-none"
-                    />
-                </div>
+                    <div className="space-y-2 mt-4">
+                        <label className="text-sm font-medium leading-none">Dependencies / Tech Stack</label>
+                        <p className="text-xs text-muted-foreground">List main technologies (e.g. React, Node.js, Tailwind)</p>
+                        <Textarea
+                            placeholder="React, TypeScript, Vite, etc."
+                            value={dependencies}
+                            onChange={(e) => setDependencies(e.target.value)}
+                            disabled={loading}
+                            className="min-h-[80px] resize-none"
+                        />
+                    </div>
+                </CollapsibleComposer>
 
                 {error && <ToolErrorNotice error={error} />}
 

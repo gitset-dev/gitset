@@ -11,6 +11,7 @@ import { Modal } from '../Modal';
 import { Loader2, Copy, Sparkles, Tag, GitCommit, LayoutTemplate, Check, Github, ExternalLink, CheckCircle2, ArrowLeft, PenLine, FileText, ListTodo, RefreshCw, Info } from 'lucide-react';
 import { ReleaseManager } from './ReleaseManager';
 import ToolErrorNotice from './ToolErrorNotice';
+import CollapsibleComposer from './CollapsibleComposer';
 
 interface User {
     gitsetKey: string;
@@ -606,12 +607,15 @@ export function ReleaseCreator({ user, initialRepo = '' }: ReleaseCreatorProps) 
                             </div>
 
                             {manualMode ? (
-                                <Textarea
-                                    placeholder="Paste commits or write notes manually..."
-                                    value={rawCommits}
-                                    onChange={(e) => setRawCommits(e.target.value)}
-                                    className="min-h-[300px] font-mono text-xs resize-none"
-                                />
+                                <CollapsibleComposer collapsed={loading}>
+                                    <Textarea
+                                        placeholder="Paste commits or write notes manually..."
+                                        value={rawCommits}
+                                        onChange={(e) => setRawCommits(e.target.value)}
+                                        disabled={loading}
+                                        className="min-h-[300px] font-mono text-xs resize-none"
+                                    />
+                                </CollapsibleComposer>
                             ) : (
                                 <CommitViewer
                                     commits={commits}

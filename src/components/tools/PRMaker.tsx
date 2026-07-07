@@ -9,6 +9,7 @@ import { Modal } from '../Modal';
 import { LayoutTemplate, Loader2, Copy, Check, Sparkles, History, Github, Tag, User as UserIcon, Calendar, ListTodo, ExternalLink, CheckCircle2, FileDiff, AlertTriangle, GitPullRequest, RefreshCw, Hash, X } from 'lucide-react';
 import { fetchAllBranches } from '@/lib/github';
 import ToolErrorNotice from './ToolErrorNotice';
+import CollapsibleComposer from './CollapsibleComposer';
 
 interface User {
     gitsetKey: string;
@@ -657,12 +658,15 @@ export function PRMaker({ user }: PRMakerProps) {
                             <label className="text-sm font-medium leading-none">
                                 PR Description / Context (Optional)
                             </label>
-                            <textarea
-                                value={description}
-                                onChange={(e) => setDescription(e.target.value)}
-                                placeholder="Briefly describe what this PR does..."
-                                className="field-sizing-content flex min-h-[100px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm resize-none"
-                            ></textarea>
+                            <CollapsibleComposer collapsed={loading}>
+                                <textarea
+                                    value={description}
+                                    onChange={(e) => setDescription(e.target.value)}
+                                    placeholder="Briefly describe what this PR does..."
+                                    disabled={loading}
+                                    className="field-sizing-content flex min-h-[100px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm resize-none"
+                                ></textarea>
+                            </CollapsibleComposer>
                         </div>
 
                         <button

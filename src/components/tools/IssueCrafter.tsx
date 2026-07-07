@@ -8,6 +8,7 @@ import { Modal } from '../Modal';
 import { LayoutTemplate, Loader2, Copy, Check, RefreshCw, ArrowRight, Sparkles, History, Github, Tag, User as UserIcon, Calendar, ListTodo, ExternalLink, CheckCircle2, GitBranch, Terminal, Hash, X } from 'lucide-react';
 import { fetchAllBranches } from '@/lib/github';
 import ToolErrorNotice from './ToolErrorNotice';
+import CollapsibleComposer from './CollapsibleComposer';
 
 interface User {
     gitsetKey: string;
@@ -616,29 +617,34 @@ export function IssueCrafter({ user, backendUrl }: IssueCrafterProps) {
                                 </div>
                             </div>
 
-                            {generationMode === 'auto' ? (
-                                <textarea
-                                    value={description}
-                                    onChange={(e) => setDescription(e.target.value)}
-                                    placeholder="Describe the bug or feature request..."
-                                    className="field-sizing-content flex min-h-[150px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm resize-none"
-                                ></textarea>
-                            ) : (
-                                <div className="space-y-4">
-                                    <input
-                                        value={manualTitle}
-                                        onChange={(e) => setManualTitle(e.target.value)}
-                                        placeholder="Issue Title"
-                                        className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                                    />
+                            <CollapsibleComposer collapsed={loading}>
+                                {generationMode === 'auto' ? (
                                     <textarea
-                                        value={manualBody}
-                                        onChange={(e) => setManualBody(e.target.value)}
-                                        placeholder="Issue Body..."
+                                        value={description}
+                                        onChange={(e) => setDescription(e.target.value)}
+                                        placeholder="Describe the bug or feature request..."
+                                        disabled={loading}
                                         className="field-sizing-content flex min-h-[150px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm resize-none"
                                     ></textarea>
-                                </div>
-                            )}
+                                ) : (
+                                    <div className="space-y-4">
+                                        <input
+                                            value={manualTitle}
+                                            onChange={(e) => setManualTitle(e.target.value)}
+                                            placeholder="Issue Title"
+                                            disabled={loading}
+                                            className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                        />
+                                        <textarea
+                                            value={manualBody}
+                                            onChange={(e) => setManualBody(e.target.value)}
+                                            placeholder="Issue Body..."
+                                            disabled={loading}
+                                            className="field-sizing-content flex min-h-[150px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm resize-none"
+                                        ></textarea>
+                                    </div>
+                                )}
+                            </CollapsibleComposer>
                         </div>
                         <button
                             onClick={handleGenerate}
