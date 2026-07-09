@@ -39,6 +39,12 @@ export function Footer() {
                         <a href="/changelog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Changelog</a>
                         <a href="/faq" className="text-sm text-muted-foreground hover:text-foreground transition-colors">FAQ</a>
                         <a href="/status" className="text-sm text-muted-foreground hover:text-foreground transition-colors">GitHub Status</a>
+                        <button
+                            onClick={() => window.dispatchEvent(new CustomEvent('open-feedback-widget'))}
+                            className="text-sm text-muted-foreground hover:text-foreground transition-colors text-left"
+                        >
+                            Feedback
+                        </button>
                         <a href="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Contact</a>
                         <a href="/privacy" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Privacy Policy</a>
                         <a href="/terms" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Terms of Service</a>
