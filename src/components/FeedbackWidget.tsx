@@ -20,6 +20,7 @@ function toolFromRoute(pathname: string): string {
 export default function FeedbackWidget() {
     const [open, setOpen] = useState(false);
     const [type, setType] = useState('bug');
+    const [title, setTitle] = useState('');
     const [tool, setTool] = useState('');
     const [message, setMessage] = useState('');
     const [consent, setConsent] = useState(true);
@@ -45,6 +46,7 @@ export default function FeedbackWidget() {
 
     function reset() {
         setType('bug');
+        setTitle('');
         setMessage('');
         setConsent(true);
         setError(null);
@@ -57,6 +59,10 @@ export default function FeedbackWidget() {
     }
 
     async function submit() {
+        if (!title.trim()) {
+            setError('Please add a short title.');
+            return;
+        }
         if (!message.trim()) {
             setError('Please describe your feedback.');
             return;
@@ -70,7 +76,7 @@ export default function FeedbackWidget() {
             const res = await fetch(API, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ type, source: 'web', tool, message, metadata }),
+                body: JSON.stringify({ type, source: 'web', title, tool, message, metadata }),
             });
             const data = await res.json();
             if (!res.ok) throw new Error(data?.error || `Request failed (${res.status})`);
@@ -129,6 +135,17 @@ export default function FeedbackWidget() {
                         </div>
 
                         <div className="space-y-1.5">
+                            <label className="text-sm font-medium">Title</label>
+                            <input
+                                value={title}
+                                onChange={(e) => setTitle(e.target.value)}
+                                placeholder="Short summary of your feedback"
+                                maxLength={120}
+                                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm"
+                            />
+                        </div>
+
+                        <div className="space-y-1.5">
                             <label className="text-sm font-medium">Tool or page (optional)</label>
                             <input
                                 value={tool}
@@ -167,7 +184,7 @@ export default function FeedbackWidget() {
 
                         <button
                             onClick={submit}
-                            disabled={submitting || !message.trim()}
+                            disabled={submitting || !title.trim() || !message.trim()}
                             className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-4 w-full disabled:opacity-50"
                         >
                             {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
