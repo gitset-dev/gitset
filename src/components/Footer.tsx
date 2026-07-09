@@ -23,7 +23,7 @@ export function Footer() {
 
                     <div className="flex flex-col gap-2 2xl:justify-self-center">
                         <h3 className="text-sm font-semibold">Products</h3>
-                        <a href="/tools/readme-generator" className="text-sm text-muted-foreground hover:text-foreground transition-colors">README Generator</a>
+                        <a href="/tools/readme-generator" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Readme Generator</a>
                         <a href="/tools/issues-crafter" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Issue Crafter</a>
                         <a href="/tools/pr-maker" className="text-sm text-muted-foreground hover:text-foreground transition-colors">PR Maker</a>
                         <a href="/tools/tags-releases-manager" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Release Manager</a>
