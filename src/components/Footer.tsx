@@ -23,7 +23,7 @@ export function Footer() {
 
                     <div className="flex flex-col gap-2 2xl:justify-self-center">
                         <h3 className="text-sm font-semibold">Products</h3>
-                        <a href="/tools/readme-generator" className="text-sm text-muted-foreground hover:text-foreground transition-colors">README Generator</a>
+                        <a href="/tools/readme-generator" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Readme Generator</a>
                         <a href="/tools/issues-crafter" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Issue Crafter</a>
                         <a href="/tools/pr-maker" className="text-sm text-muted-foreground hover:text-foreground transition-colors">PR Maker</a>
                         <a href="/tools/tags-releases-manager" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Release Manager</a>
@@ -35,13 +35,19 @@ export function Footer() {
 
                     <div className="flex flex-col gap-2 2xl:justify-self-center">
                         <h3 className="text-sm font-semibold">Resources</h3>
-                        <a href="/docs" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Documentation</a>
                         <a href="/changelog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Changelog</a>
                         <a href="/faq" className="text-sm text-muted-foreground hover:text-foreground transition-colors">FAQ</a>
+                        <a href="/docs" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Documentation</a>
+                        <button
+                            onClick={() => window.dispatchEvent(new CustomEvent('open-feedback-widget'))}
+                            className="text-sm text-muted-foreground hover:text-foreground transition-colors text-left"
+                        >
+                            Feedback
+                        </button>
                         <a href="/status" className="text-sm text-muted-foreground hover:text-foreground transition-colors">GitHub Status</a>
-                        <a href="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Contact</a>
-                        <a href="/privacy" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Privacy Policy</a>
                         <a href="/terms" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Terms of Service</a>
+                        <a href="/privacy" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Privacy Policy</a>
+                        <a href="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Contact</a>
                     </div>
                 </div>
 

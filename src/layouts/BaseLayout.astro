@@ -9,6 +9,7 @@ import "@fontsource/jetbrains-mono/500.css";
 import "@fontsource/work-sans/600.css";
 import "@fontsource/work-sans/700.css";
 import "@fontsource/work-sans/800.css";
+import FeedbackWidget from "@/components/FeedbackWidget";
 
 interface Props {
     title?: string;
@@ -29,5 +30,6 @@ const canonicalURL = new URL(Astro.url.pathname, "https://gitset.dev").toString(
     </head>
     <body>
         <slot />
+        <FeedbackWidget client:idle />
     </body>
 </html>
