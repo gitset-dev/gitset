@@ -5,6 +5,16 @@ import react from '@astrojs/react';
 import node from '@astrojs/node';
 
 import tailwindcss from '@tailwindcss/vite';
+import { loadEnv } from 'vite';
+
+// Server-side code (src/lib/env.ts) reads process.env directly, but Vite only
+// exposes .env files through import.meta.env — bridge them here so plain
+// `pnpm dev` works. Real environment variables always win (production sets
+// them directly and ships no .env file, so this is a no-op there).
+const fileEnv = loadEnv(process.env.NODE_ENV ?? 'development', process.cwd(), '');
+for (const [key, value] of Object.entries(fileEnv)) {
+  if (process.env[key] === undefined) process.env[key] = value;
+}
 
 export default defineConfig({
   output: 'server',
