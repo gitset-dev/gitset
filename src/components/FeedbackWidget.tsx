@@ -26,12 +26,21 @@ export default function FeedbackWidget() {
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [issueUrl, setIssueUrl] = useState<string | null>(null);
+    const [footerVisible, setFooterVisible] = useState(false);
 
     useEffect(() => {
         setTool(toolFromRoute(window.location.pathname));
         const handler = () => setOpen(true);
         window.addEventListener('open-feedback-widget', handler);
         return () => window.removeEventListener('open-feedback-widget', handler);
+    }, []);
+
+    useEffect(() => {
+        const footer = document.querySelector('footer');
+        if (!footer) return;
+        const observer = new IntersectionObserver(([entry]) => setFooterVisible(entry.isIntersecting));
+        observer.observe(footer);
+        return () => observer.disconnect();
     }, []);
 
     function reset() {
@@ -78,7 +87,7 @@ export default function FeedbackWidget() {
             <button
                 onClick={() => setOpen(true)}
                 aria-label="Send feedback"
-                className="fixed bottom-6 right-6 z-40 inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground shadow-lg px-4 py-3 text-sm font-medium hover:bg-primary/90 transition-colors"
+                className={`fixed bottom-6 right-6 z-40 inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground shadow-lg px-4 py-3 text-sm font-medium hover:bg-primary/90 transition-all duration-300 ${footerVisible ? 'opacity-0 translate-y-2 pointer-events-none' : 'opacity-100'}`}
             >
                 <MessageSquarePlus className="h-4 w-4" />
                 Feedback
