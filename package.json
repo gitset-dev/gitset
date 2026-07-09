@@ -50,7 +50,8 @@
     "@types/react-dom": "^19.2.3",
     "@types/ua-parser-js": "^0.7.39",
     "drizzle-kit": "^0.31.1",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vite": "^7.3.2"
   },
   "pnpm": {
     "overrides": {
