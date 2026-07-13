@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Plus, Trash2, Edit2, Check, RefreshCw, Loader2, Save, Upload, AlertTriangle, FileText, Wand2 } from 'lucide-react';
+import { X, Plus, Trash2, Edit2, Check, RefreshCw, Loader2, Save, Upload, AlertTriangle, FileText, Wand2, Package } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -53,6 +53,8 @@ export function LabelManagerModal({ isOpen, onClose, backendUrl, repoContext, on
 
     const [isImporting, setIsImporting] = useState(false);
     const [importContent, setImportContent] = useState("");
+    const [importNotice, setImportNotice] = useState<string | null>(null);
+    const [showImportConfirm, setShowImportConfirm] = useState(false);
 
     useEffect(() => {
         if (isOpen && repoContext) {
@@ -339,6 +341,7 @@ ${packLabels.map(l => `- name: "${l.name}"
                     content: content
                 }),
             });
+            setImportNotice(null);
         } catch (error) {
             setPackError("Failed to save Label Pack");
         } finally {
@@ -352,6 +355,33 @@ ${packLabels.map(l => `- name: "${l.name}"
         setPackLabels(parsed);
         setIsImporting(false);
         setImportContent("");
+        setImportNotice(`${parsed.length} labels imported from markdown. Review them and click "Save Pack" to persist.`);
+    };
+
+    const importFromRepo = () => {
+        if (repoLabels.length === 0) return;
+        if (packLabels.length > 0) {
+            setShowImportConfirm(true);
+            return;
+        }
+        applyRepoImport('replace');
+    };
+
+    const applyRepoImport = (mode: 'replace' | 'merge') => {
+        const imported = repoLabels.map(l => ({ name: l.name, color: l.color, description: l.description || '' }));
+        if (mode === 'merge') {
+            const existing = new Set(packLabels.map(l => l.name.toLowerCase()));
+            const added = imported.filter(l => !existing.has(l.name.toLowerCase()));
+            setPackLabels([...packLabels, ...added]);
+            setImportNotice(`${added.length} labels merged from ${repoContext}. Review them and click "Save Pack" to persist.`);
+        } else {
+            setPackLabels(imported);
+            setImportNotice(`${imported.length} labels imported from ${repoContext}. Review them and click "Save Pack" to persist.`);
+        }
+        setShowImportConfirm(false);
+        setIsImporting(false);
+        setImportContent("");
+        setActiveTab('pack');
     };
 
     const handlePackAdd = () => {
@@ -462,6 +492,48 @@ ${packLabels.map(l => `- name: "${l.name}"
                 )}
 
                 {}
+                {showImportConfirm && (
+                    <div className="absolute inset-0 z-60 bg-background/50 backdrop-blur-[2px] flex items-center justify-center rounded-lg">
+                        <div className="w-full max-w-sm bg-background border rounded-lg shadow-xl p-6 space-y-4 animate-in fade-in zoom-in duration-200">
+                            <div className="flex flex-col items-center text-center space-y-2">
+                                <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
+                                    <Package className="h-5 w-5 text-foreground" />
+                                </div>
+                                <h3 className="text-lg font-semibold">Import from Repository</h3>
+                                <p className="text-sm text-muted-foreground">
+                                    Your pack already contains <strong>{packLabels.length}</strong> labels.
+                                    Replace them with the <strong>{repoLabels.length}</strong> labels
+                                    from <strong>{repoContext}</strong>, or merge to add only the ones
+                                    missing from the pack.
+                                </p>
+                            </div>
+                            <div className="flex gap-3 pt-2">
+                                <Button
+                                    variant="ghost"
+                                    className="flex-1"
+                                    onClick={() => setShowImportConfirm(false)}
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    variant="outline"
+                                    className="flex-1"
+                                    onClick={() => applyRepoImport('merge')}
+                                >
+                                    Merge
+                                </Button>
+                                <Button
+                                    className="flex-1"
+                                    onClick={() => applyRepoImport('replace')}
+                                >
+                                    Replace
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {}
                 {showDeleteConfirm && (
                     <div className="absolute inset-0 z-60 bg-background/50 backdrop-blur-[2px] flex items-center justify-center rounded-lg">
                         <div className="w-full max-w-sm bg-background border rounded-lg shadow-xl p-6 space-y-4 animate-in fade-in zoom-in duration-200">
@@ -529,6 +601,15 @@ ${packLabels.map(l => `- name: "${l.name}"
                                             >
                                                 {isGenerating ? <Loader2 className="h-3 w-3 animate-spin" /> : <Wand2 className="h-3 w-3 text-muted-foreground" />}
                                                 Auto-generate
+                                            </button>
+                                        )}
+                                        {repoLabels.length > 0 && gitsetKey && (
+                                            <button
+                                                onClick={importFromRepo}
+                                                className="h-6 px-2 text-xs font-medium rounded-md border bg-background hover:bg-accent hover:text-accent-foreground transition-colors flex items-center gap-1.5"
+                                                title="Copy these labels into your Label Pack to apply them on any other repository"
+                                            >
+                                                <Package className="h-3 w-3 text-muted-foreground" /> Export to Pack
                                             </button>
                                         )}
                                         <button
@@ -660,7 +741,27 @@ ${packLabels.map(l => `- name: "${l.name}"
                                     </div>
 
                                     {isImporting ? (
-                                        <div className="flex-1 flex flex-col gap-4 p-1 min-h-0">
+                                        <div className="flex-1 flex flex-col gap-3 p-1 min-h-0">
+                                            <button
+                                                onClick={importFromRepo}
+                                                disabled={repoLabels.length === 0}
+                                                className="shrink-0 w-full border rounded-md p-3 flex items-center gap-3 text-left hover:border-brand/50 hover:bg-accent/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                            >
+                                                <Package className="h-5 w-5 text-brand shrink-0" />
+                                                <div className="min-w-0">
+                                                    <p className="text-sm font-medium truncate">Import from {repoContext || 'the selected repository'}</p>
+                                                    <p className="text-xs text-muted-foreground">
+                                                        {repoLabels.length > 0
+                                                            ? `Copies its ${repoLabels.length} labels — names, colors and descriptions — into the pack.`
+                                                            : 'Select a repository with labels to use this source.'}
+                                                    </p>
+                                                </div>
+                                            </button>
+                                            <div className="flex items-center gap-2 shrink-0">
+                                                <div className="border-t flex-1"></div>
+                                                <span className="text-xs text-muted-foreground">or paste markdown</span>
+                                                <div className="border-t flex-1"></div>
+                                            </div>
                                             <div className="flex-1 min-h-0 border rounded-md overflow-hidden">
                                                 <Textarea
                                                     className="w-full h-full font-mono text-xs resize-none border-0 focus-visible:ring-0 p-4"
@@ -671,13 +772,25 @@ ${packLabels.map(l => `- name: "${l.name}"
                                             </div>
                                             <div className="flex gap-2 justify-end shrink-0">
                                                 <Button size="sm" variant="ghost" onClick={() => setIsImporting(false)}>Cancel</Button>
-                                                <Button size="sm" onClick={handleImport}>Parse & Import</Button>
+                                                <Button size="sm" onClick={handleImport} disabled={!importContent.trim()}>Parse & Import</Button>
                                             </div>
                                         </div>
                                     ) : (
                                         packLoading ? (
                                             <div className="flex justify-center p-4"><Loader2 className="h-6 w-6 animate-spin" /></div>
                                         ) : (
+                                            <>
+                                            {importNotice && (
+                                                <div className="shrink-0 mb-2 p-2 rounded-md border border-brand/30 bg-brand/10 text-xs flex items-start justify-between gap-2">
+                                                    <span className="flex items-center gap-1.5 min-w-0">
+                                                        <Check className="h-3 w-3 text-brand shrink-0" />
+                                                        <span>{importNotice}</span>
+                                                    </span>
+                                                    <button onClick={() => setImportNotice(null)} className="shrink-0 text-muted-foreground hover:text-foreground">
+                                                        <X className="h-3 w-3" />
+                                                    </button>
+                                                </div>
+                                            )}
                                             <div className="overflow-y-auto space-y-1 flex-1 pr-2">
                                                 {packLabels.length === 0 && (
                                                     <div className="text-center p-4 text-sm text-muted-foreground">No labels in pack. Add some!</div>
@@ -715,6 +828,7 @@ ${packLabels.map(l => `- name: "${l.name}"
                                                     </div>
                                                 ))}
                                             </div>
+                                            </>
                                         )
                                     )}
                                 </div>
