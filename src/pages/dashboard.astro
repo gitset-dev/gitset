@@ -232,6 +232,35 @@ const joinedDate = new Date(
                         </div>
                     </div>
 
+                    <div class="rounded-lg border border-border bg-card p-5">
+                        <h3 class="font-semibold flex items-center gap-2">
+                            GitHub connection
+                        </h3>
+                        <p class="text-sm text-muted-foreground mt-1">
+                            Connected as <span class="font-medium text-foreground">{user.user.username || user.user.gitsetKey}</span>.
+                            If you recently joined a GitHub organization, or an
+                            organization or repository is missing from the
+                            repository selector, grant Gitset access to it and
+                            sync your permissions.
+                        </p>
+                        <div class="mt-3 flex flex-col sm:flex-row gap-2">
+                            <a
+                                href="/api/auth/github/manage"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium transition-colors bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-4"
+                            >
+                                Manage organization access
+                            </a>
+                            <a
+                                href="/api/auth/github?next=/dashboard"
+                                class="inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium transition-colors border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-4"
+                            >
+                                Re-authorize &amp; Sync
+                            </a>
+                        </div>
+                    </div>
+
                     <SessionList
                         client:load
                         sessions={userSessions}

@@ -25,6 +25,10 @@ export default defineConfig({
     // like the dashboard account-deletion action). Same-origin JSON fetches
     // to /api/* are unaffected.
     checkOrigin: true,
+    allowedDomains: [
+      { hostname: 'gitset.dev', protocol: 'https' },
+      { hostname: 'localhost' },
+    ],
   },
 
   vite: {
