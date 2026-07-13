@@ -352,6 +352,17 @@ export function RepositorySelector({
                                     >
                                         <span className="ml-6">+ Enter manually</span>
                                     </div>
+                                    <div className="border-t my-1"></div>
+                                    <a
+                                        href="/api/auth/github/manage"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-xs outline-none text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                                    >
+                                        <span className="ml-6">
+                                            Can't find your organization or repository? Manage GitHub permissions, then refresh.
+                                        </span>
+                                    </a>
                                 </div>
                             </div>
                         </>
