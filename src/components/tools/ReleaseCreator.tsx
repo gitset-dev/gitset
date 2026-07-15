@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Modal } from '../Modal';
-import { Loader2, Copy, Sparkles, Tag, GitCommit, LayoutTemplate, Check, Github, ExternalLink, CheckCircle2, ArrowLeft, PenLine, FileText, ListTodo, RefreshCw, Info } from 'lucide-react';
+import { Loader2, Copy, Sparkles, Tag, GitCommit, LayoutTemplate, Check, Github, ExternalLink, CheckCircle2, ArrowLeft, PenLine, FileText, ListTodo, RefreshCw, Info, Package, AlertCircle } from 'lucide-react';
 import { ReleaseManager } from './ReleaseManager';
 import ToolErrorNotice from './ToolErrorNotice';
 import CollapsibleComposer from './CollapsibleComposer';
@@ -28,6 +28,55 @@ interface Version {
     version_number: number;
     content: string;
     created_at?: string;
+}
+
+interface ManifestSyncState {
+    status: 'idle' | 'checking' | 'confirm' | 'applying' | 'done' | 'error' | 'none';
+    type?: string;
+    file?: string;
+    sha?: string;
+    oldVersion?: string;
+    newVersion?: string;
+    newContent?: string;
+    error?: string;
+}
+
+const MANIFEST_CANDIDATES = [
+    { type: 'npm', file: 'package.json' },
+    { type: 'cargo', file: 'Cargo.toml' },
+    { type: 'python', file: 'pyproject.toml' },
+];
+
+async function findManifestFile(owner: string, name: string, branch: string) {
+    for (const candidate of MANIFEST_CANDIDATES) {
+        const res = await ghFetch(`/repos/${owner}/${name}/contents/${candidate.file}?ref=${branch}`);
+        if (res.ok) {
+            const data = await res.json();
+            if (data && typeof data.content === 'string') {
+                return { type: candidate.type, file: candidate.file, sha: data.sha, content: atob(data.content.replace(/\n/g, '')) };
+            }
+        }
+    }
+    try {
+        const rootRes = await ghFetch(`/repos/${owner}/${name}/contents/?ref=${branch}`);
+        if (rootRes.ok) {
+            const rootData = await rootRes.json();
+            if (Array.isArray(rootData)) {
+                const gem = rootData.find((f: any) => typeof f.name === 'string' && f.name.endsWith('.gemspec'));
+                if (gem) {
+                    const res = await ghFetch(`/repos/${owner}/${name}/contents/${gem.name}?ref=${branch}`);
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data && typeof data.content === 'string') {
+                            return { type: 'gemspec', file: gem.name, sha: data.sha, content: atob(data.content.replace(/\n/g, '')) };
+                        }
+                    }
+                }
+            }
+        }
+    } catch {
+    }
+    return null;
 }
 
 export function ReleaseCreator({ user, initialRepo = '' }: ReleaseCreatorProps) {
@@ -79,7 +128,8 @@ export function ReleaseCreator({ user, initialRepo = '' }: ReleaseCreatorProps) 
 
     const [creatingRelease, setCreatingRelease] = useState(false);
 
-    const [successModal, setSuccessModal] = useState<{ isOpen: boolean; url: string; tagName?: string }>({ isOpen: false, url: '' });
+    const [successModal, setSuccessModal] = useState<{ isOpen: boolean; url: string; tagName?: string; manifestNote?: string }>({ isOpen: false, url: '' });
+    const [manifestSync, setManifestSync] = useState<ManifestSyncState>({ status: 'idle' });
 
     const [copied, setCopied] = useState(false);
 
@@ -348,12 +398,7 @@ export function ReleaseCreator({ user, initialRepo = '' }: ReleaseCreatorProps) 
         }
     };
 
-    const handleCreateRelease = async () => {
-        if (!repo || !tagName || !currentVersion || !user.githubOauthToken) {
-            setError("Missing required fields for release creation (Repo, Tag Name, Content, or Auth)");
-            return;
-        }
-
+    const publishRelease = async (manifestNote?: string) => {
         setCreatingRelease(true);
         setError(null);
 
@@ -367,7 +412,7 @@ export function ReleaseCreator({ user, initialRepo = '' }: ReleaseCreatorProps) 
                 body: JSON.stringify({
                     tag_name: tagName,
                     name: tagName,
-                    body: currentVersion.content,
+                    body: currentVersion!.content,
                     draft: false,
                     prerelease: false,
                 }),
@@ -383,11 +428,101 @@ export function ReleaseCreator({ user, initialRepo = '' }: ReleaseCreatorProps) 
                 throw new Error(errorMessage);
             }
 
-            setSuccessModal({ isOpen: true, url: data.html_url, tagName: tagName });
+            setSuccessModal({ isOpen: true, url: data.html_url, tagName: tagName, manifestNote });
         } catch (e: any) {
             setError(e.message);
         } finally {
             setCreatingRelease(false);
+        }
+    };
+
+    const handleCreateRelease = async () => {
+        if (!repo || !tagName || !currentVersion || !user.githubOauthToken) {
+            setError("Missing required fields for release creation (Repo, Tag Name, Content, or Auth)");
+            return;
+        }
+
+        if (!repo.includes('/')) {
+            await publishRelease();
+            return;
+        }
+
+        setManifestSync({ status: 'checking' });
+        try {
+            const [owner, name] = repo.split('/');
+            const branch = toRef || 'main';
+            const found = await findManifestFile(owner, name, branch);
+
+            if (!found) {
+                setManifestSync({ status: 'none' });
+                await publishRelease();
+                return;
+            }
+
+            const res = await fetch('/api/manifest', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'bump', type: found.type, content: found.content, tagName })
+            });
+            const data = await res.json();
+
+            if (!res.ok || data.error || data.unchanged || !data.newContent) {
+                setManifestSync({ status: 'none' });
+                await publishRelease();
+                return;
+            }
+
+            setManifestSync({
+                status: 'confirm',
+                type: found.type,
+                file: found.file,
+                sha: found.sha,
+                oldVersion: data.oldVersion,
+                newVersion: data.newVersion,
+                newContent: data.newContent,
+            });
+        } catch (e) {
+            setManifestSync({ status: 'none' });
+            await publishRelease();
+        }
+    };
+
+    const skipManifestSync = async () => {
+        setManifestSync({ status: 'none' });
+        await publishRelease();
+    };
+
+    const cancelManifestSync = () => {
+        setManifestSync({ status: 'idle' });
+    };
+
+    const applyManifestSync = async () => {
+        if (manifestSync.status !== 'confirm' || !repo || !manifestSync.file || !manifestSync.newContent || !manifestSync.newVersion) return;
+
+        setManifestSync(prev => ({ ...prev, status: 'applying' }));
+        try {
+            const [owner, name] = repo.split('/');
+            const branch = toRef || 'main';
+            const contentB64 = btoa(unescape(encodeURIComponent(manifestSync.newContent)));
+
+            const res = await ghFetch(`/repos/${owner}/${name}/contents/${manifestSync.file}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    message: `chore: bump version to ${manifestSync.newVersion} via Gitset`,
+                    content: contentB64,
+                    branch,
+                    sha: manifestSync.sha,
+                }),
+            });
+
+            if (!res.ok) throw new Error('Failed to update manifest file');
+
+            const note = `${manifestSync.file} updated to ${manifestSync.newVersion}.`;
+            setManifestSync({ status: 'none' });
+            await publishRelease(note);
+        } catch (e) {
+            setManifestSync(prev => ({ ...prev, status: 'error', error: 'Failed to update the manifest file on GitHub.' }));
         }
     };
 
@@ -656,10 +791,10 @@ export function ReleaseCreator({ user, initialRepo = '' }: ReleaseCreatorProps) 
                                     {currentVersion && repo && tagName && (
                                         <button
                                             onClick={handleCreateRelease}
-                                            disabled={creatingRelease}
+                                            disabled={creatingRelease || manifestSync.status === 'checking'}
                                             className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors bg-primary text-primary-foreground hover:bg-primary/90 h-8 px-3"
                                         >
-                                            {creatingRelease ? <Loader2 className="h-3 w-3 animate-spin" /> : <Github className="h-3 w-3" />}
+                                            {(creatingRelease || manifestSync.status === 'checking') ? <Loader2 className="h-3 w-3 animate-spin" /> : <Github className="h-3 w-3" />}
                                             Create Release
                                         </button>
                                     )}
@@ -793,8 +928,87 @@ export function ReleaseCreator({ user, initialRepo = '' }: ReleaseCreatorProps) 
                                     >
                                         View on GitHub <ExternalLink className="h-3 w-3" />
                                     </a>
+                                    {successModal.manifestNote && (
+                                        <p className="text-xs text-muted-foreground pt-1">{successModal.manifestNote}</p>
+                                    )}
                                 </div>
                             </div>
+                        </div>
+                    </Modal>
+
+                    <Modal
+                        isOpen={manifestSync.status === 'confirm' || manifestSync.status === 'applying' || manifestSync.status === 'error'}
+                        onClose={cancelManifestSync}
+                        title="Sync manifest version?"
+                        maxWidth="max-w-lg"
+                        footer={
+                            manifestSync.status === 'confirm' ? (
+                                <div className="flex justify-end gap-2 w-full">
+                                    <button
+                                        onClick={cancelManifestSync}
+                                        className="px-3 py-2 rounded-md text-sm font-medium text-muted-foreground hover:bg-muted"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        onClick={skipManifestSync}
+                                        className="px-3 py-2 rounded-md text-sm font-medium border border-input bg-background hover:bg-accent"
+                                    >
+                                        Skip &amp; Create Release
+                                    </button>
+                                    <button
+                                        onClick={applyManifestSync}
+                                        className="px-3 py-2 rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90"
+                                    >
+                                        Update &amp; Create Release
+                                    </button>
+                                </div>
+                            ) : manifestSync.status === 'error' ? (
+                                <div className="flex justify-end gap-2 w-full">
+                                    <button
+                                        onClick={cancelManifestSync}
+                                        className="px-3 py-2 rounded-md text-sm font-medium text-muted-foreground hover:bg-muted"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        onClick={skipManifestSync}
+                                        className="px-3 py-2 rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90"
+                                    >
+                                        Continue Without Updating
+                                    </button>
+                                </div>
+                            ) : undefined
+                        }
+                    >
+                        <div className="space-y-4 py-2">
+                            {manifestSync.status === 'applying' ? (
+                                <div className="flex items-center justify-center gap-2 py-6 text-muted-foreground">
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                    <span className="text-sm">Updating {manifestSync.file}…</span>
+                                </div>
+                            ) : manifestSync.status === 'error' ? (
+                                <div className="flex items-start gap-2 text-sm text-red-500 bg-red-500/10 p-3 rounded-md border border-red-200">
+                                    <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
+                                    <span>{manifestSync.error}</span>
+                                </div>
+                            ) : (
+                                <>
+                                    <div className="flex items-start gap-3">
+                                        <div className="h-8 w-8 rounded-full bg-brand/10 flex items-center justify-center text-brand shrink-0">
+                                            <Package className="h-4 w-4" />
+                                        </div>
+                                        <p className="text-sm text-muted-foreground">
+                                            <span className="font-medium text-foreground">{manifestSync.file}</span> is at {manifestSync.oldVersion}, but this release is {manifestSync.newVersion}.
+                                        </p>
+                                    </div>
+                                    <div className="font-mono text-xs rounded-md border border-border overflow-hidden">
+                                        <div className="px-3 py-1.5 bg-red-500/10 text-red-600 dark:text-red-400">- &quot;version&quot;: &quot;{manifestSync.oldVersion}&quot;</div>
+                                        <div className="px-3 py-1.5 bg-green-500/10 text-green-600 dark:text-green-400">+ &quot;version&quot;: &quot;{manifestSync.newVersion}&quot;</div>
+                                    </div>
+                                    <p className="text-xs text-muted-foreground">Only the top-level version field changes. Dependency versions are left untouched.</p>
+                                </>
+                            )}
                         </div>
                     </Modal>
                 </div>
