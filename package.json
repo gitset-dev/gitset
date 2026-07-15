@@ -1,7 +1,7 @@
 {
   "name": "gitset",
   "type": "module",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "packageManager": "pnpm@9.15.0",
   "engines": {
     "node": ">=20"
@@ -62,5 +62,5 @@
     }
   },
   "license": "MPL-2.0",
-  "author": "Iván Luna <support@gitset.dev> (https://gitset.dev)"
+  "author": "IvÃ¡n Luna <support@gitset.dev> (https://gitset.dev)"
 }
