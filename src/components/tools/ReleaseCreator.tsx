@@ -47,13 +47,17 @@ const MANIFEST_CANDIDATES = [
     { type: 'python', file: 'pyproject.toml' },
 ];
 
+function decodeBase64Utf8(base64: string): string {
+    return decodeURIComponent(escape(atob(base64.replace(/\n/g, ''))));
+}
+
 async function findManifestFile(owner: string, name: string, branch: string) {
     for (const candidate of MANIFEST_CANDIDATES) {
         const res = await ghFetch(`/repos/${owner}/${name}/contents/${candidate.file}?ref=${branch}`);
         if (res.ok) {
             const data = await res.json();
             if (data && typeof data.content === 'string') {
-                return { type: candidate.type, file: candidate.file, sha: data.sha, content: atob(data.content.replace(/\n/g, '')) };
+                return { type: candidate.type, file: candidate.file, sha: data.sha, content: decodeBase64Utf8(data.content) };
             }
         }
     }
@@ -68,7 +72,7 @@ async function findManifestFile(owner: string, name: string, branch: string) {
                     if (res.ok) {
                         const data = await res.json();
                         if (data && typeof data.content === 'string') {
-                            return { type: 'gemspec', file: gem.name, sha: data.sha, content: atob(data.content.replace(/\n/g, '')) };
+                            return { type: 'gemspec', file: gem.name, sha: data.sha, content: decodeBase64Utf8(data.content) };
                         }
                     }
                 }
