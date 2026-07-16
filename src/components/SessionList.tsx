@@ -39,7 +39,7 @@ export default function SessionList({ sessions, currentSessionId }: SessionListP
     };
 
     return (
-        <div className="rounded-xl border border-border bg-card text-card-foreground shadow-sm">
+        <div className="rounded-3xl border border-border bg-card text-card-foreground shadow-sm">
             <div className="flex flex-col space-y-1.5 p-6">
                 <h3 className="font-semibold leading-none tracking-tight flex items-center gap-2 text-xl">
                     <Monitor className="h-5 w-5 text-brand" />

@@ -235,7 +235,7 @@ export function GitignoreBuilderTool({ user, backendUrl }: GitignoreBuilderToolP
 
                 <TabsContent value="composer" className="flex-1 flex flex-col gap-6 mt-0">
                     {}
-                    <div className="space-y-4 p-6 border rounded-xl bg-card">
+                    <div className="space-y-4 p-6 border rounded-3xl bg-card">
                         <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
                             <div>
                                 <h2 className="text-sm font-semibold flex items-center gap-2">
@@ -373,7 +373,7 @@ export function GitignoreBuilderTool({ user, backendUrl }: GitignoreBuilderToolP
 
                     {existingContent && (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <label className={`cursor-pointer p-4 rounded-xl border-2 transition-all ${mergeStrategy === 'replace' ? 'border-brand bg-brand/5' : 'border-border hover:border-brand/50'}`}>
+                            <label className={`cursor-pointer p-4 rounded-3xl border-2 transition-all ${mergeStrategy === 'replace' ? 'border-brand bg-brand/5' : 'border-border hover:border-brand/50'}`}>
                                 <div className="flex items-center gap-3 mb-2">
                                     <input
                                         type="radio"
@@ -389,7 +389,7 @@ export function GitignoreBuilderTool({ user, backendUrl }: GitignoreBuilderToolP
                                 </p>
                             </label>
 
-                            <label className={`cursor-pointer p-4 rounded-xl border-2 transition-all ${mergeStrategy === 'append' ? 'border-brand bg-brand/5' : 'border-border hover:border-brand/50'}`}>
+                            <label className={`cursor-pointer p-4 rounded-3xl border-2 transition-all ${mergeStrategy === 'append' ? 'border-brand bg-brand/5' : 'border-border hover:border-brand/50'}`}>
                                 <div className="flex items-center gap-3 mb-2">
                                     <input
                                         type="radio"

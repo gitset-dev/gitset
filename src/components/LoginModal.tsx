@@ -35,7 +35,7 @@ export default function LoginModal({ isOpen, onClose, next }: LoginModalProps) {
                 className="absolute inset-0 bg-background/80 backdrop-blur-sm transition-opacity"
                 onClick={onClose}
             />
-            <div className="relative w-full max-w-md transform overflow-hidden rounded-xl bg-card border border-border p-6 shadow-2xl transition-all animate-in fade-in zoom-in-95 duration-200">
+            <div className="relative w-full max-w-md transform overflow-hidden rounded-3xl bg-card border border-border p-6 shadow-2xl transition-all animate-in fade-in zoom-in-95 duration-200">
                 <div className="absolute right-4 top-4">
                     <button
                         onClick={onClose}

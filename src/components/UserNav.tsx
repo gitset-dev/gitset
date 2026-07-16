@@ -89,7 +89,7 @@ export function UserNav({ user }: UserNavProps) {
             </Button>
 
             {isOpen && (
-                <div className="absolute right-0 top-full mt-2 w-64 rounded-xl border border-border/50 bg-card/80 backdrop-blur-xl shadow-2xl p-1 z-50 animate-in fade-in zoom-in-95 duration-200">
+                <div className="absolute right-0 top-full mt-2 w-64 rounded-3xl border border-border/50 bg-card/80 backdrop-blur-xl shadow-2xl p-1 z-50 animate-in fade-in zoom-in-95 duration-200">
                     <div className="px-4 py-3 border-b border-border/50">
                         <p className="text-sm font-semibold text-foreground truncate">
                             {username}

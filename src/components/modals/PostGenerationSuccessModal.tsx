@@ -16,7 +16,7 @@ export function PostGenerationSuccessModal({ isOpen, onClose, readmeUrl, license
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
             <div
-                className="relative w-full max-w-md rounded-xl border border-border bg-background shadow-2xl animate-in zoom-in-95 duration-200 p-6"
+                className="relative w-full max-w-md rounded-3xl border border-border bg-background shadow-2xl animate-in zoom-in-95 duration-200 p-6"
                 role="dialog"
                 aria-modal="true"
             >
