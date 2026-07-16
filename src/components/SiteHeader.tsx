@@ -186,10 +186,10 @@ export function SiteHeader({ showBackButton = true, user }: SiteHeaderProps) {
                                 <button
                                     onClick={() => setIsToolsOpen(!isToolsOpen)}
                                     aria-label="Tools"
-                                    title="Tools"
-                                    className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border text-muted-foreground transition-colors hover:text-foreground hover:border-foreground/40"
+                                    className="inline-flex h-9 items-center gap-2 rounded-md border border-border px-3 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground hover:border-foreground/40"
                                 >
                                     <Hammer className="h-4 w-4" />
+                                    Tools
                                 </button>
                                 {isToolsOpen && (
                                     <div className="absolute right-0 top-full mt-2 w-48 rounded-md border border-border bg-card p-1 shadow-lg z-50">
@@ -226,8 +226,7 @@ export function SiteHeader({ showBackButton = true, user }: SiteHeaderProps) {
                             <div className="hidden md:flex items-center gap-6">
                                 <ProviderKeysManager
                                     triggerLabel="AI Providers"
-                                    iconOnly
-                                    triggerClassName="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border text-muted-foreground transition-colors hover:text-foreground hover:border-foreground/40"
+                                    triggerClassName="inline-flex h-9 items-center gap-2 rounded-md border border-border px-3 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground hover:border-foreground/40"
                                 />
                                 <UserNav user={user as any} />
                             </div>
