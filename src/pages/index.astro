@@ -148,18 +148,19 @@ const tools = [
         <main class="flex-1">
             {/* ── HERO ─────────────────────────────────────────────── */}
             <section class="relative overflow-hidden">
-                <div class="absolute inset-0 z-0 bg-background">
+                <div class="absolute inset-0 z-0">
                     <video
                         poster="/gitset-poster.jpg"
                         autoplay
                         loop
                         muted
                         playsinline
-                        class="w-full h-full object-cover opacity-25 dark:opacity-30 [clip-path:inset(0_23%)]"
+                        class="w-full h-full object-cover opacity-25 dark:opacity-30"
                     >
                         <source src="/gitset-video.webm" type="video/webm" />
                         <source src="/gitset-video.mp4" type="video/mp4" />
                     </video>
+                    <div class="absolute inset-0 bg-[linear-gradient(to_right,var(--background)_0%,transparent_25%,transparent_75%,var(--background)_100%)]"></div>
                     <div class="absolute inset-0 bg-gradient-to-b from-background/70 via-background/85 to-background"></div>
                 </div>
 
