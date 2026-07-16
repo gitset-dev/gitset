@@ -681,7 +681,7 @@ export function PRMaker({ user }: PRMakerProps) {
 
                     {}
                     <div className="space-y-6 flex flex-col h-full">
-                        <div className="rounded-xl border border-border bg-card text-card-foreground shadow-sm h-full flex flex-col overflow-hidden">
+                        <div className="rounded-3xl border border-border bg-card text-card-foreground shadow-sm h-full flex flex-col overflow-hidden">
                             <div className="p-4 border-b border-border flex justify-between items-center bg-muted/20">
                                 <h3 className="font-semibold leading-none tracking-tight flex items-center gap-2">
                                     Generated PR

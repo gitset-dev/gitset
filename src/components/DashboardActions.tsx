@@ -23,7 +23,7 @@ export default function DashboardActions() {
 
     return (
         <>
-            <div className="rounded-xl border border-destructive/20 bg-destructive/5 text-card-foreground shadow-sm p-6">
+            <div className="rounded-3xl border border-destructive/20 bg-destructive/5 text-card-foreground shadow-sm p-6">
                 <h3 className="font-semibold text-destructive flex items-center gap-2 mb-2">
                     <Shield className="h-4 w-4" /> Danger Zone
                 </h3>

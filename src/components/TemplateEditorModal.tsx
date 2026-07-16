@@ -182,7 +182,7 @@ export function TemplateEditorModal({ isOpen, onClose, onApply, type, backendUrl
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
-            <div className="w-full max-w-4xl h-[80vh] bg-card border border-border rounded-xl shadow-lg flex flex-col overflow-hidden">
+            <div className="w-full max-w-4xl h-[80vh] bg-card border border-border rounded-3xl shadow-lg flex flex-col overflow-hidden">
                 {}
                 <div className="flex items-center justify-between p-4 border-b border-border">
                     <div className="flex items-center gap-2">
@@ -331,7 +331,7 @@ export function TemplateEditorModal({ isOpen, onClose, onApply, type, backendUrl
             {}
             {showOverwriteConfirm && (
                 <div className="fixed inset-0 z-[60] flex items-center justify-center bg-background/80 backdrop-blur-sm">
-                    <div className="w-full max-w-sm bg-card border border-border rounded-xl shadow-lg p-6 space-y-4">
+                    <div className="w-full max-w-sm bg-card border border-border rounded-3xl shadow-lg p-6 space-y-4">
                         <div className="flex items-start gap-3">
                             <AlertTriangle className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
                             <div>

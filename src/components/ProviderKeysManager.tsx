@@ -154,7 +154,7 @@ export default function ProviderKeysManager({ triggerLabel = 'Manage AI provider
             role="dialog"
             aria-modal="true"
             aria-labelledby="byoai-modal-title"
-            className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-xl border border-zinc-800 bg-zinc-900 text-zinc-100 shadow-2xl"
+            className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl border border-zinc-800 bg-zinc-900 text-zinc-100 shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-zinc-800 px-5 py-4">

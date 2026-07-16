@@ -160,6 +160,7 @@ const tools = [
                         <source src="/gitset-video.webm" type="video/webm" />
                         <source src="/gitset-video.mp4" type="video/mp4" />
                     </video>
+                    <div class="absolute inset-0 bg-[linear-gradient(to_right,var(--background)_0%,transparent_25%,transparent_75%,var(--background)_100%)]"></div>
                     <div class="absolute inset-0 bg-gradient-to-b from-background/70 via-background/85 to-background"></div>
                 </div>
 
@@ -218,7 +219,7 @@ const tools = [
 
                 {/* ── LIVE-STYLE TERMINAL DEMO ─────────────────────── */}
                 <div class="relative z-10 container mx-auto px-4 pb-20 max-w-3xl">
-                    <div class="rounded-xl border border-border bg-[#0d1117] shadow-2xl shadow-black/40 overflow-hidden text-left">
+                    <div class="rounded-3xl border border-border bg-[#0d1117] shadow-2xl shadow-black/40 overflow-hidden text-left">
                         <div class="flex items-center gap-2 px-4 py-3 border-b border-white/10 bg-white/5">
                             <span class="h-3 w-3 rounded-full bg-[#ff5f57]"></span>
                             <span class="h-3 w-3 rounded-full bg-[#febc2e]"></span>
@@ -301,7 +302,7 @@ const tools = [
                     {tools.map((t) => (
                         <a
                             href={t.href}
-                            class="group rounded-xl border border-border bg-card p-5 hover:border-brand/60 hover:shadow-lg hover:shadow-brand/5 transition-all"
+                            class="group rounded-3xl border border-border bg-card p-5 hover:border-brand/60 hover:shadow-lg hover:shadow-brand/5 transition-all"
                         >
                             <div class="h-10 w-10 rounded-lg bg-brand/10 flex items-center justify-center mb-4 group-hover:bg-brand/15 transition-colors">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-brand" set:html={t.icon} />

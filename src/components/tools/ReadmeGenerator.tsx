@@ -668,7 +668,7 @@ export function ReadmeGenerator({ user }: ReadmeGeneratorProps) {
 
             {}
             <div className="space-y-6">
-                <div className="rounded-xl border border-border bg-card text-card-foreground shadow-sm h-full flex flex-col">
+                <div className="rounded-3xl border border-border bg-card text-card-foreground shadow-sm h-full flex flex-col">
                     <div className="p-4 border-b border-border flex justify-between items-center bg-muted/20">
                         <h3 className="font-semibold leading-none tracking-tight">Generated Readme</h3>
                         <div className="flex items-center gap-2">
