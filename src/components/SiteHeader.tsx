@@ -24,6 +24,7 @@ import {
     LogIn,
     LogOut,
     ChevronDown,
+    Network,
 } from "lucide-react";
 
 const GitBranchMinus = (props: React.SVGProps<SVGSVGElement>) => (
@@ -115,6 +116,11 @@ export function SiteHeader({ showBackButton = true, user }: SiteHeaderProps) {
             name: "Repo Profiler",
             href: "/tools/repo-profiler",
             icon: Github,
+        },
+        {
+            name: "Knowledge Mapper",
+            href: "/tools/knowledge-mapper",
+            icon: Network,
         },
     ];
 
