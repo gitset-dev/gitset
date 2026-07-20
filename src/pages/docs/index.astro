@@ -16,6 +16,7 @@ const nav = [
     { id: "config", label: "Configuration" },
     { id: "commands", label: "CLI commands" },
     { id: "tools", label: "Tools" },
+    { id: "knowledge-mapper", label: "Knowledge Mapper" },
     { id: "examples", label: "Examples" },
     { id: "workflows", label: "Typical workflow" },
     { id: "practices", label: "Best practices" },
@@ -51,6 +52,7 @@ const tools = [
     { name: "Gitignore Builder", href: "/tools/gitignore-builder", desc: "Stack-aware ignore files, generated in seconds." },
     { name: "Repo Profiler", href: "/tools/repo-profiler", desc: "Descriptions and topics that make your repo discoverable." },
     { name: "Backup Automator", href: "/tools/backup-automator", desc: "Scheduled mirror backups that run inside your GitHub." },
+    { name: "Knowledge Mapper", href: "/tools/knowledge-mapper", desc: "An agent-ready map of your codebase, tracked for drift." },
 ];
 
 const troubleshooting = [
@@ -73,6 +75,14 @@ const troubleshooting = [
     {
         problem: "Templates don't seem to apply",
         fix: "Run gitset init once to scaffold ~/.gitset/templates, then gitset template edit <tool> to customize. Templates are picked up automatically on the next draft — no flag needed.",
+    },
+    {
+        problem: "gitset knowledge automate ran but no pull request appeared",
+        fix: "Enable \"Allow GitHub Actions to create and approve pull requests\" under the repo's Settings > Actions > General > Workflow permissions. Without it, the update still commits and pushes safely — only opening the review PR fails, and the workflow run shows that failure clearly so it's never silently missed. You can also open the PR yourself from the pushed gitset/knowledge-update branch.",
+    },
+    {
+        problem: "Generated knowledge-base docs mention technology the project no longer uses",
+        fix: "This usually reflects deprecated files, dead code, or stale references still present in the repository's history rather than a flaw in the mapping itself — the model describes what it reads. Removing legacy code improves accuracy over time, and a higher-capability model will generally separate current architecture from historical leftovers better than a faster, more cost-efficient one.",
     },
 ];
 ---
@@ -417,10 +427,77 @@ const troubleshooting = [
                             </div>
                         </section>
 
-                        {/* ── 08 · EXAMPLES ───────────────────────────────── */}
-                        <section id="examples" class="scroll-mt-24 space-y-4">
+                        {/* ── 08 · KNOWLEDGE MAPPER ───────────────────────── */}
+                        <section id="knowledge-mapper" class="scroll-mt-24 space-y-4">
                             <h2 class="flex items-baseline gap-3 text-2xl font-semibold tracking-tight">
                                 <span class="font-mono text-sm text-muted-foreground">08</span>
+                                Knowledge Mapper
+                            </h2>
+                            <p class="max-w-[65ch] text-muted-foreground leading-relaxed">
+                                Knowledge Mapper builds and maintains <code class="text-xs">docs/gitset-knowledge/</code> —
+                                a structured, always-current map of your codebase (architecture, module
+                                boundaries, commands, dependency graph) that both developers and AI coding
+                                agents read before touching your code. It's generated from your source code,
+                                manifests, and CI configuration — never from your existing prose docs, so it
+                                can't inherit their drift.
+                            </p>
+                            <p class="max-w-[65ch] text-muted-foreground leading-relaxed">
+                                It runs entirely in the CLI as a six-stage local pipeline (Discover → Map →
+                                Summarize → Plan → Write → Validate): the first two stages walk your
+                                repository and build an import graph with zero AI calls, only Summarize and
+                                Write touch your configured provider, and a deterministic Validate pass
+                                checks every generated link, command, and script before anything is written
+                                to disk.
+                            </p>
+                            <div class="rounded-lg border border-border bg-[#0d1117] p-4 font-mono text-xs text-[#e6edf3] leading-relaxed overflow-x-auto space-y-1">
+                                <div><span class="text-[#6CE0DB]">$</span> gitset knowledge scan</div>
+                                <div class="text-white/50">Zero AI calls — discovers files and prints the plan + cost estimate.</div>
+                                <div><span class="text-[#6CE0DB]">$</span> gitset knowledge generate</div>
+                                <div class="text-white/50">Shows the estimate, asks to confirm, then builds docs/gitset-knowledge/.</div>
+                                <div><span class="text-[#6CE0DB]">$</span> gitset knowledge update</div>
+                                <div class="text-white/50">Incremental — only changed modules (and their direct importers) are re-summarized.</div>
+                                <div><span class="text-[#6CE0DB]">$</span> gitset knowledge automate</div>
+                                <div class="text-white/50">Writes a GitHub Actions workflow that keeps it fresh and opens a review PR.</div>
+                            </div>
+                            <div class="grid gap-3 sm:grid-cols-2">
+                                <div class="rounded-lg border border-border p-4">
+                                    <p class="font-medium text-sm">Your model, not a preset one</p>
+                                    <p class="mt-1 text-xs text-muted-foreground leading-relaxed">Knowledge Mapper has no model of its own — it uses whatever provider and model you've already configured with <code class="text-xs">gitset config</code>, exactly like every other Gitset tool.</p>
+                                </div>
+                                <div class="rounded-lg border border-border p-4">
+                                    <p class="font-medium text-sm">Secrets never leave your machine</p>
+                                    <p class="mt-1 text-xs text-muted-foreground leading-relaxed">A local pass redacts API keys, tokens, and other high-entropy secrets before any file content is sent to your provider. Prose docs and test bodies are listed structurally but their content is never sent at all.</p>
+                                </div>
+                                <div class="rounded-lg border border-border p-4">
+                                    <p class="font-medium text-sm">Cost-honest by design</p>
+                                    <p class="mt-1 text-xs text-muted-foreground leading-relaxed">Every run shows the exact call and token estimate before spending anything, and reports real usage afterward. Two of the five generated documents are assembled locally at zero cost.</p>
+                                </div>
+                                <div class="rounded-lg border border-border p-4">
+                                    <p class="font-medium text-sm">Keeping it fresh</p>
+                                    <p class="mt-1 text-xs text-muted-foreground leading-relaxed"><code class="text-xs">gitset knowledge automate</code> writes a CI workflow (per push, per release, or weekly) that runs the incremental update and opens a pull request only when mapped source actually changed — unaffected pushes cost nothing.</p>
+                                </div>
+                            </div>
+                            <p class="max-w-[65ch] text-muted-foreground leading-relaxed">
+                                On accuracy: Knowledge Mapper has proven reliable in practice, including with
+                                fast, cost-efficient models. Its biggest source of inaccuracy usually isn't the
+                                AI step — it's the repository's own history. Deprecated files, dead code, and
+                                stale references left in a codebase can lead a model to describe an
+                                architecture that used to be true. That's expected behavior for any tool that
+                                reads real code rather than curated documentation, and it tends to improve as
+                                legacy code is cleaned up. For the highest accuracy on a large or long-lived
+                                codebase, a higher-capability model will generally separate current
+                                architecture from historical leftovers better than a faster, more
+                                cost-efficient one.
+                            </p>
+                            <p class="text-sm text-muted-foreground">
+                                Full command reference and CI setup: <a href="https://github.com/gitset-dev/gitset-cli-v2#readme" target="_blank" rel="noreferrer" class="text-brand hover:underline">CLI README</a>.
+                            </p>
+                        </section>
+
+                        {/* ── 09 · EXAMPLES ───────────────────────────────── */}
+                        <section id="examples" class="scroll-mt-24 space-y-4">
+                            <h2 class="flex items-baseline gap-3 text-2xl font-semibold tracking-tight">
+                                <span class="font-mono text-sm text-muted-foreground">09</span>
                                 Examples
                             </h2>
                             <p class="max-w-[65ch] text-muted-foreground leading-relaxed">
@@ -443,10 +520,10 @@ const troubleshooting = [
                             </div>
                         </section>
 
-                        {/* ── 09 · TYPICAL WORKFLOW ───────────────────────── */}
+                        {/* ── 10 · TYPICAL WORKFLOW ───────────────────────── */}
                         <section id="workflows" class="scroll-mt-24 space-y-4">
                             <h2 class="flex items-baseline gap-3 text-2xl font-semibold tracking-tight">
-                                <span class="font-mono text-sm text-muted-foreground">09</span>
+                                <span class="font-mono text-sm text-muted-foreground">10</span>
                                 Typical workflow
                             </h2>
                             <ol class="max-w-[65ch] space-y-3 text-sm text-muted-foreground leading-relaxed list-decimal list-inside">
@@ -457,10 +534,10 @@ const troubleshooting = [
                             </ol>
                         </section>
 
-                        {/* ── 10 · BEST PRACTICES ─────────────────────────── */}
+                        {/* ── 11 · BEST PRACTICES ─────────────────────────── */}
                         <section id="practices" class="scroll-mt-24 space-y-4">
                             <h2 class="flex items-baseline gap-3 text-2xl font-semibold tracking-tight">
-                                <span class="font-mono text-sm text-muted-foreground">10</span>
+                                <span class="font-mono text-sm text-muted-foreground">11</span>
                                 Best practices
                             </h2>
                             <ul class="max-w-[65ch] space-y-2 text-sm text-muted-foreground leading-relaxed list-disc list-inside">
@@ -472,10 +549,10 @@ const troubleshooting = [
                             </ul>
                         </section>
 
-                        {/* ── 11 · TROUBLESHOOTING ────────────────────────── */}
+                        {/* ── 12 · TROUBLESHOOTING ────────────────────────── */}
                         <section id="troubleshooting" class="scroll-mt-24 space-y-4">
                             <h2 class="flex items-baseline gap-3 text-2xl font-semibold tracking-tight">
-                                <span class="font-mono text-sm text-muted-foreground">11</span>
+                                <span class="font-mono text-sm text-muted-foreground">12</span>
                                 Troubleshooting
                             </h2>
                             <div class="space-y-3">

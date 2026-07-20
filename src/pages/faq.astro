@@ -49,6 +49,18 @@ const faqs = [
         question: "How do I delete my account and data?",
         answer: "From your dashboard, in one click — it permanently removes your account and associated data. You can also revoke Gitset's GitHub access at any time from GitHub's own settings. The CLI stores everything locally in ~/.gitset, so deleting that folder removes every trace.",
     },
+    {
+        question: "Does Knowledge Mapper send my entire codebase to my AI provider?",
+        answer: "No. Prose docs and test file bodies are listed structurally but their content is never sent. A local pass redacts API keys, tokens, and other high-entropy secrets before anything reaches your provider. Every run shows the exact file and token estimate up front and asks for confirmation before spending anything.",
+    },
+    {
+        question: "How does Knowledge Mapper handle large repositories?",
+        answer: "Files are grouped into modules and summarized in batches, oversized files are budgeted down to their signatures instead of full content, and gitset knowledge update re-analyzes only the modules that actually changed since the last run (plus their direct importers) — a full run happens once, everything after that touches a fraction of the codebase.",
+    },
+    {
+        question: "Can I exclude specific files from Knowledge Mapper?",
+        answer: "Yes. It respects your repository's own .gitignore automatically, and gitset knowledge init scaffolds a .gitset-knowledge.json where you can add custom include/exclude glob patterns for anything else you want left out.",
+    },
 ];
 ---
 
