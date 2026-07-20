@@ -42,6 +42,7 @@ interface Drift {
 interface Automation {
     status: 'none' | 'configured';
     mode?: 'push' | 'releases' | 'weekly' | 'custom';
+    sync?: 'commit' | 'pr';
     branch?: string;
     nextRunAt?: string | null;
     lastRun?: { conclusion: string | null; status: string; at: string; url: string } | null;
@@ -158,7 +159,9 @@ export function KnowledgeMapper({ user }: { user: User }) {
             }
             if (!wfRes.ok) return;
             const wfData = await wfRes.json();
-            const trigger = parseWorkflowTrigger(decodeBase64Utf8(wfData.content));
+            const wfYaml = decodeBase64Utf8(wfData.content);
+            const trigger = parseWorkflowTrigger(wfYaml);
+            const sync: Automation['sync'] = wfYaml.includes('gh pr create') ? 'pr' : 'commit';
 
             let lastRun: Automation['lastRun'] = null;
             const runsRes = await ghFetch(`/repos/${repoFullName}/actions/workflows/gitset-knowledge.yml/runs?per_page=1`);
@@ -187,6 +190,7 @@ export function KnowledgeMapper({ user }: { user: User }) {
             setAutomation({
                 status: 'configured',
                 mode: trigger.mode,
+                sync,
                 branch: trigger.branch,
                 nextRunAt: next ? next.toISOString() : null,
                 lastRun,
@@ -467,7 +471,7 @@ export function KnowledgeMapper({ user }: { user: User }) {
                                 <Workflow className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
                                 <div className="text-sm">
                                     <p className="font-medium">CI automation is off</p>
-                                    <p className="text-xs text-muted-foreground">Let CI keep this knowledge base fresh — it opens a review PR only when mapped source actually changed. Choose per-push, per-release or weekly:</p>
+                                    <p className="text-xs text-muted-foreground">Let CI keep this knowledge base fresh — zero setup: by default it commits refreshed docs directly when mapped source actually changed (or opens review PRs if you prefer). Choose per-push, per-release or weekly:</p>
                                 </div>
                             </div>
                             <CopyableCommand command="gitset knowledge automate" />
@@ -487,6 +491,8 @@ export function KnowledgeMapper({ user }: { user: User }) {
                                             ? `Runs weekly — next run ${new Date(automation.nextRunAt).toLocaleString()} (${relativeFuture(new Date(automation.nextRunAt))}).`
                                             : 'Runs on a weekly schedule.')}
                                         {automation.mode === 'custom' && 'Custom trigger — the workflow file was edited manually.'}
+                                        {automation.sync === 'commit' && ' Updates are committed directly to the branch.'}
+                                        {automation.sync === 'pr' && ' Updates arrive as review pull requests.'}
                                     </p>
                                 </div>
                             </div>
