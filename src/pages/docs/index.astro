@@ -78,7 +78,7 @@ const troubleshooting = [
     },
     {
         problem: "gitset knowledge automate ran but no pull request appeared",
-        fix: "gitset knowledge automate detects this and offers to enable \"Allow GitHub Actions to create and approve pull requests\" via the GitHub API (confirm-gated, like everything else in the command). If you declined, or it couldn't (no admin access, an org policy locking the setting), enable it under the repo's Settings > Actions > General > Workflow permissions. Some organizations enforce this off with no override at all — the checkbox greys out even on the org's own settings page. In that case, add a repository secret named GITSET_PR_TOKEN with a personal access token (repo scope); it isn't subject to that org-wide restriction, and the workflow picks it up automatically on the next run, no changes needed. Either way, the update still commits and pushes safely — only opening the review PR fails, and the workflow run shows that failure clearly so it's never silently missed. You can also open the PR yourself from the pushed gitset/knowledge-update branch.",
+        fix: "As of @gitset-dev/cli 2.5.0 the default sync mode commits directly and needs no PR permission at all — re-running gitset knowledge automate regenerates the workflow that way. If you specifically want review PRs (--sync pr), the CLI sets up the required access for you: it first tries enabling \"Allow GitHub Actions to create and approve pull requests\" via the API, and if your organization blocks that (the checkbox greys out even on the org's settings page), it offers to store a token from your existing gh login as the GITSET_PR_TOKEN secret — no settings pages, no manual token creation. Either way, the update itself always commits and pushes safely; only the PR step can fail, and the workflow run shows that clearly so it's never silently missed.",
     },
     {
         problem: "Generated knowledge-base docs mention technology the project no longer uses",
@@ -474,7 +474,7 @@ const troubleshooting = [
                                 </div>
                                 <div class="rounded-lg border border-border p-4">
                                     <p class="font-medium text-sm">Keeping it fresh</p>
-                                    <p class="mt-1 text-xs text-muted-foreground leading-relaxed"><code class="text-xs">gitset knowledge automate</code> writes a CI workflow (per push, per release, or weekly) that runs the incremental update and opens a pull request only when mapped source actually changed — unaffected pushes cost nothing.</p>
+                                    <p class="mt-1 text-xs text-muted-foreground leading-relaxed"><code class="text-xs">gitset knowledge automate</code> writes a CI workflow (per push, per release, or weekly) that runs the incremental update when mapped source actually changed — unaffected pushes cost nothing. By default it commits refreshed docs directly (zero setup, works on every repo and org); prefer reviewing each update as a pull request? <code class="text-xs">--sync pr</code> sets up the required access for you, no settings pages or manual tokens.</p>
                                 </div>
                             </div>
                             <p class="max-w-[65ch] text-muted-foreground leading-relaxed">
