@@ -4,7 +4,7 @@ import { ghFetch } from '@/lib/githubProxy';
 import {
     Loader2, Copy, Check, ExternalLink, RefreshCw, Search, Terminal,
     FileText, ChevronDown, ChevronRight, CheckCircle2, AlertTriangle,
-    Network, BookOpen, ShieldCheck, Coins,
+    Network, BookOpen, ShieldCheck, Coins, Workflow, GitPullRequest, XCircle,
 } from 'lucide-react';
 
 interface User {
@@ -39,6 +39,15 @@ interface Drift {
     truncated: boolean;
 }
 
+interface Automation {
+    status: 'none' | 'configured';
+    mode?: 'push' | 'releases' | 'weekly' | 'custom';
+    branch?: string;
+    nextRunAt?: string | null;
+    lastRun?: { conclusion: string | null; status: string; at: string; url: string } | null;
+    updatePr?: { number: number; url: string } | null;
+}
+
 type Status = 'idle' | 'loading' | 'missing' | 'loaded' | 'error';
 
 const KNOWLEDGE_DIR = 'docs/gitset-knowledge';
@@ -54,6 +63,43 @@ function moduleKeyFor(filePath: string): string {
 
 function decodeBase64Utf8(base64: string): string {
     return decodeURIComponent(escape(atob(base64.replace(/\n/g, ''))));
+}
+
+const WORKFLOW_FILE = '.github/workflows/gitset-knowledge.yml';
+
+function parseWorkflowTrigger(yaml: string): { mode: Automation['mode']; branch?: string; cron?: string } {
+    if (/\brelease:/.test(yaml) && /types:\s*\[published\]/.test(yaml)) return { mode: 'releases' };
+    const cron = yaml.match(/cron:\s*'([^']+)'/);
+    if (/\bschedule:/.test(yaml) && cron) return { mode: 'weekly', cron: cron[1] };
+    const branches = yaml.match(/\bpush:\s*\r?\n\s*branches:\s*\[([^\]]+)\]/);
+    if (branches) return { mode: 'push', branch: branches[1].trim() };
+    return { mode: 'custom' };
+}
+
+function nextCronRun(cron: string): Date | null {
+    const parts = cron.trim().split(/\s+/);
+    if (parts.length !== 5 || parts[2] !== '*' || parts[3] !== '*') return null;
+    const minute = parseInt(parts[0], 10);
+    const hour = parseInt(parts[1], 10);
+    if (Number.isNaN(minute) || Number.isNaN(hour)) return null;
+    const dow = parts[4] === '*' ? null : parseInt(parts[4], 10);
+    if (parts[4] !== '*' && Number.isNaN(dow)) return null;
+    const now = new Date();
+    const base = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), hour, minute, 0);
+    for (let i = 0; i < 8; i += 1) {
+        const candidate = new Date(base + i * 86400000);
+        if (candidate.getTime() <= now.getTime()) continue;
+        if (dow === null || candidate.getUTCDay() === dow) return candidate;
+    }
+    return null;
+}
+
+function relativeFuture(date: Date): string {
+    const mins = Math.round((date.getTime() - Date.now()) / 60000);
+    if (mins < 60) return `in ${Math.max(mins, 1)} min`;
+    const hours = Math.round(mins / 60);
+    if (hours < 48) return `in ${hours}h`;
+    return `in ${Math.round(hours / 24)} days`;
 }
 
 function relativeTime(iso: string): string {
@@ -99,14 +145,64 @@ export function KnowledgeMapper({ user }: { user: User }) {
     const [state, setState] = useState<KnowledgeState | null>(null);
     const [branch, setBranch] = useState('main');
     const [drift, setDrift] = useState<Drift | null>(null);
+    const [automation, setAutomation] = useState<Automation | null>(null);
     const [search, setSearch] = useState('');
     const [expanded, setExpanded] = useState<Set<string>>(new Set());
+
+    const loadAutomation = async (repoFullName: string, defaultBranch: string) => {
+        try {
+            const wfRes = await ghFetch(`/repos/${repoFullName}/contents/${WORKFLOW_FILE}?ref=${defaultBranch}`);
+            if (wfRes.status === 404) {
+                setAutomation({ status: 'none' });
+                return;
+            }
+            if (!wfRes.ok) return;
+            const wfData = await wfRes.json();
+            const trigger = parseWorkflowTrigger(decodeBase64Utf8(wfData.content));
+
+            let lastRun: Automation['lastRun'] = null;
+            const runsRes = await ghFetch(`/repos/${repoFullName}/actions/workflows/gitset-knowledge.yml/runs?per_page=1`);
+            if (runsRes.ok) {
+                const runs = await runsRes.json();
+                const run = (runs.workflow_runs || [])[0];
+                if (run) {
+                    lastRun = {
+                        conclusion: run.conclusion,
+                        status: run.status,
+                        at: run.updated_at || run.created_at,
+                        url: run.html_url,
+                    };
+                }
+            }
+
+            let updatePr: Automation['updatePr'] = null;
+            const owner = repoFullName.split('/')[0];
+            const prRes = await ghFetch(`/repos/${repoFullName}/pulls?state=open&head=${encodeURIComponent(`${owner}:gitset/knowledge-update`)}`);
+            if (prRes.ok) {
+                const prs = await prRes.json();
+                if (Array.isArray(prs) && prs[0]) updatePr = { number: prs[0].number, url: prs[0].html_url };
+            }
+
+            const next = trigger.cron ? nextCronRun(trigger.cron) : null;
+            setAutomation({
+                status: 'configured',
+                mode: trigger.mode,
+                branch: trigger.branch,
+                nextRunAt: next ? next.toISOString() : null,
+                lastRun,
+                updatePr,
+            });
+        } catch {
+            setAutomation(null);
+        }
+    };
 
     const load = async (repoFullName: string) => {
         setStatus('loading');
         setError(null);
         setState(null);
         setDrift(null);
+        setAutomation(null);
         setExpanded(new Set());
         try {
             let defaultBranch = 'main';
@@ -128,6 +224,7 @@ export function KnowledgeMapper({ user }: { user: User }) {
             const parsed: KnowledgeState = JSON.parse(decodeBase64Utf8(stateData.content));
             setState(parsed);
             setStatus('loaded');
+            loadAutomation(repoFullName, defaultBranch);
 
             if (parsed.commit) {
                 const cmpRes = await ghFetch(`/repos/${repoFullName}/compare/${parsed.commit}...${defaultBranch}`);
@@ -162,6 +259,7 @@ export function KnowledgeMapper({ user }: { user: User }) {
             setStatus('idle');
             setState(null);
             setDrift(null);
+            setAutomation(null);
         }
     }, [repo]);
 
@@ -282,6 +380,9 @@ export function KnowledgeMapper({ user }: { user: User }) {
                             Review the generated <code>{KNOWLEDGE_DIR}/</code> and <code>AGENTS.md</code>, then commit and push them like any other change.
                             The knowledge base is meant to live in git — that's how agents, teammates and this dashboard find it.
                         </p>
+                        <p className="text-xs text-muted-foreground">
+                            Optional: <code>gitset knowledge automate</code> writes a CI workflow (per-push, per-release or weekly) that keeps it fresh and opens a review PR when something actually changed.
+                        </p>
                     </section>
 
                     <button
@@ -357,6 +458,71 @@ export function KnowledgeMapper({ user }: { user: User }) {
                             </div>
                             <p className="text-xs text-muted-foreground">Refresh only what changed (cached summaries are reused):</p>
                             <CopyableCommand command="gitset knowledge update" />
+                        </div>
+                    )}
+
+                    {automation && automation.status === 'none' && (
+                        <div className="space-y-2 rounded-lg border border-border bg-card p-4">
+                            <div className="flex items-start gap-2">
+                                <Workflow className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+                                <div className="text-sm">
+                                    <p className="font-medium">CI automation is off</p>
+                                    <p className="text-xs text-muted-foreground">Let CI keep this knowledge base fresh — it opens a review PR only when mapped source actually changed. Choose per-push, per-release or weekly:</p>
+                                </div>
+                            </div>
+                            <CopyableCommand command="gitset knowledge automate" />
+                        </div>
+                    )}
+
+                    {automation && automation.status === 'configured' && (
+                        <div className="space-y-2 rounded-lg border border-brand/30 bg-brand/5 p-4">
+                            <div className="flex items-start gap-2">
+                                <Workflow className="mt-0.5 h-4 w-4 shrink-0 text-brand" />
+                                <div className="text-sm">
+                                    <p className="font-medium">CI automation active</p>
+                                    <p className="text-xs text-muted-foreground">
+                                        {automation.mode === 'push' && `Runs on every push to ${automation.branch || 'the default branch'} that touches mapped source — pushes with no mapped changes cost zero AI calls.`}
+                                        {automation.mode === 'releases' && 'Runs whenever a release is published.'}
+                                        {automation.mode === 'weekly' && (automation.nextRunAt
+                                            ? `Runs weekly — next run ${new Date(automation.nextRunAt).toLocaleString()} (${relativeFuture(new Date(automation.nextRunAt))}).`
+                                            : 'Runs on a weekly schedule.')}
+                                        {automation.mode === 'custom' && 'Custom trigger — the workflow file was edited manually.'}
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="flex flex-wrap items-center gap-2 pl-6">
+                                {automation.lastRun && (
+                                    <a
+                                        href={automation.lastRun.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center gap-1.5 rounded-full bg-background px-2.5 py-1 text-[11px] font-medium hover:bg-accent"
+                                    >
+                                        {automation.lastRun.status !== 'completed'
+                                            ? <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
+                                            : automation.lastRun.conclusion === 'success'
+                                                ? <CheckCircle2 className="h-3 w-3 text-brand" />
+                                                : <XCircle className="h-3 w-3 text-red-500" />}
+                                        Last run: {automation.lastRun.status !== 'completed' ? 'running' : automation.lastRun.conclusion} · {relativeTime(automation.lastRun.at)}
+                                        <ExternalLink className="h-3 w-3 text-muted-foreground" />
+                                    </a>
+                                )}
+                                {!automation.lastRun && (
+                                    <span className="rounded-full bg-background px-2.5 py-1 text-[11px] text-muted-foreground">No runs yet</span>
+                                )}
+                                {automation.updatePr && (
+                                    <a
+                                        href={automation.updatePr.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-2.5 py-1 text-[11px] font-medium text-amber-700 hover:bg-amber-500/20 dark:text-amber-400"
+                                    >
+                                        <GitPullRequest className="h-3 w-3" />
+                                        Update PR #{automation.updatePr.number} awaiting review
+                                        <ExternalLink className="h-3 w-3" />
+                                    </a>
+                                )}
+                            </div>
                         </div>
                     )}
 
