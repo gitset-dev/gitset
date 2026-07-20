@@ -1,0 +1,136 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import "@/styles/global.css";
+import { SiteHeader } from "@/components/SiteHeader";
+import { Footer } from "@/components/Footer";
+import getUser from "@/lib/getUser";
+import { toClientUser } from "@/lib/clientUser";
+import { KnowledgeMapper } from "@/components/tools/KnowledgeMapper";
+
+const user = await getUser(Astro.cookies.get("app_auth_token")?.value);
+
+if (!user) {
+    return Astro.redirect("/?login=1&next=" + encodeURIComponent(Astro.url.pathname));
+}
+---
+
+<BaseLayout title="Knowledge Mapper - Gitset">
+    <Fragment slot="head">
+        <meta charset="utf-8" />
+        <link rel="icon" type="image/png" href="/favicon-96.png" />
+        <meta name="viewport" content="width=device-width" />
+        <meta name="generator" content={Astro.generator} />
+        <meta
+            name="description"
+            content="An always-current, agent-ready map of your codebase — generated from source code with your own AI key, tracked for drift on every commit."
+        />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://gitset.dev/tools/knowledge-mapper" />
+        <meta property="og:title" content="Knowledge Mapper - Gitset" />
+        <meta
+            property="og:description"
+            content="An always-current, agent-ready map of your codebase — generated from source code with your own AI key, tracked for drift on every commit."
+        />
+        <meta property="og:image" content="https://gitset.dev/gitset-poster.jpg" />
+        <meta property="twitter:card" content="summary_large_image" />
+        <meta property="twitter:url" content="https://gitset.dev/tools/knowledge-mapper" />
+        <meta property="twitter:title" content="Knowledge Mapper - Gitset" />
+        <meta
+            property="twitter:description"
+            content="An always-current, agent-ready map of your codebase — generated from source code with your own AI key, tracked for drift on every commit."
+        />
+        <meta property="twitter:image" content="https://gitset.dev/gitset-poster.jpg" />
+        <script is:inline>
+            (function () {
+                const THEME_STORAGE_KEY = "theme";
+                const stored = localStorage.getItem(THEME_STORAGE_KEY);
+                const prefersDark = window.matchMedia(
+                    "(prefers-color-scheme: dark)",
+                ).matches;
+                const theme =
+                    stored === "light" || stored === "dark"
+                        ? stored
+                        : prefersDark
+                          ? "dark"
+                          : "light";
+                document.documentElement.classList.add(theme);
+            })();
+        </script>
+    </Fragment>
+    <body
+        class="bg-background text-foreground antialiased min-h-screen flex flex-col"
+    >
+        <SiteHeader client:load user={toClientUser(user.user)} />
+        <main class="flex-1 container mx-auto px-4 py-8 max-w-4xl">
+            <div class="mb-8 flex items-center gap-3">
+                <div class="p-2 bg-brand/10 rounded-lg">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="h-6 w-6 text-brand"
+                    >
+                        <rect x="16" y="16" width="6" height="6" rx="1"></rect>
+                        <rect x="2" y="16" width="6" height="6" rx="1"></rect>
+                        <rect x="9" y="2" width="6" height="6" rx="1"></rect>
+                        <path d="M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3"></path>
+                        <path d="M12 12V8"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold tracking-tight">
+                        Knowledge Mapper
+                    </h1>
+                    <p class="text-sm text-muted-foreground">
+                        An always-current map of your codebase, built for
+                        developers and AI agents — with drift tracked on every
+                        commit.
+                    </p>
+                </div>
+            </div>
+
+            <div
+                class="mb-8 rounded-lg border border-brand/30 bg-brand/5 p-4 flex gap-3 items-start"
+            >
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="h-5 w-5 text-brand shrink-0 mt-0.5"
+                >
+                    <path
+                        d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"
+                    ></path>
+                    <path d="m9 12 2 2 4-4"></path>
+                </svg>
+                <div class="text-sm space-y-1">
+                    <p class="font-medium">
+                        Generation runs on your machine — your code and keys
+                        never touch a Gitset server.
+                    </p>
+                    <p class="text-muted-foreground text-xs">
+                        The Gitset CLI analyzes your repository locally with
+                        your own AI key, redacts secrets before any AI call,
+                        and shows you the exact cost before spending a token.
+                        This dashboard only reads what you chose to commit.
+                    </p>
+                </div>
+            </div>
+
+            <KnowledgeMapper client:load user={toClientUser(user.user)} />
+        </main>
+        <Footer client:idle />
+    </body>
+</BaseLayout>

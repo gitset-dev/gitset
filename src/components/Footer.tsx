@@ -31,6 +31,7 @@ export function Footer() {
                         <a href="/tools/gitignore-builder" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Gitignore Builder</a>
                         <a href="/tools/repo-profiler" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Repo Profiler</a>
                         <a href="/tools/backup-automator" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Backup Automator</a>
+                        <a href="/tools/knowledge-mapper" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Knowledge Mapper</a>
                     </div>
 
                     <div className="flex flex-col gap-2 2xl:justify-self-center">
