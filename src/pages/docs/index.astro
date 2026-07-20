@@ -78,7 +78,7 @@ const troubleshooting = [
     },
     {
         problem: "gitset knowledge automate ran but no pull request appeared",
-        fix: "Enable \"Allow GitHub Actions to create and approve pull requests\" under the repo's Settings > Actions > General > Workflow permissions. Without it, the update still commits and pushes safely — only opening the review PR fails, and the workflow run shows that failure clearly so it's never silently missed. You can also open the PR yourself from the pushed gitset/knowledge-update branch.",
+        fix: "gitset knowledge automate detects this and offers to enable \"Allow GitHub Actions to create and approve pull requests\" via the GitHub API (confirm-gated, like everything else in the command). If you declined, or it couldn't (no admin access, an org policy locking the setting), enable it under the repo's Settings > Actions > General > Workflow permissions. Without it, the update still commits and pushes safely — only opening the review PR fails, and the workflow run shows that failure clearly so it's never silently missed. You can also open the PR yourself from the pushed gitset/knowledge-update branch.",
     },
     {
         problem: "Generated knowledge-base docs mention technology the project no longer uses",
