@@ -40,6 +40,7 @@ your terminal — see [the CLI](#the-cli).
 | **Backup Automator** | Wondering if you'd survive losing GitHub. A scheduled mirror backup that runs inside *your* GitHub. |
 | **Repo Profiler** | Empty description and topics fields. Drafted from your code, applied in one click. |
 | **Gitignore Builder** | Copy-pasting `.gitignore` snippets. Stack-aware, generated in seconds. |
+| **Knowledge Mapper** | Coding agents guessing at your architecture. Builds and maintains an agent-ready map of your codebase, tracked for drift. |
 
 Every generator accepts **your own template** — define your format once and
 every draft follows it — and includes a curated library (Conventional
