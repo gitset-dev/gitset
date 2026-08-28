@@ -1,7 +1,7 @@
 {
   "name": "gitset",
   "type": "module",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "packageManager": "pnpm@9.15.0",
   "engines": {
     "node": ">=20"
