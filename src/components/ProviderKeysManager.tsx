@@ -210,7 +210,7 @@ export default function ProviderKeysManager({ triggerLabel = 'Manage AI provider
                   </select>
                 </label>
                 {modelChoice === CUSTOM && (
-                  <input value={customModel} onChange={(e) => setCustomModel(e.target.value)} placeholder="exact model id, e.g. claude-sonnet-4-6" className={`${inputCls} font-mono`} />
+                  <input value={customModel} onChange={(e) => setCustomModel(e.target.value)} placeholder="exact model id, e.g. claude-sonnet-5" className={`${inputCls} font-mono`} />
                 )}
 
                 <button type="submit" disabled={busy} className="inline-flex items-center gap-2 rounded-md bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:bg-primary/90 disabled:opacity-50">
