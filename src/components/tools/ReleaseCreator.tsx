@@ -30,57 +30,79 @@ interface Version {
     created_at?: string;
 }
 
+interface ManifestFileChange {
+    type: string;
+    file: string;
+    sha: string;
+    oldVersion: string;
+    newVersion: string;
+    newContent: string;
+}
+
 interface ManifestSyncState {
     status: 'idle' | 'checking' | 'confirm' | 'applying' | 'done' | 'error' | 'none';
-    type?: string;
-    file?: string;
-    sha?: string;
-    oldVersion?: string;
-    newVersion?: string;
-    newContent?: string;
+    files?: ManifestFileChange[];
     error?: string;
 }
 
-const MANIFEST_CANDIDATES = [
-    { type: 'npm', file: 'package.json' },
-    { type: 'cargo', file: 'Cargo.toml' },
-    { type: 'python', file: 'pyproject.toml' },
-];
+interface SupportedManifest {
+    type: string;
+    label: string;
+    files: string[] | null;
+    suffix: string | null;
+}
 
 function decodeBase64Utf8(base64: string): string {
     return decodeURIComponent(escape(atob(base64.replace(/\n/g, ''))));
 }
 
-async function findManifestFile(owner: string, name: string, branch: string) {
-    for (const candidate of MANIFEST_CANDIDATES) {
-        const res = await ghFetch(`/repos/${owner}/${name}/contents/${candidate.file}?ref=${branch}`);
-        if (res.ok) {
-            const data = await res.json();
-            if (data && typeof data.content === 'string') {
-                return { type: candidate.type, file: candidate.file, sha: data.sha, content: decodeBase64Utf8(data.content) };
+// A project can carry more than one relevant manifest at once — e.g.
+// package.json AND nuxt.config.ts, each with its own version field — so
+// this returns every one present, not just the first match. The candidate
+// list itself comes from the backend's /api/manifest catalogue rather than
+// being duplicated here, so this can't drift from what gitset-core-v2 (and
+// the CLI, vendored from the same source) actually supports.
+async function findManifestFiles(owner: string, name: string, branch: string, supported: SupportedManifest[]) {
+    const found: { type: string; file: string; sha: string; content: string }[] = [];
+
+    for (const entry of supported) {
+        if (!entry.files) continue;
+        for (const file of entry.files) {
+            const res = await ghFetch(`/repos/${owner}/${name}/contents/${file}?ref=${branch}`);
+            if (res.ok) {
+                const data = await res.json();
+                if (data && typeof data.content === 'string') {
+                    found.push({ type: entry.type, file, sha: data.sha, content: decodeBase64Utf8(data.content) });
+                    break;
+                }
             }
         }
     }
-    try {
-        const rootRes = await ghFetch(`/repos/${owner}/${name}/contents/?ref=${branch}`);
-        if (rootRes.ok) {
-            const rootData = await rootRes.json();
-            if (Array.isArray(rootData)) {
-                const gem = rootData.find((f: any) => typeof f.name === 'string' && f.name.endsWith('.gemspec'));
-                if (gem) {
-                    const res = await ghFetch(`/repos/${owner}/${name}/contents/${gem.name}?ref=${branch}`);
-                    if (res.ok) {
-                        const data = await res.json();
-                        if (data && typeof data.content === 'string') {
-                            return { type: 'gemspec', file: gem.name, sha: data.sha, content: decodeBase64Utf8(data.content) };
+
+    const suffixEntry = supported.find((e) => e.suffix);
+    if (suffixEntry?.suffix) {
+        try {
+            const rootRes = await ghFetch(`/repos/${owner}/${name}/contents/?ref=${branch}`);
+            if (rootRes.ok) {
+                const rootData = await rootRes.json();
+                if (Array.isArray(rootData)) {
+                    const hit = rootData.find((f: any) => typeof f.name === 'string' && f.name.endsWith(suffixEntry.suffix as string));
+                    if (hit) {
+                        const res = await ghFetch(`/repos/${owner}/${name}/contents/${hit.name}?ref=${branch}`);
+                        if (res.ok) {
+                            const data = await res.json();
+                            if (data && typeof data.content === 'string') {
+                                found.push({ type: suffixEntry.type, file: hit.name, sha: data.sha, content: decodeBase64Utf8(data.content) });
+                            }
                         }
                     }
                 }
             }
+        } catch {
         }
-    } catch {
     }
-    return null;
+
+    return found;
 }
 
 export function ReleaseCreator({ user, initialRepo = '' }: ReleaseCreatorProps) {
@@ -455,36 +477,37 @@ export function ReleaseCreator({ user, initialRepo = '' }: ReleaseCreatorProps) 
         try {
             const [owner, name] = repo.split('/');
             const branch = toRef || 'main';
-            const found = await findManifestFile(owner, name, branch);
 
-            if (!found) {
+            const catalogueRes = await fetch('/api/manifest');
+            const supported: SupportedManifest[] = catalogueRes.ok ? await catalogueRes.json() : [];
+
+            const found = await findManifestFiles(owner, name, branch, supported);
+            if (!found.length) {
                 setManifestSync({ status: 'none' });
                 await publishRelease();
                 return;
             }
 
-            const res = await fetch('/api/manifest', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'bump', type: found.type, content: found.content, tagName })
-            });
-            const data = await res.json();
+            const changes: ManifestFileChange[] = [];
+            for (const f of found) {
+                const res = await fetch('/api/manifest', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'bump', type: f.type, content: f.content, tagName })
+                });
+                const data = await res.json();
+                if (res.ok && !data.error && !data.unchanged && data.newContent) {
+                    changes.push({ type: f.type, file: f.file, sha: f.sha, oldVersion: data.oldVersion, newVersion: data.newVersion, newContent: data.newContent });
+                }
+            }
 
-            if (!res.ok || data.error || data.unchanged || !data.newContent) {
+            if (!changes.length) {
                 setManifestSync({ status: 'none' });
                 await publishRelease();
                 return;
             }
 
-            setManifestSync({
-                status: 'confirm',
-                type: found.type,
-                file: found.file,
-                sha: found.sha,
-                oldVersion: data.oldVersion,
-                newVersion: data.newVersion,
-                newContent: data.newContent,
-            });
+            setManifestSync({ status: 'confirm', files: changes });
         } catch (e) {
             setManifestSync({ status: 'none' });
             await publishRelease();
@@ -501,33 +524,52 @@ export function ReleaseCreator({ user, initialRepo = '' }: ReleaseCreatorProps) 
     };
 
     const applyManifestSync = async () => {
-        if (manifestSync.status !== 'confirm' || !repo || !manifestSync.file || !manifestSync.newContent || !manifestSync.newVersion) return;
+        if (manifestSync.status !== 'confirm' || !repo || !manifestSync.files?.length) return;
 
         setManifestSync(prev => ({ ...prev, status: 'applying' }));
-        try {
-            const [owner, name] = repo.split('/');
-            const branch = toRef || 'main';
-            const contentB64 = btoa(unescape(encodeURIComponent(manifestSync.newContent)));
+        const [owner, name] = repo.split('/');
+        const branch = toRef || 'main';
 
-            const res = await ghFetch(`/repos/${owner}/${name}/contents/${manifestSync.file}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    message: `chore: bump version to ${manifestSync.newVersion} via Gitset`,
-                    content: contentB64,
-                    branch,
-                    sha: manifestSync.sha,
-                }),
-            });
+        const succeeded: string[] = [];
+        const failed: string[] = [];
 
-            if (!res.ok) throw new Error('Failed to update manifest file');
-
-            const note = `${manifestSync.file} updated to ${manifestSync.newVersion}.`;
-            setManifestSync({ status: 'none' });
-            await publishRelease(note);
-        } catch (e) {
-            setManifestSync(prev => ({ ...prev, status: 'error', error: 'Failed to update the manifest file on GitHub.' }));
+        for (const f of manifestSync.files) {
+            try {
+                const contentB64 = btoa(unescape(encodeURIComponent(f.newContent)));
+                const res = await ghFetch(`/repos/${owner}/${name}/contents/${f.file}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message: `chore: bump version to ${f.newVersion} via Gitset`,
+                        content: contentB64,
+                        branch,
+                        sha: f.sha,
+                    }),
+                });
+                if (!res.ok) throw new Error('failed');
+                succeeded.push(f.file);
+            } catch {
+                failed.push(f.file);
+            }
         }
+
+        if (failed.length) {
+            // Files in `succeeded` are already committed on GitHub and can't
+            // be un-applied — surface exactly what happened rather than a
+            // generic failure, so "Continue" doesn't look like it undoes them.
+            setManifestSync(prev => ({
+                ...prev,
+                status: 'error',
+                error: succeeded.length
+                    ? `Updated ${succeeded.join(', ')}, but failed to update ${failed.join(', ')}.`
+                    : `Failed to update ${failed.join(', ')} on GitHub.`,
+            }));
+            return;
+        }
+
+        const note = `${manifestSync.files.map((f) => f.file).join(', ')} updated to ${manifestSync.files[0].newVersion}.`;
+        setManifestSync({ status: 'none' });
+        await publishRelease(note);
     };
 
     const handleRefine = async () => {
@@ -943,7 +985,7 @@ export function ReleaseCreator({ user, initialRepo = '' }: ReleaseCreatorProps) 
                     <Modal
                         isOpen={manifestSync.status === 'confirm' || manifestSync.status === 'applying' || manifestSync.status === 'error'}
                         onClose={cancelManifestSync}
-                        title="Sync manifest version?"
+                        title={(manifestSync.files?.length ?? 0) > 1 ? 'Sync manifest versions?' : 'Sync manifest version?'}
                         maxWidth="max-w-lg"
                         footer={
                             manifestSync.status === 'confirm' ? (
@@ -989,7 +1031,9 @@ export function ReleaseCreator({ user, initialRepo = '' }: ReleaseCreatorProps) 
                             {manifestSync.status === 'applying' ? (
                                 <div className="flex items-center justify-center gap-2 py-6 text-muted-foreground">
                                     <Loader2 className="h-4 w-4 animate-spin" />
-                                    <span className="text-sm">Updating {manifestSync.file}…</span>
+                                    <span className="text-sm">
+                                        Updating {(manifestSync.files?.length ?? 0) > 1 ? `${manifestSync.files?.length} files` : manifestSync.files?.[0]?.file}…
+                                    </span>
                                 </div>
                             ) : manifestSync.status === 'error' ? (
                                 <div className="flex items-start gap-2 text-sm text-red-500 bg-red-500/10 p-3 rounded-md border border-red-200">
@@ -1003,14 +1047,27 @@ export function ReleaseCreator({ user, initialRepo = '' }: ReleaseCreatorProps) 
                                             <Package className="h-4 w-4" />
                                         </div>
                                         <p className="text-sm text-muted-foreground">
-                                            <span className="font-medium text-foreground">{manifestSync.file}</span> is at {manifestSync.oldVersion}, but this release is {manifestSync.newVersion}.
+                                            {(manifestSync.files?.length ?? 0) > 1 ? (
+                                                <>{manifestSync.files?.length} manifest files are out of sync with this release.</>
+                                            ) : (
+                                                <>
+                                                    <span className="font-medium text-foreground">{manifestSync.files?.[0]?.file}</span> is at {manifestSync.files?.[0]?.oldVersion}, but this release is {manifestSync.files?.[0]?.newVersion}.
+                                                </>
+                                            )}
                                         </p>
                                     </div>
-                                    <div className="font-mono text-xs rounded-md border border-border overflow-hidden">
-                                        <div className="px-3 py-1.5 bg-red-500/10 text-red-600 dark:text-red-400">- &quot;version&quot;: &quot;{manifestSync.oldVersion}&quot;</div>
-                                        <div className="px-3 py-1.5 bg-green-500/10 text-green-600 dark:text-green-400">+ &quot;version&quot;: &quot;{manifestSync.newVersion}&quot;</div>
+                                    <div className="space-y-2">
+                                        {manifestSync.files?.map((f) => (
+                                            <div key={f.file} className="font-mono text-xs rounded-md border border-border overflow-hidden">
+                                                {(manifestSync.files?.length ?? 0) > 1 && (
+                                                    <div className="px-3 py-1 bg-muted/40 text-foreground border-b border-border">{f.file}</div>
+                                                )}
+                                                <div className="px-3 py-1.5 bg-red-500/10 text-red-600 dark:text-red-400">- version: &quot;{f.oldVersion}&quot;</div>
+                                                <div className="px-3 py-1.5 bg-green-500/10 text-green-600 dark:text-green-400">+ version: &quot;{f.newVersion}&quot;</div>
+                                            </div>
+                                        ))}
                                     </div>
-                                    <p className="text-xs text-muted-foreground">Only the top-level version field changes. Dependency versions are left untouched.</p>
+                                    <p className="text-xs text-muted-foreground">Only the top-level version field changes in each file. Dependency versions are left untouched.</p>
                                 </>
                             )}
                         </div>
