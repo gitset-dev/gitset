@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { RepositorySelector } from '../RepositorySelector';
 import { ghFetch } from '@/lib/githubProxy';
+import { safeFetchJson } from '@/lib/safeFetchJson';
 import { TemplateEditorModal } from '../TemplateEditorModal';
 import { ReferenceSelector } from '../common/ReferenceSelector';
 import { CommitViewer } from '../common/CommitViewer';
@@ -382,9 +383,9 @@ export function ReleaseCreator({ user, initialRepo = '' }: ReleaseCreatorProps) 
                 })
             });
 
-            const data = await res.json();
+            const data = await safeFetchJson(res);
 
-            if (!res.ok) {
+            if (!res.ok || data.error) {
                 const error = new Error(data.error || "Failed to generate Release Notes");
                 throw error;
             }
@@ -495,7 +496,7 @@ export function ReleaseCreator({ user, initialRepo = '' }: ReleaseCreatorProps) 
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ action: 'bump', type: f.type, content: f.content, tagName })
                 });
-                const data = await res.json();
+                const data = await safeFetchJson(res);
                 if (res.ok && !data.error && !data.unchanged && data.newContent) {
                     changes.push({ type: f.type, file: f.file, sha: f.sha, oldVersion: data.oldVersion, newVersion: data.newVersion, newContent: data.newContent });
                 }
@@ -603,9 +604,9 @@ export function ReleaseCreator({ user, initialRepo = '' }: ReleaseCreatorProps) 
                 })
             });
 
-            const data = await res.json();
+            const data = await safeFetchJson(res);
 
-            if (!res.ok) {
+            if (!res.ok || data.error) {
                 const error = new Error(data.error || "Failed to refine Release Notes");
                 throw error;
             }
