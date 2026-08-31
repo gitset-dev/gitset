@@ -1,7 +1,15 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { KeyRound, Trash2, Star, Loader2, Plus, ShieldCheck, X } from 'lucide-react';
+import { KeyRound, Trash2, Star, Loader2, Plus, ShieldCheck, X, HelpCircle, Sparkles, ExternalLink, Check, ChevronDown } from 'lucide-react';
 
+interface FreeModelInfo {
+  id: string;
+  label: string;
+  contextTokens: number;
+  maxOutputTokens: number;
+  goodFor: string;
+  recommended?: boolean;
+}
 interface ProviderInfo {
   label: string;
   defaultModel: string;
@@ -9,6 +17,7 @@ interface ProviderInfo {
   needsBaseUrl: boolean;
   baseURL: string | null;
   models: string[];
+  freeModels: FreeModelInfo[] | null;
 }
 interface StoredKey {
   id: number;
@@ -23,6 +32,111 @@ interface StoredKey {
 
 const API = '/api/provider-keys';
 const CUSTOM = '__custom__';
+
+function CustomModelField({ show, value, onChange, showHelp, setShowHelp }: {
+  show: boolean; value: string; onChange: (v: string) => void; showHelp: boolean; setShowHelp: (v: boolean) => void;
+}) {
+  if (!show) return null;
+  return (
+    <div className="space-y-1">
+      <div className="flex items-center gap-1.5">
+        <input
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder="exact model id, e.g. claude-sonnet-5"
+          className="flex-1 rounded-md border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm font-mono"
+        />
+        <button
+          type="button"
+          onClick={() => setShowHelp(!showHelp)}
+          aria-label="What goes in this field?"
+          aria-expanded={showHelp}
+          className={`shrink-0 rounded-md border p-2 ${showHelp ? 'border-[#6CE0DB] text-[#6CE0DB]' : 'border-zinc-700 text-zinc-400 hover:text-zinc-200'}`}
+        >
+          <HelpCircle className="h-4 w-4" />
+        </button>
+      </div>
+      {showHelp && (
+        <p className="rounded-md border border-zinc-800 bg-zinc-950/60 p-2.5 text-xs text-zinc-400">
+          Paste the model id exactly as your provider documents it — same spelling, same
+          capitalization, same punctuation. There's no autocorrect here: a small typo won't be
+          fixed, it will just fail with an error from the provider when you try to use it.
+        </p>
+      )}
+    </div>
+  );
+}
+
+interface StyledSelectOption {
+  value: string;
+  label: React.ReactNode;
+}
+
+// A native <select>'s open-dropdown styling (the highlighted/hovered row in
+// particular) is OS-drawn and can't be themed with CSS — it shows the
+// browser's own accent color regardless of the app's palette. This is a
+// fully custom replacement so the dropdown itself carries the app's teal,
+// not the OS's blue or gold.
+function StyledSelect({ value, onChange, options, placeholder, disabled, compact, ariaLabel }: {
+  value: string; onChange: (v: string) => void; options: StyledSelectOption[]; placeholder?: string;
+  disabled?: boolean; compact?: boolean; ariaLabel?: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onClickAway = (e: MouseEvent) => {
+      if (rootRef.current && !rootRef.current.contains(e.target as Node)) setOpen(false);
+    };
+    const onEsc = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false);
+    document.addEventListener('mousedown', onClickAway);
+    document.addEventListener('keydown', onEsc);
+    return () => {
+      document.removeEventListener('mousedown', onClickAway);
+      document.removeEventListener('keydown', onEsc);
+    };
+  }, [open]);
+
+  const current = options.find((o) => o.value === value);
+
+  return (
+    <div ref={rootRef} className={`relative ${compact ? 'max-w-[180px]' : 'w-full'}`}>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        disabled={disabled}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-label={ariaLabel}
+        className={`w-full flex items-center justify-between gap-2 rounded-md border bg-zinc-950 text-left transition-colors disabled:opacity-50 ${compact ? 'px-2 py-1 text-xs' : 'px-3 py-2 text-sm'} ${open ? 'border-[#6CE0DB]' : 'border-zinc-700 hover:border-zinc-600'}`}
+      >
+        <span className="truncate">{current?.label ?? <span className="text-zinc-500">{placeholder}</span>}</span>
+        <ChevronDown className={`${compact ? 'h-3 w-3' : 'h-4 w-4'} shrink-0 text-zinc-500 transition-transform ${open ? 'rotate-180 text-[#6CE0DB]' : ''}`} />
+      </button>
+      {open && (
+        <div role="listbox" className={`absolute z-20 mt-1 max-h-64 overflow-y-auto rounded-md border border-zinc-700 bg-zinc-900 py-1 shadow-2xl ${compact ? 'w-max max-w-xs' : 'w-full'}`}>
+          {options.map((o) => {
+            const selected = o.value === value;
+            return (
+              <button
+                key={o.value}
+                type="button"
+                role="option"
+                aria-selected={selected}
+                onClick={() => { onChange(o.value); setOpen(false); }}
+                className={`flex w-full items-center justify-between gap-2 text-left ${compact ? 'px-2 py-1.5 text-xs' : 'px-3 py-2 text-sm'} ${selected ? 'bg-[#6CE0DB]/15 text-[#6CE0DB]' : 'text-zinc-200 hover:bg-zinc-800'}`}
+              >
+                <span className="truncate">{o.label}</span>
+                {selected && <Check className="h-3.5 w-3.5 shrink-0" />}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
 
 async function callApi<T>(action: string, payload: Record<string, unknown> = {}): Promise<T> {
   const res = await fetch(API, {
@@ -52,9 +166,13 @@ export default function ProviderKeysManager({ triggerLabel = 'Manage AI provider
   const [baseUrl, setBaseUrl] = useState('');
   const [modelChoice, setModelChoice] = useState('');
   const [customModel, setCustomModel] = useState('');
+  const [showCustomHelp, setShowCustomHelp] = useState(false);
+  const [showFreeKeyHelp, setShowFreeKeyHelp] = useState(false);
+  const [showMoreModels, setShowMoreModels] = useState(false);
 
   const current = providers[provider];
   const effectiveModel = modelChoice === CUSTOM ? customModel.trim() : modelChoice;
+  const recommendedFree = current?.freeModels?.find((m) => m.recommended) || current?.freeModels?.[0];
 
   const refresh = useCallback(async () => {
     setLoading(true);
@@ -80,7 +198,15 @@ export default function ProviderKeysManager({ triggerLabel = 'Manage AI provider
     return () => window.removeEventListener('keydown', onEsc);
   }, [open]);
 
-  useEffect(() => { setModelChoice(''); setCustomModel(''); }, [provider]);
+  useEffect(() => {
+    setCustomModel('');
+    setShowMoreModels(false);
+    // OpenRouter defaults straight to the recommended free model — the
+    // whole point of this path is that a non-technical user shouldn't have
+    // to know a model id to end up somewhere reasonable. Every other
+    // provider keeps the old behavior: blank = "provider default".
+    setModelChoice(provider === 'openrouter' && recommendedFree ? recommendedFree.id : '');
+  }, [provider, providers]);
 
   useEffect(() => {
     if (confirmDeleteId == null) return;
@@ -179,9 +305,21 @@ export default function ProviderKeysManager({ triggerLabel = 'Manage AI provider
                 <div className="grid gap-3 sm:grid-cols-2">
                   <label className="text-sm space-y-1">
                     <span className="text-zinc-400">Provider</span>
-                    <select value={provider} onChange={(e) => setProvider(e.target.value)} className={inputCls}>
-                      {Object.entries(providers).map(([id, info]) => <option key={id} value={id}>{info.label}</option>)}
-                    </select>
+                    <StyledSelect
+                      value={provider}
+                      onChange={setProvider}
+                      options={Object.entries(providers).map(([id, info]) => ({
+                        value: id,
+                        label: id === 'openrouter' ? (
+                          <span className="flex items-center gap-1.5">
+                            {info.label}
+                            <span className="inline-flex items-center gap-1 rounded-full bg-[#6CE0DB]/15 px-1.5 py-0.5 text-[10px] font-medium text-[#6CE0DB]">
+                              <Sparkles className="h-2.5 w-2.5" /> Free models available
+                            </span>
+                          </span>
+                        ) : info.label,
+                      }))}
+                    />
                   </label>
                   <label className="text-sm space-y-1">
                     <span className="text-zinc-400">Label (optional)</span>
@@ -201,16 +339,105 @@ export default function ProviderKeysManager({ triggerLabel = 'Manage AI provider
                   </label>
                 )}
 
-                <label className="text-sm space-y-1 block">
-                  <span className="text-zinc-400">Model{current?.defaultModel ? ` (default: ${current.defaultModel})` : ''}</span>
-                  <select value={modelChoice} onChange={(e) => setModelChoice(e.target.value)} className={inputCls}>
-                    <option value="">Provider default{current?.defaultModel ? ` (${current.defaultModel})` : ''}</option>
-                    {(current?.models || []).map((m) => <option key={m} value={m}>{m}</option>)}
-                    <option value={CUSTOM}>Custom…</option>
-                  </select>
-                </label>
-                {modelChoice === CUSTOM && (
-                  <input value={customModel} onChange={(e) => setCustomModel(e.target.value)} placeholder="exact model id, e.g. claude-sonnet-5" className={`${inputCls} font-mono`} />
+                {provider === 'openrouter' && current?.freeModels ? (
+                  <div className="space-y-3">
+                    <div className="rounded-lg border border-[#6CE0DB]/30 bg-[#6CE0DB]/5 p-3 space-y-2">
+                      <div className="flex items-center gap-2 text-sm font-medium text-[#6CE0DB]">
+                        <Sparkles className="h-4 w-4" /> Free models — no card, no payment
+                      </div>
+                      <p className="text-xs text-zinc-400">
+                        OpenRouter offers real free models. Pick one below — nothing here ever costs money.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => setShowFreeKeyHelp((v) => !v)}
+                        className="text-xs font-medium text-[#6CE0DB] hover:underline inline-flex items-center gap-1"
+                      >
+                        Don't have a key? Create a free one → <ChevronDown className={`h-3 w-3 transition-transform ${showFreeKeyHelp ? 'rotate-180' : ''}`} />
+                      </button>
+                      {showFreeKeyHelp && (
+                        <ol className="mt-1 space-y-2 rounded-md border border-zinc-800 bg-zinc-950/60 p-3 text-xs text-zinc-300 list-decimal list-inside">
+                          <li>
+                            Sign in at{' '}
+                            <a href="https://openrouter.ai" target="_blank" rel="noopener noreferrer" className="text-[#6CE0DB] hover:underline inline-flex items-center gap-0.5">
+                              openrouter.ai<ExternalLink className="h-2.5 w-2.5" />
+                            </a>{' '}— continuing with Google is the fastest way if you don't have an account.
+                          </li>
+                          <li>
+                            Open your API keys page:{' '}
+                            <a href="https://openrouter.ai/workspaces/default/keys" target="_blank" rel="noopener noreferrer" className="text-[#6CE0DB] hover:underline inline-flex items-center gap-0.5">
+                              openrouter.ai/workspaces/default/keys<ExternalLink className="h-2.5 w-2.5" />
+                            </a>{' '}(that's where a new account lands by default).
+                          </li>
+                          <li>Click <strong className="text-zinc-100">Create Key</strong>, name it anything, and copy it into the field above.</li>
+                          <li className="text-[#6CE0DB]">No payment method or card is required for this.</li>
+                          <li>Free models have daily limits that vary by model. If one is busy, just pick a different one from the list below — nothing breaks.</li>
+                        </ol>
+                      )}
+                    </div>
+
+                    <div className="space-y-1.5" role="radiogroup" aria-label="Free OpenRouter model">
+                      {current.freeModels.map((m) => {
+                        const selected = modelChoice === m.id;
+                        return (
+                          <button
+                            key={m.id}
+                            type="button"
+                            role="radio"
+                            aria-checked={selected}
+                            onClick={() => setModelChoice(m.id)}
+                            className={`w-full text-left rounded-md border p-2.5 transition-colors ${selected ? 'border-[#6CE0DB] bg-[#6CE0DB]/10' : 'border-zinc-800 bg-zinc-950/40 hover:border-zinc-700'}`}
+                          >
+                            <div className="flex items-center justify-between gap-2">
+                              <div className="flex items-center gap-2 min-w-0">
+                                <span className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border ${selected ? 'border-[#6CE0DB] bg-[#6CE0DB] text-zinc-900' : 'border-zinc-600'}`}>
+                                  {selected && <Check className="h-3 w-3" />}
+                                </span>
+                                <span className="text-sm font-medium truncate">{m.label}</span>
+                                {m.recommended && <span className="shrink-0 rounded-full bg-[#6CE0DB]/15 px-1.5 py-0.5 text-[10px] font-medium text-[#6CE0DB]">Recommended</span>}
+                              </div>
+                              <span className="shrink-0 text-[10px] text-zinc-500 font-mono">{m.id}</span>
+                            </div>
+                            <p className="mt-1 text-xs text-zinc-400">{m.goodFor}</p>
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    <button type="button" onClick={() => setShowMoreModels((v) => !v)} className="text-xs text-zinc-500 hover:text-zinc-300 inline-flex items-center gap-1">
+                      Or route a different model through OpenRouter <ChevronDown className={`h-3 w-3 transition-transform ${showMoreModels ? 'rotate-180' : ''}`} />
+                    </button>
+                    {showMoreModels && (
+                      <div className="space-y-2 rounded-md border border-zinc-800 p-3">
+                        <StyledSelect
+                          value={modelChoice === CUSTOM || (current.models || []).includes(modelChoice) ? modelChoice : ''}
+                          onChange={setModelChoice}
+                          options={[
+                            { value: '', label: `Provider default (${current?.defaultModel})` },
+                            ...(current?.models || []).map((m) => ({ value: m, label: m })),
+                            { value: CUSTOM, label: 'Custom…' },
+                          ]}
+                        />
+                        <CustomModelField show={modelChoice === CUSTOM} value={customModel} onChange={setCustomModel} showHelp={showCustomHelp} setShowHelp={setShowCustomHelp} />
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <>
+                    <label className="text-sm space-y-1 block">
+                      <span className="text-zinc-400">Model{current?.defaultModel ? ` (default: ${current.defaultModel})` : ''}</span>
+                      <StyledSelect
+                        value={modelChoice}
+                        onChange={setModelChoice}
+                        options={[
+                          { value: '', label: `Provider default${current?.defaultModel ? ` (${current.defaultModel})` : ''}` },
+                          ...(current?.models || []).map((m) => ({ value: m, label: m })),
+                          { value: CUSTOM, label: 'Custom…' },
+                        ]}
+                      />
+                    </label>
+                    <CustomModelField show={modelChoice === CUSTOM} value={customModel} onChange={setCustomModel} showHelp={showCustomHelp} setShowHelp={setShowCustomHelp} />
+                  </>
                 )}
 
                 <button type="submit" disabled={busy} className="inline-flex items-center gap-2 rounded-md bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:bg-primary/90 disabled:opacity-50">
@@ -242,16 +469,17 @@ export default function ProviderKeysManager({ triggerLabel = 'Manage AI provider
                             <div className="text-xs text-zinc-500 font-mono">••••{k.keyLast4}{k.baseUrl ? ` · ${k.baseUrl}` : ''}</div>
                           </div>
                           <div className="flex items-center gap-2 shrink-0">
-                            <select
+                            <StyledSelect
+                              compact
                               value={k.defaultModel || ''}
-                              onChange={(e) => changeModel(k.id, e.target.value || null)}
+                              onChange={(v) => changeModel(k.id, v || null)}
                               disabled={busy}
-                              aria-label={`Model for ${providers[k.provider]?.label || k.provider} key`}
-                              className="max-w-[180px] rounded-md border border-zinc-700 bg-zinc-950 px-2 py-1 text-xs disabled:opacity-50"
-                            >
-                              <option value="">Provider default</option>
-                              {modelOptions.map((m) => <option key={m} value={m}>{m}</option>)}
-                            </select>
+                              ariaLabel={`Model for ${providers[k.provider]?.label || k.provider} key`}
+                              options={[
+                                { value: '', label: 'Provider default' },
+                                ...modelOptions.map((m) => ({ value: m, label: m })),
+                              ]}
+                            />
                             {!k.isDefault && <button onClick={() => makeDefault(k.id)} disabled={busy} className="rounded-md border border-zinc-700 px-2 py-1 text-xs hover:bg-zinc-800 disabled:opacity-50">Set default</button>}
                             {confirmDeleteId === k.id ? (
                               <button onClick={() => remove(k.id)} disabled={busy} className="rounded-md bg-red-900/80 px-2 py-1 text-xs font-medium text-red-100 hover:bg-red-800 disabled:opacity-50">
