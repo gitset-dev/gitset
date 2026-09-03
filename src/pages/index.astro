@@ -3,6 +3,7 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
 import "../styles/global.css";
 import { SiteHeader } from "../components/SiteHeader";
 import { Footer } from "../components/Footer";
+import FreeModelsBanner from "../components/FreeModelsBanner.astro";
 import getUser from "@/lib/getUser";
 import { toClientUser } from "@/lib/clientUser";
 const user = await getUser(Astro.cookies.get("app_auth_token")?.value);
@@ -150,6 +151,7 @@ const tools = [
     </Fragment>
     <body class="bg-background text-foreground antialiased min-h-screen flex flex-col">
         <SiteHeader client:load showBackButton={false} user={toClientUser(user?.user)} />
+        <FreeModelsBanner ctaHref={loggedIn ? "/dashboard?setup=ai-provider" : "/login?next=%2Fdashboard%3Fsetup%3Dai-provider"} />
 
         <main class="flex-1">
             {/* ── HERO ─────────────────────────────────────────────── */}

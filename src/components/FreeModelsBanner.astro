@@ -1,0 +1,193 @@
+---
+/**
+ * Live strip under the header: every OpenRouter model Gitset can run on for
+ * free right now, with no payment method. See gitset-dev/gitset#56.
+ *
+ * Reads the same public, unauthenticated snapshot the AI Providers modal and
+ * the CLI read, so all three name the same models — a third consumer of one
+ * source of truth, not a fourth list. Fitness is decided server-side: the
+ * daily probe asks each model to write a real commit message and drops the
+ * ones that can't, so this renders whatever arrives without second-guessing.
+ *
+ * Two rules this file exists to respect:
+ *  - This is the highest-traffic page, so the lookup must never be able to
+ *    break or delay it. getFreeModels() owns that: short timeout, cached
+ *    in-process, and an empty list on any failure — which renders nothing.
+ *  - The hero behind it plays a background video, so the collapsed strip is
+ *    a single slow drift, no flashing or scaling, paused on hover.
+ *
+ * The row can only ever show the models that fit across it, which on its own
+ * reads as text truncated mid-word — and with motion turned off the drift
+ * can't reveal the rest either. Hence the expander: one click lays every
+ * model out below, and that path works identically whether or not the
+ * visitor allows animation.
+ */
+import { getFreeModels } from '@/lib/freeModels';
+
+interface Props {
+    ctaHref?: string;
+}
+const { ctaHref = '/login' } = Astro.props;
+// "Set one up" has to land on the thing it names. Signed in, that is the
+// providers modal itself; signed out, the same destination carried through
+// the OAuth round-trip rather than dropping the visitor on the dashboard to
+// find it themselves.
+
+function contextLabel(n?: number): string {
+    if (!n) return '';
+    if (n >= 1_000_000) return `${String(Math.round(n / 100_000) / 10).replace(/\.0$/, '')}M`;
+    if (n >= 1_000) return `${Math.round(n / 1_000)}K`;
+    return String(n);
+}
+
+const { models, updatedAt } = await getFreeModels();
+// Lead with the recommended model: it is the first thing read, and the only
+// ordering that still means something once the track is looping.
+const ordered = [...models].sort((a, b) => Number(!!b.recommended) - Number(!!a.recommended));
+const refreshedOn = updatedAt ? String(updatedAt).slice(0, 10) : null;
+---
+
+{ordered.length > 0 && (
+    <aside
+        id="free-models-banner"
+        class="relative z-20 border-b border-border bg-card/60 backdrop-blur-sm"
+        aria-label="Free AI models available right now"
+    >
+        <div class="container mx-auto flex max-w-6xl items-center gap-3 px-4 py-1.5 text-xs sm:gap-4">
+            <p class="flex shrink-0 items-center gap-2">
+                <span class="relative flex h-1.5 w-1.5" aria-hidden="true">
+                    <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand opacity-60 motion-reduce:hidden"></span>
+                    <span class="relative inline-flex h-1.5 w-1.5 rounded-full bg-brand"></span>
+                </span>
+                <span class="font-medium text-foreground">
+                    {ordered.length} free models
+                    <span class="hidden text-muted-foreground sm:inline"> — no card required</span>
+                </span>
+            </p>
+
+            {/* Drifting track, masked at both edges so models slide out of
+                sight instead of colliding with the label and the buttons. */}
+            <div class="fmb-viewport relative hidden min-w-0 flex-1 overflow-hidden sm:block">
+                <div class="fmb-track flex w-max items-center gap-2">
+                    {/* Each copy is a real element, not a fragment: a fragment
+                        would leave 2N chips as direct children and the
+                        reduced-motion rule could not hide the duplicate. */}
+                    {[0, 1].map((copy) => (
+                        <div class="fmb-copy flex items-center gap-2" aria-hidden={copy === 1 ? 'true' : undefined}>
+                            {ordered.map((m) => (
+                                <span class="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-border/70 bg-background/60 px-2.5 py-0.5">
+                                    <span class="font-medium text-foreground">{m.label}</span>
+                                    {contextLabel(m.contextTokens) && (
+                                        <span class="font-mono text-[10px] text-muted-foreground">{contextLabel(m.contextTokens)}</span>
+                                    )}
+                                    {m.recommended && <span class="font-medium text-brand">rec</span>}
+                                </span>
+                            ))}
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            <button
+                id="fmb-toggle"
+                type="button"
+                aria-expanded="false"
+                aria-controls="fmb-panel"
+                class="ml-auto flex shrink-0 items-center gap-1 rounded-full border border-border/70 px-2.5 py-1 font-medium text-muted-foreground transition-colors hover:border-brand/50 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+            >
+                <span class="fmb-toggle-label">See all</span>
+                <svg class="fmb-chev h-3 w-3 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
+
+            <a
+                href={ctaHref}
+                class="shrink-0 rounded-full bg-brand/10 px-3 py-1 font-semibold text-brand ring-1 ring-inset ring-brand/30 transition-colors hover:bg-brand/20 hover:ring-brand/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+            >
+                Set one up
+            </a>
+        </div>
+
+        <div id="fmb-panel" hidden class="border-t border-border/60 bg-background/40">
+            <div class="container mx-auto max-w-6xl px-4 py-3">
+                <ul class="flex flex-wrap gap-2">
+                    {ordered.map((m) => (
+                        <li class="inline-flex items-center gap-1.5 rounded-full border border-border/70 bg-background/60 px-2.5 py-0.5 text-xs">
+                            <span class="font-medium text-foreground">{m.label}</span>
+                            {contextLabel(m.contextTokens) && (
+                                <span class="font-mono text-[10px] text-muted-foreground">{contextLabel(m.contextTokens)}</span>
+                            )}
+                            {m.recommended && <span class="font-medium text-brand">recommended</span>}
+                        </li>
+                    ))}
+                </ul>
+                <p class="mt-2 text-[11px] text-muted-foreground">
+                    Availability is verified daily against OpenRouter.
+                    {refreshedOn && <span> Last checked {refreshedOn}.</span>}
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    <style>
+        .fmb-viewport {
+            /* Fades the track out where it leaves the strip rather than
+               cutting it. Only the right edge by default: at rest the track
+               starts flush at x=0, so a left fade lands on the first chip's
+               first letter ("Ling" reading as "ing"). */
+            -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 24px), transparent);
+            mask-image: linear-gradient(to right, #000 calc(100% - 24px), transparent);
+        }
+        @media (prefers-reduced-motion: no-preference) {
+            /* Once it drifts, chips genuinely exit on the left and need the
+               fade there too. */
+            .fmb-viewport {
+                -webkit-mask-image: linear-gradient(to right, transparent, #000 24px, #000 calc(100% - 24px), transparent);
+                mask-image: linear-gradient(to right, transparent, #000 24px, #000 calc(100% - 24px), transparent);
+            }
+        }
+        /* Expanded, the strip would repeat the first few models directly above
+           the full list. Show one or the other, never both. */
+        .fmb-open .fmb-viewport {
+            display: none;
+        }
+        .fmb-track {
+            /* Two identical copies sit side by side; translating by exactly
+               half the track puts copy 2 where copy 1 began, so the loop has
+               no visible seam. */
+            animation: fmb-drift 40s linear infinite;
+        }
+        .fmb-viewport:hover .fmb-track {
+            animation-play-state: paused;
+        }
+        @keyframes fmb-drift {
+            from { transform: translateX(0); }
+            to { transform: translateX(-50%); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            /* Stays a single quiet row — the banner must not grow taller just
+               because the drift is off. The expander is how everything gets
+               seen in this mode. */
+            .fmb-track { animation: none; }
+            .fmb-copy:nth-child(2) { display: none; }
+        }
+    </style>
+
+    <script is:inline>
+        (() => {
+            const btn = document.getElementById('fmb-toggle');
+            const panel = document.getElementById('fmb-panel');
+            if (!btn || !panel) return;
+            const label = btn.querySelector('.fmb-toggle-label');
+            const chev = btn.querySelector('.fmb-chev');
+            const banner = document.getElementById('free-models-banner');
+            btn.addEventListener('click', () => {
+                const open = btn.getAttribute('aria-expanded') === 'true';
+                btn.setAttribute('aria-expanded', String(!open));
+                panel.hidden = open;
+                if (banner) banner.classList.toggle('fmb-open', !open);
+                if (label) label.textContent = open ? 'See all' : 'Hide';
+                if (chev) chev.style.transform = open ? '' : 'rotate(180deg)';
+            });
+        })();
+    </script>
+)}

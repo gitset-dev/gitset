@@ -11,6 +11,13 @@ if (user) {
 }
 
 const error = Astro.url.searchParams.get("error");
+
+// Carry an intended destination through the OAuth round-trip (the auth route
+// encodes it in `state`, the callback validates and returns to it), so a CTA
+// like "Set one up" lands on the thing it promised rather than the dashboard.
+const rawNext = Astro.url.searchParams.get("next") || "";
+const next = rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : "";
+const signInHref = next ? `/api/auth/github?next=${encodeURIComponent(next)}` : "/api/auth/github";
 ---
 
 <BaseLayout title="Sign in - Gitset">
@@ -67,7 +74,7 @@ const error = Astro.url.searchParams.get("error");
 
                 <div class="mt-8 space-y-4">
                     <a
-                        href="/api/auth/github"
+                        href={signInHref}
                         class="flex w-full items-center justify-center gap-3 rounded-lg bg-[#24292F] px-4 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[#24292F]/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#24292F]"
                     >
                         <svg
