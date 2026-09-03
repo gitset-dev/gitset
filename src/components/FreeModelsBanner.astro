@@ -1,0 +1,119 @@
+---
+/**
+ * Live strip under the header: the OpenRouter free models Gitset can run on
+ * right now, with no payment method. See gitset-dev/gitset#56.
+ *
+ * Reads the same public, unauthenticated snapshot the AI Providers modal and
+ * the CLI read, so all three name the same models — a third consumer of one
+ * source of truth, not a fourth list.
+ *
+ * Two rules this file exists to respect:
+ *  - This is the highest-traffic page, so the lookup must never be able to
+ *    break or delay it. getFreeModels() owns that: short timeout, cached
+ *    in-process, and an empty list on any failure — which renders nothing.
+ *  - The hero behind it plays a background video, so only one element ever
+ *    animates (the model name crossfades in a fixed slot) and it stops
+ *    entirely under prefers-reduced-motion.
+ */
+import { getFreeModels } from '@/lib/freeModels';
+interface Props {
+    ctaHref?: string;
+}
+const { ctaHref = '/login' } = Astro.props;
+
+function contextLabel(n?: number): string {
+    if (!n) return '';
+    if (n >= 1_000_000) return `${String(Math.round(n / 100_000) / 10).replace(/\.0$/, '')}M context`;
+    if (n >= 1_000) return `${Math.round(n / 1_000)}K context`;
+    return `${n} context`;
+}
+
+const models = await getFreeModels();
+
+// Lead with the recommended model so the first thing rendered — and the only
+// thing shown without JS or under reduced motion — is the one we'd pick.
+const ordered = [...models].sort((a, b) => Number(!!b.recommended) - Number(!!a.recommended));
+---
+
+{ordered.length > 0 && (
+    <aside
+        id="free-models-banner"
+        class="relative z-20 border-b border-border bg-card/60 backdrop-blur-sm"
+        aria-label="Free AI models available right now"
+    >
+        <div class="container mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-3 gap-y-1 px-4 py-2 text-xs sm:justify-between">
+            <p class="flex min-w-0 items-center gap-2 text-muted-foreground">
+                <span class="relative flex h-1.5 w-1.5 shrink-0" aria-hidden="true">
+                    <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand opacity-60 motion-reduce:hidden"></span>
+                    <span class="relative inline-flex h-1.5 w-1.5 rounded-full bg-brand"></span>
+                </span>
+                <span class="font-medium text-foreground">Free AI models — no card required.</span>
+
+                <span class="hidden min-w-0 items-center gap-1.5 sm:inline-flex">
+                    <span aria-hidden="true">Run Gitset on</span>
+                    {/* Rotating slot. The full list is exposed to assistive tech
+                        below instead, so the crossfade never re-announces. */}
+                    <span
+                        id="fmb-rotator"
+                        class="inline-block truncate font-mono text-foreground transition-opacity duration-500 motion-reduce:transition-none"
+                        aria-hidden="true"
+                        data-models={JSON.stringify(
+                            ordered.map((m) => ({ label: m.label, ctx: contextLabel(m.contextTokens) })),
+                        )}
+                    >
+                        {ordered[0].label}
+                        {contextLabel(ordered[0].contextTokens) && (
+                            <span class="text-muted-foreground"> · {contextLabel(ordered[0].contextTokens)}</span>
+                        )}
+                    </span>
+                </span>
+
+                <span class="sr-only">
+                    Currently available: {ordered.map((m) => m.label).join(', ')}. Refreshed daily.
+                </span>
+            </p>
+
+            <span class="flex items-center gap-3">
+                <span class="hidden text-muted-foreground md:inline">
+                    {ordered.length} available · refreshed daily
+                </span>
+                <a
+                    href={ctaHref}
+                    class="font-medium text-brand underline-offset-4 hover:underline"
+                >
+                    Set one up →
+                </a>
+            </span>
+        </div>
+    </aside>
+
+    <script is:inline>
+        (() => {
+            const el = document.getElementById('fmb-rotator');
+            if (!el) return;
+            let list;
+            try {
+                list = JSON.parse(el.dataset.models || '[]');
+            } catch {
+                return;
+            }
+            if (list.length < 2) return;
+            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+            let i = 0;
+            const render = (m) =>
+                m.ctx
+                    ? `${m.label}<span class="text-muted-foreground"> · ${m.ctx}</span>`
+                    : m.label;
+
+            setInterval(() => {
+                el.style.opacity = '0';
+                setTimeout(() => {
+                    i = (i + 1) % list.length;
+                    el.innerHTML = render(list[i]);
+                    el.style.opacity = '1';
+                }, 500);
+            }, 4000);
+        })();
+    </script>
+)}
