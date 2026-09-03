@@ -28,6 +28,10 @@ interface Props {
     ctaHref?: string;
 }
 const { ctaHref = '/login' } = Astro.props;
+// "Set one up" has to land on the thing it names. Signed in, that is the
+// providers modal itself; signed out, the same destination carried through
+// the OAuth round-trip rather than dropping the visitor on the dashboard to
+// find it themselves.
 
 function contextLabel(n?: number): string {
     if (!n) return '';
@@ -89,7 +93,7 @@ const refreshedOn = updatedAt ? String(updatedAt).slice(0, 10) : null;
                 type="button"
                 aria-expanded="false"
                 aria-controls="fmb-panel"
-                class="ml-auto flex shrink-0 items-center gap-1 rounded-full border border-border/70 px-2.5 py-1 font-medium text-muted-foreground transition-colors hover:border-brand/50 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand sm:ml-0"
+                class="ml-auto flex shrink-0 items-center gap-1 rounded-full border border-border/70 px-2.5 py-1 font-medium text-muted-foreground transition-colors hover:border-brand/50 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
             >
                 <span class="fmb-toggle-label">See all</span>
                 <svg class="fmb-chev h-3 w-3 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
@@ -117,7 +121,7 @@ const refreshedOn = updatedAt ? String(updatedAt).slice(0, 10) : null;
                     ))}
                 </ul>
                 <p class="mt-2 text-[11px] text-muted-foreground">
-                    Checked daily against OpenRouter — each one is asked to write a real commit message, and the ones that can't are dropped.
+                    Availability is verified daily against OpenRouter.
                     {refreshedOn && <span> Last checked {refreshedOn}.</span>}
                 </p>
             </div>
@@ -126,9 +130,25 @@ const refreshedOn = updatedAt ? String(updatedAt).slice(0, 10) : null;
 
     <style>
         .fmb-viewport {
-            /* Fades the track out at both ends rather than cutting it. */
-            -webkit-mask-image: linear-gradient(to right, transparent, #000 24px, #000 calc(100% - 24px), transparent);
-            mask-image: linear-gradient(to right, transparent, #000 24px, #000 calc(100% - 24px), transparent);
+            /* Fades the track out where it leaves the strip rather than
+               cutting it. Only the right edge by default: at rest the track
+               starts flush at x=0, so a left fade lands on the first chip's
+               first letter ("Ling" reading as "ing"). */
+            -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 24px), transparent);
+            mask-image: linear-gradient(to right, #000 calc(100% - 24px), transparent);
+        }
+        @media (prefers-reduced-motion: no-preference) {
+            /* Once it drifts, chips genuinely exit on the left and need the
+               fade there too. */
+            .fmb-viewport {
+                -webkit-mask-image: linear-gradient(to right, transparent, #000 24px, #000 calc(100% - 24px), transparent);
+                mask-image: linear-gradient(to right, transparent, #000 24px, #000 calc(100% - 24px), transparent);
+            }
+        }
+        /* Expanded, the strip would repeat the first few models directly above
+           the full list. Show one or the other, never both. */
+        .fmb-open .fmb-viewport {
+            display: none;
         }
         .fmb-track {
             /* Two identical copies sit side by side; translating by exactly
@@ -159,10 +179,12 @@ const refreshedOn = updatedAt ? String(updatedAt).slice(0, 10) : null;
             if (!btn || !panel) return;
             const label = btn.querySelector('.fmb-toggle-label');
             const chev = btn.querySelector('.fmb-chev');
+            const banner = document.getElementById('free-models-banner');
             btn.addEventListener('click', () => {
                 const open = btn.getAttribute('aria-expanded') === 'true';
                 btn.setAttribute('aria-expanded', String(!open));
                 panel.hidden = open;
+                if (banner) banner.classList.toggle('fmb-open', !open);
                 if (label) label.textContent = open ? 'See all' : 'Hide';
                 if (chev) chev.style.transform = open ? '' : 'rotate(180deg)';
             });

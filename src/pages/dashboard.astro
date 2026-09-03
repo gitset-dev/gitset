@@ -91,6 +91,11 @@ const joinedDate = new Date(
     month: "long",
     day: "numeric",
 });
+
+// A "Set one up" CTA elsewhere on the site sends people here to configure a
+// provider; opening the modal for them is the difference between landing on
+// the action and landing near it.
+const wantsProviderSetup = Astro.url.searchParams.get("setup") === "ai-provider";
 ---
 
 <BaseLayout title="Dashboard - Gitset">
@@ -228,7 +233,7 @@ const joinedDate = new Date(
                             to your browser.
                         </p>
                         <div class="mt-3">
-                            <ProviderKeysManager client:load triggerLabel="Manage AI providers" />
+                            <ProviderKeysManager client:load triggerLabel="Manage AI providers" autoOpen={wantsProviderSetup} />
                         </div>
                     </div>
 

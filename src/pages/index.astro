@@ -151,7 +151,7 @@ const tools = [
     </Fragment>
     <body class="bg-background text-foreground antialiased min-h-screen flex flex-col">
         <SiteHeader client:load showBackButton={false} user={toClientUser(user?.user)} />
-        <FreeModelsBanner ctaHref={loggedIn ? "/dashboard" : "/login"} />
+        <FreeModelsBanner ctaHref={loggedIn ? "/dashboard?setup=ai-provider" : "/login?next=%2Fdashboard%3Fsetup%3Dai-provider"} />
 
         <main class="flex-1">
             {/* ── HERO ─────────────────────────────────────────────── */}

@@ -150,8 +150,12 @@ async function callApi<T>(action: string, payload: Record<string, unknown> = {})
   return data as T;
 }
 
-export default function ProviderKeysManager({ triggerLabel = 'Manage AI providers', triggerClassName, iconOnly = false }: { triggerLabel?: string; triggerClassName?: string; iconOnly?: boolean }) {
-  const [open, setOpen] = useState(false);
+export default function ProviderKeysManager({ triggerLabel = 'Manage AI providers', triggerClassName, iconOnly = false, autoOpen = false }: { triggerLabel?: string; triggerClassName?: string; iconOnly?: boolean; autoOpen?: boolean }) {
+  // Opened for the visitor when they arrived here to do exactly this (a
+  // "Set one up" CTA elsewhere on the site). Only the page that owns the
+  // intent passes this — the header mounts this component too, and every
+  // instance reading the URL itself would stack modals.
+  const [open, setOpen] = useState(autoOpen);
   const [providers, setProviders] = useState<Record<string, ProviderInfo>>({});
   const [keys, setKeys] = useState<StoredKey[]>([]);
   const [loading, setLoading] = useState(true);
