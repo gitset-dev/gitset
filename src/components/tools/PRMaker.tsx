@@ -853,6 +853,9 @@ export function PRMaker({ user }: PRMakerProps) {
                         repoContext={repo}
                         onLabelsChange={fetchMetadata}
                         gitsetKey={user.gitsetKey}
+                        selectedLabels={selectedLabels}
+                        onSelectionChange={setSelectedLabels}
+                        target="pull request"
                     />
 
                     {}

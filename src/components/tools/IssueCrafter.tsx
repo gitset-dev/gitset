@@ -844,6 +844,9 @@ export function IssueCrafter({ user, backendUrl }: IssueCrafterProps) {
                         onLabelsChange={fetchMetadata}
                         gitsetKey={user.gitsetKey}
                         githubToken={user.githubOauthToken}
+                        selectedLabels={selectedLabels}
+                        onSelectionChange={setSelectedLabels}
+                        target="issue"
                     />
 
                     <Modal

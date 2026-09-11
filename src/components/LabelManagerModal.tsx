@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { X, Plus, Trash2, Edit2, Check, RefreshCw, Loader2, Save, Upload, AlertTriangle, FileText, Wand2, Package } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { X, Plus, Trash2, Edit2, Check, Loader2, Save, AlertTriangle, FileText, Wand2, Package, Search, ArrowDownToLine, ArrowUpFromLine } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Textarea } from "@/components/ui/textarea";
 
 interface Label {
@@ -21,9 +20,39 @@ interface LabelManagerModalProps {
     onLabelsChange: () => void;
     gitsetKey?: string;
     githubToken?: string | null;
+    /** Names currently chosen for the draft. Omit to run the modal as manage-only. */
+    selectedLabels?: string[];
+    onSelectionChange?: (names: string[]) => void;
+    /** What the labels are being put on, so the modal can say so. */
+    target?: 'issue' | 'pull request';
 }
 
-export function LabelManagerModal({ isOpen, onClose, backendUrl, repoContext, onLabelsChange, gitsetKey, githubToken }: LabelManagerModalProps) {
+/**
+ * Labels for the draft in progress, and the labels that exist to choose from.
+ *
+ * The previous version opened straight into edit/delete with no way to choose
+ * a label at all — the one thing someone opening it from Issues Crafter or PR
+ * Maker actually wants (gitset-dev/gitset#58). Choosing is now the primary
+ * gesture: the row itself is the toggle, and editing hides behind a hover
+ * affordance rather than competing with it.
+ *
+ * Transfers between the repository and the saved pack were also ambiguous —
+ * "Import" and "Export to Pack" sat on opposite tabs and neither said which
+ * way anything moved. Both now live with the pack, named for their direction
+ * and their endpoints.
+ */
+export function LabelManagerModal({
+    isOpen,
+    onClose,
+    backendUrl,
+    repoContext,
+    onLabelsChange,
+    gitsetKey,
+    githubToken,
+    selectedLabels,
+    onSelectionChange,
+    target = 'issue',
+}: LabelManagerModalProps) {
     const [activeTab, setActiveTab] = useState("repo");
 
     const [repoLabels, setRepoLabels] = useState<Label[]>([]);
@@ -35,6 +64,7 @@ export function LabelManagerModal({ isOpen, onClose, backendUrl, repoContext, on
     const [repoActionLoading, setRepoActionLoading] = useState(false);
     const [generateCount, setGenerateCount] = useState(0);
     const [isGenerating, setIsGenerating] = useState(false);
+    const [query, setQuery] = useState('');
 
     const [packLabels, setPackLabels] = useState<Label[]>([]);
     const [packLoading, setPackLoading] = useState(false);
@@ -42,8 +72,7 @@ export function LabelManagerModal({ isOpen, onClose, backendUrl, repoContext, on
     const [editingPackLabel, setEditingPackLabel] = useState<number | null>(null);
     const [packFormData, setPackFormData] = useState<Label>({ name: '', color: 'ffffff', description: '' });
     const [packActionLoading, setPackActionLoading] = useState(false);
-    const [applyMode, setApplyMode] = useState<'missing' | 'replace'>('missing');
-    const [showReplaceWarning, setShowReplaceWarning] = useState(false);
+    const [packSaved, setPackSaved] = useState(false);
 
     const [showAutoGenerateConfirm, setShowAutoGenerateConfirm] = useState(false);
     const [isSingleGenerating, setIsSingleGenerating] = useState(false);
@@ -55,6 +84,10 @@ export function LabelManagerModal({ isOpen, onClose, backendUrl, repoContext, on
     const [importContent, setImportContent] = useState("");
     const [importNotice, setImportNotice] = useState<string | null>(null);
     const [showImportConfirm, setShowImportConfirm] = useState(false);
+    const [showApplyConfirm, setShowApplyConfirm] = useState(false);
+
+    const selectable = typeof onSelectionChange === 'function';
+    const selected = useMemo(() => new Set(selectedLabels || []), [selectedLabels]);
 
     useEffect(() => {
         if (isOpen && repoContext) {
@@ -64,6 +97,13 @@ export function LabelManagerModal({ isOpen, onClose, backendUrl, repoContext, on
             }
         }
     }, [isOpen, repoContext, gitsetKey]);
+
+    const toggleSelected = (name: string) => {
+        if (!onSelectionChange) return;
+        const next = new Set(selectedLabels || []);
+        if (next.has(name)) next.delete(name); else next.add(name);
+        onSelectionChange([...next]);
+    };
 
     const fetchRepoLabels = async () => {
         setRepoLoading(true);
@@ -119,16 +159,20 @@ export function LabelManagerModal({ isOpen, onClose, backendUrl, repoContext, on
                 if (res.status === 422 && Array.isArray(data.errors) && data.errors.some((e: any) => e.code === 'already_exists')) {
                     throw new Error(`Label "${repoFormData.name}" already exists.`);
                 }
-
-                if (res.status === 422) {
-                    throw new Error(`Label "${repoFormData.name}" already exists or is invalid.`);
-                }
                 throw new Error(data.error || 'Failed to save label');
             }
 
+            // A rename has to follow through to the draft, or the selection
+            // would silently point at a label that no longer exists.
+            if (!isCreatingRepoLabel && editingRepoLabel && onSelectionChange
+                && editingRepoLabel.name !== repoFormData.name
+                && (selectedLabels || []).includes(editingRepoLabel.name)) {
+                onSelectionChange((selectedLabels || []).map((n) => (n === editingRepoLabel.name ? repoFormData.name : n)));
+            }
+
+            resetRepoForm();
             await fetchRepoLabels();
             onLabelsChange();
-            resetRepoForm();
         } catch (err: any) {
             setRepoError(err.message);
         } finally {
@@ -155,6 +199,10 @@ export function LabelManagerModal({ isOpen, onClose, backendUrl, repoContext, on
             if (!res.ok) {
                 const data = await res.json();
                 throw new Error(data.error || 'Failed to delete label');
+            }
+            // Deleting it from the repo has to drop it from the draft too.
+            if (onSelectionChange && (selectedLabels || []).includes(labelToDelete)) {
+                onSelectionChange((selectedLabels || []).filter((n) => n !== labelToDelete));
             }
             await fetchRepoLabels();
             onLabelsChange();
@@ -342,6 +390,8 @@ ${packLabels.map(l => `- name: "${l.name}"
                 }),
             });
             setImportNotice(null);
+            setPackSaved(true);
+            setTimeout(() => setPackSaved(false), 2500);
         } catch (error) {
             setPackError("Failed to save Label Pack");
         } finally {
@@ -355,7 +405,7 @@ ${packLabels.map(l => `- name: "${l.name}"
         setPackLabels(parsed);
         setIsImporting(false);
         setImportContent("");
-        setImportNotice(`${parsed.length} labels imported from markdown. Review them and click "Save Pack" to persist.`);
+        setImportNotice(`${parsed.length} labels read from the pasted text. Nothing is saved until you choose Save pack.`);
     };
 
     const importFromRepo = () => {
@@ -373,10 +423,10 @@ ${packLabels.map(l => `- name: "${l.name}"
             const existing = new Set(packLabels.map(l => l.name.toLowerCase()));
             const added = imported.filter(l => !existing.has(l.name.toLowerCase()));
             setPackLabels([...packLabels, ...added]);
-            setImportNotice(`${added.length} labels merged from ${repoContext}. Review them and click "Save Pack" to persist.`);
+            setImportNotice(`${added.length} labels added from ${repoContext}. Nothing is saved until you choose Save pack.`);
         } else {
             setPackLabels(imported);
-            setImportNotice(`${imported.length} labels imported from ${repoContext}. Review them and click "Save Pack" to persist.`);
+            setImportNotice(`${imported.length} labels copied from ${repoContext}. Nothing is saved until you choose Save pack.`);
         }
         setShowImportConfirm(false);
         setIsImporting(false);
@@ -405,13 +455,14 @@ ${packLabels.map(l => `- name: "${l.name}"
         setPackLabels(newLabels);
     };
 
-    const applyPackToRepo = async () => {
+    const applyPackToRepo = async (mode: 'missing' | 'replace') => {
         if (!gitsetKey) return;
+        setShowApplyConfirm(false);
         setPackActionLoading(true);
         try {
             const [owner, repo] = repoContext.split('/');
 
-            if (applyMode === 'replace') {
+            if (mode === 'replace') {
                 for (const label of repoLabels) {
                     await fetch(backendUrl, {
                         method: 'POST',
@@ -421,7 +472,7 @@ ${packLabels.map(l => `- name: "${l.name}"
                 }
             }
 
-            const existingNames = applyMode === 'replace' ? [] : repoLabels.map(l => l.name);
+            const existingNames = mode === 'replace' ? [] : repoLabels.map(l => l.name);
 
             for (const label of packLabels) {
                 if (existingNames.includes(label.name)) continue;
@@ -442,10 +493,16 @@ ${packLabels.map(l => `- name: "${l.name}"
                 });
             }
 
+            // Replacing wipes the repo's labels first, so anything chosen for
+            // the draft that the pack does not bring back no longer exists.
+            if (mode === 'replace' && onSelectionChange) {
+                const packNames = new Set(packLabels.map((l) => l.name));
+                onSelectionChange((selectedLabels || []).filter((n) => packNames.has(n)));
+            }
+
             await fetchRepoLabels();
             onLabelsChange();
-            setShowReplaceWarning(false);
-            setApplyMode('missing');
+            setActiveTab('repo');
         } catch (error: any) {
             setPackError(error.message);
         } finally {
@@ -453,444 +510,423 @@ ${packLabels.map(l => `- name: "${l.name}"
         }
     };
 
+    const visibleLabels = useMemo(() => {
+        const q = query.trim().toLowerCase();
+        if (!q) return repoLabels;
+        return repoLabels.filter((l) =>
+            l.name.toLowerCase().includes(q) || (l.description || '').toLowerCase().includes(q));
+    }, [repoLabels, query]);
+
     if (!isOpen) return null;
 
+    const selectedCount = selected.size;
+
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
-            <div className="w-full max-w-4xl rounded-lg border bg-card p-6 shadow-lg max-h-[90vh] flex flex-col relative"> {}
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4">
+            <div className="w-full max-w-3xl rounded-lg border bg-card shadow-lg max-h-[90vh] flex flex-col relative overflow-hidden">
 
-                {}
                 {showAutoGenerateConfirm && (
-                    <div className="absolute inset-0 z-60 bg-background/50 backdrop-blur-[2px] flex items-center justify-center rounded-lg">
-                        <div className="w-full max-w-sm bg-background border rounded-lg shadow-xl p-6 space-y-4 animate-in fade-in zoom-in duration-200">
-                            <div className="flex flex-col items-center text-center space-y-2">
-                                <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
-                                    <Wand2 className="h-5 w-5 text-foreground" />
-                                </div>
-                                <h3 className="text-lg font-semibold">Auto-Generate Descriptions</h3>
-                                <p className="text-sm text-muted-foreground">
-                                    This action will generate professional descriptions for {repoLabels.length} labels using AI, standardizing the repository's metadata.
-                                </p>
-                            </div>
-                            <div className="flex gap-3 pt-2">
-                                <Button
-                                    variant="outline"
-                                    className="flex-1"
-                                    onClick={() => setShowAutoGenerateConfirm(false)}
-                                >
-                                    Cancel
-                                </Button>
-                                <Button
-                                    className="flex-1"
-                                    onClick={handleAutoGenerate}
-                                >
-                                    Continue
-                                </Button>
-                            </div>
-                        </div>
-                    </div>
+                    <ConfirmOverlay
+                        icon={<Wand2 className="h-5 w-5 text-foreground" />}
+                        title="Write descriptions with AI"
+                        body={<>Gitset will write a description for each of the {repoLabels.length} labels in {repoContext} and save them to GitHub, replacing any description already there.</>}
+                        actions={[
+                            { label: 'Cancel', variant: 'outline', onClick: () => setShowAutoGenerateConfirm(false) },
+                            { label: 'Write descriptions', onClick: handleAutoGenerate },
+                        ]}
+                    />
                 )}
 
-                {}
                 {showImportConfirm && (
-                    <div className="absolute inset-0 z-60 bg-background/50 backdrop-blur-[2px] flex items-center justify-center rounded-lg">
-                        <div className="w-full max-w-sm bg-background border rounded-lg shadow-xl p-6 space-y-4 animate-in fade-in zoom-in duration-200">
-                            <div className="flex flex-col items-center text-center space-y-2">
-                                <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
-                                    <Package className="h-5 w-5 text-foreground" />
-                                </div>
-                                <h3 className="text-lg font-semibold">Import from Repository</h3>
-                                <p className="text-sm text-muted-foreground">
-                                    Your pack already contains <strong>{packLabels.length}</strong> labels.
-                                    Replace them with the <strong>{repoLabels.length}</strong> labels
-                                    from <strong>{repoContext}</strong>, or merge to add only the ones
-                                    missing from the pack.
-                                </p>
-                            </div>
-                            <div className="flex gap-3 pt-2">
-                                <Button
-                                    variant="ghost"
-                                    className="flex-1"
-                                    onClick={() => setShowImportConfirm(false)}
-                                >
-                                    Cancel
-                                </Button>
-                                <Button
-                                    variant="outline"
-                                    className="flex-1"
-                                    onClick={() => applyRepoImport('merge')}
-                                >
-                                    Merge
-                                </Button>
-                                <Button
-                                    className="flex-1"
-                                    onClick={() => applyRepoImport('replace')}
-                                >
-                                    Replace
-                                </Button>
-                            </div>
-                        </div>
-                    </div>
+                    <ConfirmOverlay
+                        icon={<ArrowDownToLine className="h-5 w-5 text-foreground" />}
+                        title="Copy into your pack"
+                        body={<>Your pack already holds <strong>{packLabels.length}</strong> labels. Add only the ones it is missing from <strong>{repoContext}</strong>, or replace the pack with that repository's <strong>{repoLabels.length}</strong> labels?</>}
+                        actions={[
+                            { label: 'Cancel', variant: 'ghost', onClick: () => setShowImportConfirm(false) },
+                            { label: 'Add missing', variant: 'outline', onClick: () => applyRepoImport('merge') },
+                            { label: 'Replace pack', onClick: () => applyRepoImport('replace') },
+                        ]}
+                    />
                 )}
 
-                {}
+                {showApplyConfirm && (
+                    <ConfirmOverlay
+                        icon={<ArrowUpFromLine className="h-5 w-5 text-foreground" />}
+                        title={`Apply your pack to ${repoContext}`}
+                        body={<>Create the pack's <strong>{packLabels.length}</strong> labels on <strong>{repoContext}</strong>. Adding leaves the repository's existing labels alone. Replacing <strong>deletes all {repoLabels.length} of them first</strong>, including on issues already using them.</>}
+                        actions={[
+                            { label: 'Cancel', variant: 'ghost', onClick: () => setShowApplyConfirm(false) },
+                            { label: 'Add missing', variant: 'outline', onClick: () => applyPackToRepo('missing') },
+                            { label: 'Replace all', variant: 'destructive', onClick: () => applyPackToRepo('replace') },
+                        ]}
+                    />
+                )}
+
                 {showDeleteConfirm && (
-                    <div className="absolute inset-0 z-60 bg-background/50 backdrop-blur-[2px] flex items-center justify-center rounded-lg">
-                        <div className="w-full max-w-sm bg-background border rounded-lg shadow-xl p-6 space-y-4 animate-in fade-in zoom-in duration-200">
-                            <div className="flex flex-col items-center text-center space-y-2">
-                                <div className="h-10 w-10 rounded-full bg-destructive/10 flex items-center justify-center">
-                                    <AlertTriangle className="h-5 w-5 text-destructive" />
-                                </div>
-                                <h3 className="text-lg font-semibold">Delete Label?</h3>
-                                <p className="text-sm text-muted-foreground">
-                                    Are you sure you want to delete the label <strong>"{labelToDelete}"</strong>? This action cannot be undone.
-                                </p>
-                            </div>
-                            <div className="flex gap-3 pt-2">
-                                <Button
-                                    variant="outline"
-                                    className="flex-1"
-                                    onClick={() => setShowDeleteConfirm(false)}
-                                >
-                                    Cancel
-                                </Button>
-                                <Button
-                                    variant="destructive"
-                                    className="flex-1"
-                                    onClick={executeDelete}
-                                >
-                                    Delete
-                                </Button>
-                            </div>
-                        </div>
-                    </div>
+                    <ConfirmOverlay
+                        icon={<AlertTriangle className="h-5 w-5 text-destructive" />}
+                        title="Delete this label?"
+                        body={<>"{labelToDelete}" will be removed from {repoContext} and from every issue and pull request using it. This cannot be undone.</>}
+                        actions={[
+                            { label: 'Cancel', variant: 'outline', onClick: () => setShowDeleteConfirm(false) },
+                            { label: 'Delete', variant: 'destructive', onClick: executeDelete },
+                        ]}
+                    />
                 )}
 
-                <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg font-semibold">Label Manager</h2>
-                    <button onClick={onClose} className="rounded-full p-1 hover:bg-muted">
+                <div className="flex items-start justify-between gap-4 border-b px-6 py-4">
+                    <div className="min-w-0">
+                        <h2 className="text-lg font-semibold">Labels</h2>
+                        <p className="text-xs text-muted-foreground truncate">
+                            {selectable
+                                ? <>Choose the labels for the {target} you're drafting in <span className="font-medium text-foreground">{repoContext || 'this repository'}</span></>
+                                : <>Manage the labels in <span className="font-medium text-foreground">{repoContext || 'this repository'}</span></>}
+                        </p>
+                    </div>
+                    <button onClick={onClose} className="rounded-full p-1 hover:bg-muted shrink-0" aria-label="Close">
                         <X className="h-4 w-4" />
                     </button>
                 </div>
 
-                <Tabs defaultValue="repo" value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
-                    <TabsList className="grid w-full grid-cols-2 mb-4">
-                        <TabsTrigger value="repo">Repository Labels</TabsTrigger>
-                        <TabsTrigger value="pack">Label Pack (Global)</TabsTrigger>
-                    </TabsList>
+                <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
+                    <div className="px-6 pt-4">
+                        <TabsList className="grid w-full grid-cols-2">
+                            <TabsTrigger value="repo">This repository</TabsTrigger>
+                            <TabsTrigger value="pack">My label pack</TabsTrigger>
+                        </TabsList>
+                    </div>
 
-                    {}
-                    <TabsContent value="repo" className="flex-1 flex flex-col overflow-hidden data-[state=inactive]:hidden">
+                    {/* ── THIS REPOSITORY ─────────────────────────────────── */}
+                    <TabsContent value="repo" className="flex-1 flex flex-col overflow-hidden data-[state=inactive]:hidden px-6 pb-2 pt-4 mt-0">
                         {repoError && (
-                            <div className="mb-4 p-3 rounded bg-destructive/10 text-destructive text-sm">
-                                {repoError}
-                            </div>
+                            <div className="mb-3 rounded bg-destructive/10 px-3 py-2 text-sm text-destructive">{repoError}</div>
                         )}
-                        <div className="flex gap-6 flex-1 overflow-hidden">
-                            {}
-                            <div className="flex-1 flex flex-col overflow-hidden border-r pr-4">
-                                <div className="flex justify-between items-center mb-2">
-                                    <h3 className="text-sm font-medium text-muted-foreground">Current Repository Labels</h3>
-                                    <div className="flex items-center gap-2">
-                                        {repoLabels.length > 0 && generateCount < 3 && (
-                                            <button
-                                                onClick={confirmAutoGenerate}
-                                                disabled={isGenerating}
-                                                className="h-6 px-2 text-xs font-medium rounded-md border bg-background hover:bg-accent hover:text-accent-foreground transition-colors flex items-center gap-1.5 disabled:opacity-50"
-                                                title="Auto-generate descriptions with AI"
-                                            >
-                                                {isGenerating ? <Loader2 className="h-3 w-3 animate-spin" /> : <Wand2 className="h-3 w-3 text-muted-foreground" />}
-                                                Auto-generate
-                                            </button>
-                                        )}
-                                        {repoLabels.length > 0 && gitsetKey && (
-                                            <button
-                                                onClick={importFromRepo}
-                                                className="h-6 px-2 text-xs font-medium rounded-md border bg-background hover:bg-accent hover:text-accent-foreground transition-colors flex items-center gap-1.5"
-                                                title="Copy these labels into your Label Pack to apply them on any other repository"
-                                            >
-                                                <Package className="h-3 w-3 text-muted-foreground" /> Export to Pack
-                                            </button>
-                                        )}
-                                        <button
-                                            onClick={startRepoCreate}
-                                            className="h-6 px-2 text-xs font-medium rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors flex items-center gap-1.5"
-                                        >
-                                            <Plus className="h-3 w-3" /> New Label
-                                        </button>
-                                    </div>
-                                </div>
 
-                                {repoLoading ? (
-                                    <div className="flex justify-center p-4"><Loader2 className="h-6 w-6 animate-spin" /></div>
-                                ) : (
-                                    <div className="overflow-y-auto space-y-1 flex-1 pr-2">
-                                        {repoLabels.map(label => (
-                                            <div key={label.id || label.name} className="flex items-center justify-between p-2 rounded hover:bg-muted/50 group">
-                                                <div className="flex items-center gap-2">
+                        <div className="mb-3 flex items-center gap-2">
+                            <div className="relative flex-1">
+                                <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+                                <Input
+                                    value={query}
+                                    onChange={(e) => setQuery(e.target.value)}
+                                    placeholder={`Search ${repoLabels.length} labels`}
+                                    className="h-8 pl-8 text-sm"
+                                />
+                            </div>
+                            <Button size="sm" className="h-8 shrink-0 text-xs" onClick={startRepoCreate}>
+                                <Plus className="mr-1 h-3 w-3" /> New label
+                            </Button>
+                        </div>
+
+                        {(isCreatingRepoLabel || editingRepoLabel) && (
+                            <form onSubmit={handleRepoSubmit} className="mb-3 space-y-2 rounded-lg border bg-muted/30 p-3">
+                                <div className="flex items-center gap-2">
+                                    <Input
+                                        value={repoFormData.name}
+                                        onChange={(e) => setRepoFormData({ ...repoFormData, name: e.target.value })}
+                                        placeholder="Label name"
+                                        className="h-8 flex-1 text-sm"
+                                        required
+                                    />
+                                    <label className="flex h-8 shrink-0 items-center gap-1.5 rounded-md border px-2" title="Label colour">
+                                        <input
+                                            type="color"
+                                            value={`#${repoFormData.color.replace('#', '')}`}
+                                            onChange={(e) => setRepoFormData({ ...repoFormData, color: e.target.value.replace('#', '') })}
+                                            className="h-4 w-6 cursor-pointer border-0 bg-transparent p-0"
+                                        />
+                                        <span className="font-mono text-[10px] text-muted-foreground">{repoFormData.color.replace('#', '')}</span>
+                                    </label>
+                                </div>
+                                <div className="flex items-start gap-2">
+                                    <Textarea
+                                        value={repoFormData.description}
+                                        onChange={(e) => setRepoFormData({ ...repoFormData, description: e.target.value })}
+                                        placeholder="What this label means"
+                                        className="min-h-[56px] flex-1 text-sm"
+                                    />
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        className="h-8 shrink-0 text-xs"
+                                        onClick={handleSingleLabelGenerate}
+                                        disabled={!repoFormData.name || isSingleGenerating}
+                                        title="Write this description with AI"
+                                    >
+                                        {isSingleGenerating ? <Loader2 className="h-3 w-3 animate-spin" /> : <Wand2 className="h-3 w-3" />}
+                                    </Button>
+                                </div>
+                                <div className="flex gap-2">
+                                    <Button type="submit" size="sm" className="h-8 flex-1 text-xs" disabled={repoActionLoading}>
+                                        {repoActionLoading ? <Loader2 className="mr-1 h-3 w-3 animate-spin" /> : <Check className="mr-1 h-3 w-3" />}
+                                        {isCreatingRepoLabel ? 'Create label' : 'Save changes'}
+                                    </Button>
+                                    <Button type="button" variant="outline" size="sm" className="h-8 text-xs" onClick={resetRepoForm}>Cancel</Button>
+                                </div>
+                            </form>
+                        )}
+
+                        <div className="flex-1 overflow-y-auto -mx-1 px-1">
+                            {repoLoading ? (
+                                <div className="flex items-center justify-center py-10 text-sm text-muted-foreground">
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading labels…
+                                </div>
+                            ) : visibleLabels.length === 0 ? (
+                                <p className="py-10 text-center text-sm text-muted-foreground">
+                                    {repoLabels.length === 0 ? 'This repository has no labels yet.' : 'No labels match that search.'}
+                                </p>
+                            ) : (
+                                <ul className="space-y-1">
+                                    {visibleLabels.map((label) => {
+                                        const isSelected = selected.has(label.name);
+                                        const Row = selectable ? 'button' : 'div';
+                                        return (
+                                            <li key={label.id ?? label.name} className="group relative">
+                                                <Row
+                                                    {...(selectable ? { type: 'button' as const, onClick: () => toggleSelected(label.name), 'aria-pressed': isSelected } : {})}
+                                                    className={`flex w-full items-center gap-3 rounded-md border px-3 py-2 text-left transition-colors ${
+                                                        selectable ? 'hover:border-brand/50 hover:bg-accent/50' : ''
+                                                    } ${isSelected ? 'border-brand/60 bg-brand/5' : 'border-transparent'}`}
+                                                >
+                                                    {selectable && (
+                                                        <span className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border ${isSelected ? 'border-brand bg-brand text-background' : 'border-muted-foreground/40'}`}>
+                                                            {isSelected && <Check className="h-3 w-3" />}
+                                                        </span>
+                                                    )}
                                                     <span
-                                                        className="px-2 py-0.5 rounded-full text-xs font-medium border"
+                                                        className="shrink-0 rounded-full border px-2 py-0.5 text-xs font-medium"
                                                         style={{ backgroundColor: `#${label.color}`, borderColor: `#${label.color}40`, color: getContrastColor(label.color) }}
                                                     >
                                                         {label.name}
                                                     </span>
-                                                    {label.description && <span className="text-xs text-muted-foreground truncate max-w-[200px]">{label.description}</span>}
-                                                </div>
-                                                <div className="flex gap-1 pl-2">
-                                                    <button onClick={() => startRepoEdit(label)} className="p-1 hover:text-brand"><Edit2 className="h-3 w-3" /></button>
-                                                    <button onClick={() => handleRepoDelete(label.name)} className="p-1 hover:text-destructive"><Trash2 className="h-3 w-3" /></button>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-
-                            {}
-                            {(isCreatingRepoLabel || editingRepoLabel) && (
-                                <div className="w-1/3 flex flex-col">
-                                    <h3 className="text-sm font-medium mb-4">{isCreatingRepoLabel ? 'Create Label' : 'Edit Label'}</h3>
-                                    <form onSubmit={handleRepoSubmit} className="space-y-4">
-                                        <div className="space-y-1">
-                                            <label className="text-xs font-medium">Name</label>
-                                            <Input
-                                                required
-                                                value={repoFormData.name}
-                                                onChange={e => setRepoFormData({ ...repoFormData, name: e.target.value })}
-                                                className="h-8"
-                                            />
-                                        </div>
-                                        <div className="space-y-1">
-                                            <label className="text-xs font-medium">Color (Hex)</label>
-                                            <div className="flex gap-2">
-                                                <input
-                                                    type="color"
-                                                    value={`#${repoFormData.color}`}
-                                                    onChange={e => setRepoFormData({ ...repoFormData, color: e.target.value.replace('#', '') })}
-                                                    className="h-8 w-8 p-0 border-0 rounded cursor-pointer"
-                                                />
-                                                <Input
-                                                    value={repoFormData.color}
-                                                    onChange={e => setRepoFormData({ ...repoFormData, color: e.target.value.replace('#', '') })}
-                                                    className="h-8 font-mono"
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className="space-y-1">
-                                            <label className="text-xs font-medium flex justify-between">
-                                                Description
-                                                {repoFormData.name && (
+                                                    <span className="min-w-0 flex-1 truncate text-xs text-muted-foreground">
+                                                        {label.description || <span className="italic opacity-60">No description</span>}
+                                                    </span>
+                                                    <span className="w-[52px] shrink-0" aria-hidden="true" />
+                                                </Row>
+                                                {/* Editing sits outside the selection target so a click
+                                                    to edit can never be read as a click to choose. */}
+                                                <span className="absolute right-3 top-1/2 flex -translate-y-1/2 items-center gap-1 opacity-0 transition-opacity focus-within:opacity-100 group-hover:opacity-100">
                                                     <button
                                                         type="button"
-                                                        onClick={handleSingleLabelGenerate}
-                                                        disabled={isSingleGenerating}
-                                                        className="text-[10px] flex items-center gap-1 text-muted-foreground hover:text-foreground font-medium disabled:opacity-50"
+                                                        onClick={() => startRepoEdit(label)}
+                                                        className="rounded p-1 text-muted-foreground hover:bg-background hover:text-brand"
+                                                        title={`Edit "${label.name}"`}
                                                     >
-                                                        {isSingleGenerating ? <Loader2 className="h-3 w-3 animate-spin" /> : <Wand2 className="h-3 w-3" />}
-                                                        Auto-fill
+                                                        <Edit2 className="h-3 w-3" />
                                                     </button>
-                                                )}
-                                            </label>
-                                            <Input
-                                                value={repoFormData.description}
-                                                onChange={e => setRepoFormData({ ...repoFormData, description: e.target.value })}
-                                                className="h-8"
-                                                placeholder="Label description"
-                                            />
-                                        </div>
-
-                                        <div className="pt-2 flex gap-2">
-                                            <Button type="submit" disabled={repoActionLoading} size="sm" className="flex-1">
-                                                {repoActionLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3 mr-1" />}
-                                                Save
-                                            </Button>
-                                            <Button type="button" variant="outline" onClick={resetRepoForm} size="sm">
-                                                Cancel
-                                            </Button>
-                                        </div>
-                                    </form>
-                                </div>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleRepoDelete(label.name)}
+                                                        className="rounded p-1 text-muted-foreground hover:bg-background hover:text-destructive"
+                                                        title={`Delete "${label.name}"`}
+                                                    >
+                                                        <Trash2 className="h-3 w-3" />
+                                                    </button>
+                                                </span>
+                                            </li>
+                                        );
+                                    })}
+                                </ul>
                             )}
                         </div>
+
+                        {repoLabels.length > 0 && generateCount < 3 && (
+                            <button
+                                type="button"
+                                onClick={confirmAutoGenerate}
+                                disabled={isGenerating}
+                                className="mt-2 flex items-center gap-1.5 self-start text-xs text-muted-foreground hover:text-foreground disabled:opacity-50"
+                            >
+                                {isGenerating ? <Loader2 className="h-3 w-3 animate-spin" /> : <Wand2 className="h-3 w-3" />}
+                                {isGenerating ? 'Writing descriptions…' : 'Write missing descriptions with AI'}
+                            </button>
+                        )}
                     </TabsContent>
 
-                    {}
-                    <TabsContent value="pack" className="flex-1 flex flex-col overflow-hidden data-[state=inactive]:hidden">
-                        {!gitsetKey ? (
-                            <div className="flex flex-col items-center justify-center flex-1 text-muted-foreground">
-                                <AlertTriangle className="h-8 w-8 mb-2 opacity-50" />
-                                <p>Gitset Key required to manage Label Packs.</p>
+                    {/* ── MY LABEL PACK ───────────────────────────────────── */}
+                    <TabsContent value="pack" className="flex-1 flex flex-col overflow-hidden data-[state=inactive]:hidden px-6 pb-2 pt-4 mt-0">
+                        {packError && (
+                            <div className="mb-3 rounded bg-destructive/10 px-3 py-2 text-sm text-destructive">{packError}</div>
+                        )}
+
+                        <p className="mb-3 text-xs text-muted-foreground">
+                            A set of labels saved to your account, so you can put the same ones on any repository.
+                            It is not connected to {repoContext || 'this repository'} until you move labels between them below.
+                        </p>
+
+                        {/* Both transfers live here, named for their direction. They
+                            used to sit on opposite tabs as "Import" and "Export to
+                            Pack", which said nothing about what moved where. */}
+                        <div className="mb-3 grid gap-2 sm:grid-cols-2">
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="h-auto justify-start gap-2 py-2 text-left text-xs"
+                                onClick={importFromRepo}
+                                disabled={!gitsetKey || repoLabels.length === 0}
+                            >
+                                <ArrowDownToLine className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                                <span className="min-w-0">
+                                    <span className="block font-medium">Copy into pack</span>
+                                    <span className="block truncate text-[11px] font-normal text-muted-foreground">from {repoContext || 'this repository'}</span>
+                                </span>
+                            </Button>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="h-auto justify-start gap-2 py-2 text-left text-xs"
+                                onClick={() => setShowApplyConfirm(true)}
+                                disabled={!gitsetKey || packLabels.length === 0 || packActionLoading}
+                            >
+                                {packActionLoading
+                                    ? <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin" />
+                                    : <ArrowUpFromLine className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />}
+                                <span className="min-w-0">
+                                    <span className="block font-medium">Apply pack</span>
+                                    <span className="block truncate text-[11px] font-normal text-muted-foreground">to {repoContext || 'this repository'}</span>
+                                </span>
+                            </Button>
+                        </div>
+
+                        {importNotice && (
+                            <div className="mb-3 flex items-start gap-2 rounded border border-brand/30 bg-brand/5 px-3 py-2 text-xs">
+                                <span className="flex-1">{importNotice}</span>
+                                <button onClick={() => setImportNotice(null)} className="shrink-0 text-muted-foreground hover:text-foreground">
+                                    <X className="h-3 w-3" />
+                                </button>
                             </div>
-                        ) : (
-                            <div className="flex gap-6 flex-1 overflow-hidden">
-                                {}
-                                <div className="flex-1 flex flex-col overflow-hidden border-r pr-4">
-                                    <div className="flex justify-between items-center mb-2">
-                                        <h3 className="text-sm font-medium text-muted-foreground">Global Label Pack</h3>
-                                        <div className="flex gap-2">
-                                            <Button variant="outline" size="sm" onClick={() => setIsImporting(!isImporting)} className="h-7 text-xs">
-                                                <FileText className="h-3 w-3 mr-1" /> Import
-                                            </Button>
-                                            <Button variant="outline" size="sm" onClick={saveLabelPack} disabled={packActionLoading} className="h-7 text-xs">
-                                                <Save className="h-3 w-3 mr-1" /> Save Pack
-                                            </Button>
-                                            <Button variant="ghost" size="sm" onClick={handlePackAdd} className="h-7 text-xs text-brand">
-                                                <Plus className="h-3 w-3 mr-1" /> Add
-                                            </Button>
-                                        </div>
-                                    </div>
+                        )}
 
-                                    {isImporting ? (
-                                        <div className="flex-1 flex flex-col gap-3 p-1 min-h-0">
-                                            <button
-                                                onClick={importFromRepo}
-                                                disabled={repoLabels.length === 0}
-                                                className="shrink-0 w-full border rounded-md p-3 flex items-center gap-3 text-left hover:border-brand/50 hover:bg-accent/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                            >
-                                                <Package className="h-5 w-5 text-brand shrink-0" />
-                                                <div className="min-w-0">
-                                                    <p className="text-sm font-medium truncate">Import from {repoContext || 'the selected repository'}</p>
-                                                    <p className="text-xs text-muted-foreground">
-                                                        {repoLabels.length > 0
-                                                            ? `Copies its ${repoLabels.length} labels — names, colors and descriptions — into the pack.`
-                                                            : 'Select a repository with labels to use this source.'}
-                                                    </p>
-                                                </div>
-                                            </button>
-                                            <div className="flex items-center gap-2 shrink-0">
-                                                <div className="border-t flex-1"></div>
-                                                <span className="text-xs text-muted-foreground">or paste markdown</span>
-                                                <div className="border-t flex-1"></div>
-                                            </div>
-                                            <div className="flex-1 min-h-0 border rounded-md overflow-hidden">
-                                                <Textarea
-                                                    className="w-full h-full font-mono text-xs resize-none border-0 focus-visible:ring-0 p-4"
-                                                    placeholder="Paste your labels.md content here..."
-                                                    value={importContent}
-                                                    onChange={e => setImportContent(e.target.value)}
-                                                />
-                                            </div>
-                                            <div className="flex gap-2 justify-end shrink-0">
-                                                <Button size="sm" variant="ghost" onClick={() => setIsImporting(false)}>Cancel</Button>
-                                                <Button size="sm" onClick={handleImport} disabled={!importContent.trim()}>Parse & Import</Button>
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        packLoading ? (
-                                            <div className="flex justify-center p-4"><Loader2 className="h-6 w-6 animate-spin" /></div>
-                                        ) : (
-                                            <>
-                                            {importNotice && (
-                                                <div className="shrink-0 mb-2 p-2 rounded-md border border-brand/30 bg-brand/10 text-xs flex items-start justify-between gap-2">
-                                                    <span className="flex items-center gap-1.5 min-w-0">
-                                                        <Check className="h-3 w-3 text-brand shrink-0" />
-                                                        <span>{importNotice}</span>
-                                                    </span>
-                                                    <button onClick={() => setImportNotice(null)} className="shrink-0 text-muted-foreground hover:text-foreground">
-                                                        <X className="h-3 w-3" />
-                                                    </button>
-                                                </div>
-                                            )}
-                                            <div className="overflow-y-auto space-y-1 flex-1 pr-2">
-                                                {packLabels.length === 0 && (
-                                                    <div className="text-center p-4 text-sm text-muted-foreground">No labels in pack. Add some!</div>
-                                                )}
-                                                {packLabels.map((label, i) => (
-                                                    <div key={i} className="flex items-center justify-between p-2 rounded hover:bg-muted/50 group">
-                                                        {editingPackLabel === i ? (
-                                                            <div className="flex items-center gap-2 w-full">
-                                                                <div className="flex items-center gap-1">
-                                                                    <div className="w-4 h-4 rounded-full border" style={{ backgroundColor: `#${packFormData.color}` }} />
-                                                                    <Input className="h-6 w-16 text-xs font-mono p-1" value={packFormData.color} onChange={e => setPackFormData({ ...packFormData, color: e.target.value })} />
-                                                                </div>
-                                                                <Input className="h-6 w-24 text-xs p-1" value={packFormData.name} onChange={e => setPackFormData({ ...packFormData, name: e.target.value })} placeholder="Name" />
-                                                                <Input className="h-6 flex-1 text-xs p-1" value={packFormData.description} onChange={e => setPackFormData({ ...packFormData, description: e.target.value })} placeholder="Description" />
-                                                                <Button size="icon" variant="ghost" className="h-6 w-6 text-brand" onClick={handlePackSaveEdit}><Check className="h-3 w-3" /></Button>
-                                                                <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => setEditingPackLabel(null)}><X className="h-3 w-3" /></Button>
-                                                            </div>
-                                                        ) : (
-                                                            <>
-                                                                <div className="flex items-center gap-2">
-                                                                    <span
-                                                                        className="px-2 py-0.5 rounded-full text-xs font-medium border"
-                                                                        style={{ backgroundColor: `#${label.color}`, borderColor: `#${label.color}40`, color: getContrastColor(label.color) }}
-                                                                    >
-                                                                        {label.name}
-                                                                    </span>
-                                                                    {label.description && <span className="text-xs text-muted-foreground truncate max-w-[150px]">{label.description}</span>}
-                                                                </div>
-                                                                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                                    <button onClick={() => { setEditingPackLabel(i); setPackFormData(label); }} className="p-1 hover:text-brand"><Edit2 className="h-3 w-3" /></button>
-                                                                    <button onClick={() => handlePackDelete(i)} className="p-1 hover:text-destructive"><Trash2 className="h-3 w-3" /></button>
-                                                                </div>
-                                                            </>
-                                                        )}
-                                                    </div>
-                                                ))}
-                                            </div>
-                                            </>
-                                        )
-                                    )}
-                                </div>
-
-                                {}
-                                <div className="w-1/3 flex flex-col border-l pl-4">
-                                    <h3 className="text-sm font-medium mb-4">Apply to Repository</h3>
-                                    <div className="space-y-4">
-                                        <div className="p-3 bg-muted/30 rounded-md text-sm">
-                                            <p className="mb-2 font-medium">Pack Stats:</p>
-                                            <div className="flex justify-between text-xs text-muted-foreground">
-                                                <span>Total Labels:</span>
-                                                <span>{packLabels.length}</span>
-                                            </div>
-                                            <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                                                <span>New to Repo:</span>
-                                                <span>{packLabels.filter(pl => !repoLabels.some(rl => rl.name === pl.name)).length}</span>
-                                            </div>
-                                        </div>
-
-                                        <div className="space-y-2">
-                                            <Button
-                                                variant={applyMode === 'missing' ? 'default' : 'outline'}
-                                                className="w-full justify-start"
-                                                onClick={() => { setApplyMode('missing'); setShowReplaceWarning(false); }}
-                                            >
-                                                <Upload className="mr-2 h-4 w-4" /> Add Missing Labels
-                                            </Button>
-                                            <Button
-                                                variant={applyMode === 'replace' ? 'destructive' : 'outline'}
-                                                className="w-full justify-start"
-                                                onClick={() => { setApplyMode('replace'); setShowReplaceWarning(true); }}
-                                            >
-                                                <RefreshCw className="mr-2 h-4 w-4" /> Replace All Labels
-                                            </Button>
-                                        </div>
-
-                                        {showReplaceWarning && applyMode === 'replace' && (
-                                            <Alert variant="destructive">
-                                                <AlertTriangle className="h-4 w-4" />
-                                                <AlertTitle>Warning</AlertTitle>
-                                                <AlertDescription>
-                                                    This will delete ALL existing labels in <strong>{repoContext}</strong> and replace them with this pack. This action cannot be undone.
-                                                </AlertDescription>
-                                            </Alert>
-                                        )}
-
-                                        <Button
-                                            className="w-full mt-4"
-                                            disabled={packActionLoading || packLabels.length === 0}
-                                            variant={applyMode === 'replace' ? 'destructive' : 'default'}
-                                            onClick={applyPackToRepo}
-                                        >
-                                            {packActionLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Check className="mr-2 h-4 w-4" />}
-                                            Confirm & Apply
-                                        </Button>
-                                    </div>
+                        {isImporting && (
+                            <div className="mb-3 space-y-2 rounded-lg border bg-muted/30 p-3">
+                                <Textarea
+                                    placeholder={'Paste labels as YAML:\n- name: "bug"\n  color: "d73a4a"\n  description: "Something is broken"'}
+                                    className="min-h-[110px] font-mono text-xs"
+                                    value={importContent}
+                                    onChange={(e) => setImportContent(e.target.value)}
+                                />
+                                <div className="flex justify-end gap-2">
+                                    <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => setIsImporting(false)}>Cancel</Button>
+                                    <Button size="sm" className="h-7 text-xs" onClick={handleImport} disabled={!importContent.trim()}>
+                                        Replace pack with this
+                                    </Button>
                                 </div>
                             </div>
                         )}
+
+                        <div className="flex-1 overflow-y-auto -mx-1 px-1">
+                            {packLoading ? (
+                                <div className="flex items-center justify-center py-10 text-sm text-muted-foreground">
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading your pack…
+                                </div>
+                            ) : packLabels.length === 0 ? (
+                                <p className="py-10 text-center text-sm text-muted-foreground">
+                                    Your pack is empty. Copy this repository's labels into it, or add them one at a time.
+                                </p>
+                            ) : (
+                                <ul className="space-y-1">
+                                    {packLabels.map((label, i) => (
+                                        <li key={`${label.name}-${i}`} className="group flex items-center gap-3 rounded-md border border-transparent px-3 py-2 hover:bg-accent/40">
+                                            {editingPackLabel === i ? (
+                                                <>
+                                                    <Input className="h-7 w-32 text-xs" value={packFormData.name} onChange={(e) => setPackFormData({ ...packFormData, name: e.target.value })} placeholder="Name" />
+                                                    <Input className="h-7 flex-1 text-xs" value={packFormData.description} onChange={(e) => setPackFormData({ ...packFormData, description: e.target.value })} placeholder="Description" />
+                                                    <Button size="icon" variant="ghost" className="h-7 w-7 text-brand" onClick={handlePackSaveEdit}><Check className="h-3 w-3" /></Button>
+                                                    <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => setEditingPackLabel(null)}><X className="h-3 w-3" /></Button>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <span
+                                                        className="shrink-0 rounded-full border px-2 py-0.5 text-xs font-medium"
+                                                        style={{ backgroundColor: `#${label.color}`, borderColor: `#${label.color}40`, color: getContrastColor(label.color) }}
+                                                    >
+                                                        {label.name}
+                                                    </span>
+                                                    <span className="min-w-0 flex-1 truncate text-xs text-muted-foreground">
+                                                        {label.description || <span className="italic opacity-60">No description</span>}
+                                                    </span>
+                                                    <span className="flex shrink-0 items-center gap-1 opacity-0 transition-opacity focus-within:opacity-100 group-hover:opacity-100">
+                                                        <button type="button" onClick={() => { setEditingPackLabel(i); setPackFormData(label); }} className="rounded p-1 text-muted-foreground hover:text-brand" title={`Edit "${label.name}"`}>
+                                                            <Edit2 className="h-3 w-3" />
+                                                        </button>
+                                                        <button type="button" onClick={() => handlePackDelete(i)} className="rounded p-1 text-muted-foreground hover:text-destructive" title={`Remove "${label.name}" from the pack`}>
+                                                            <Trash2 className="h-3 w-3" />
+                                                        </button>
+                                                    </span>
+                                                </>
+                                            )}
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </div>
+
+                        <div className="mt-2 flex items-center gap-3 text-xs">
+                            <button type="button" onClick={handlePackAdd} className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground">
+                                <Plus className="h-3 w-3" /> Add label
+                            </button>
+                            <button type="button" onClick={() => setIsImporting(!isImporting)} className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground">
+                                <FileText className="h-3 w-3" /> Paste YAML
+                            </button>
+                            <Button
+                                size="sm"
+                                variant={packSaved ? 'outline' : 'default'}
+                                className="ml-auto h-7 text-xs"
+                                onClick={saveLabelPack}
+                                disabled={!gitsetKey || packActionLoading}
+                            >
+                                {packSaved ? <Check className="mr-1 h-3 w-3" /> : <Save className="mr-1 h-3 w-3" />}
+                                {packSaved ? 'Saved' : 'Save pack'}
+                            </Button>
+                        </div>
                     </TabsContent>
                 </Tabs>
+
+                <div className="flex items-center justify-between gap-4 border-t px-6 py-3">
+                    <p className="text-xs text-muted-foreground">
+                        {selectable
+                            ? (selectedCount === 0
+                                ? `No labels on this ${target} yet`
+                                : <><span className="font-medium text-foreground">{selectedCount}</span> {selectedCount === 1 ? 'label' : 'labels'} on this {target}</>)
+                            : <>{repoLabels.length} labels in this repository</>}
+                    </p>
+                    <div className="flex items-center gap-2">
+                        {selectable && selectedCount > 0 && (
+                            <Button variant="ghost" size="sm" className="h-8 text-xs" onClick={() => onSelectionChange?.([])}>
+                                Clear
+                            </Button>
+                        )}
+                        <Button size="sm" className="h-8 text-xs" onClick={onClose}>Done</Button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function ConfirmOverlay({ icon, title, body, actions }: {
+    icon: React.ReactNode;
+    title: string;
+    body: React.ReactNode;
+    actions: { label: string; onClick: () => void; variant?: 'outline' | 'ghost' | 'destructive' }[];
+}) {
+    return (
+        <div className="absolute inset-0 z-[60] flex items-center justify-center rounded-lg bg-background/60 p-4 backdrop-blur-[2px]">
+            <div className="w-full max-w-sm space-y-4 rounded-lg border bg-background p-6 shadow-xl animate-in fade-in zoom-in duration-200">
+                <div className="flex flex-col items-center space-y-2 text-center">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">{icon}</div>
+                    <h3 className="text-lg font-semibold">{title}</h3>
+                    <p className="text-sm text-muted-foreground">{body}</p>
+                </div>
+                <div className="flex gap-2 pt-2">
+                    {actions.map((a) => (
+                        <Button key={a.label} variant={a.variant} className="flex-1 text-xs" onClick={a.onClick}>
+                            {a.label}
+                        </Button>
+                    ))}
+                </div>
             </div>
         </div>
     );
