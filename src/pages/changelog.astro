@@ -6,16 +6,33 @@ import { Footer } from "../components/Footer";
 import { ChangelogReleaseItem } from "../components/ChangelogReleaseItem";
 import getUser from "@/lib/getUser";
 import { toClientUser } from "@/lib/clientUser";
-import { marked } from "marked";
+import { Marked } from "marked";
 
 const user = await getUser(Astro.cookies.get("app_auth_token")?.value);
 
 let releases = [];
 let error = null;
 
-marked.setOptions({
+const escapeAttr = (value: string) =>
+    value.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+// Release bodies now link every change to its commit (gitset-dev/gitset#60).
+// This page is the one place Gitset renders those links as HTML — GitHub's own
+// release page strips `target` from markdown, and the release tools show raw
+// markdown — so external links open in a new tab here, without a referrer.
+// A dedicated instance rather than `marked.use()`: the global one is shared
+// with other imports, and this behaviour belongs to this page only.
+const markdown = new Marked({
     breaks: true,
     gfm: true,
+    renderer: {
+        link({ href, title, tokens }) {
+            if (!/^https?:\/\//i.test(href || "")) return false;
+            const text = this.parser.parseInline(tokens);
+            const titleAttr = title ? ` title="${escapeAttr(title)}"` : "";
+            return `<a href="${escapeAttr(href)}"${titleAttr} target="_blank" rel="noopener noreferrer">${text}</a>`;
+        },
+    },
 });
 
 try {
@@ -33,7 +50,7 @@ try {
         const data = await response.json();
         releases = data.map((release: any, index: number) => {
             const rawBody = release.body || "No description provided.";
-            const htmlBody = marked.parse(rawBody);
+            const htmlBody = markdown.parse(rawBody);
 
             const isLatest = index === 0 && !release.prerelease;
 

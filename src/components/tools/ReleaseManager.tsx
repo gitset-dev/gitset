@@ -117,8 +117,14 @@ export function ReleaseManager({ user, repoContext, onSwitchToCreator }: Release
                     action: 'generate',
                     gitset_key: user.gitsetKey,
                     commits: [],
-                    instruction: `Refine the following release notes based on this instruction: "${refinementPrompt}"\n\nNOTES TO REFINE:\n${editBody}`,
-                    tagName: editingRelease?.tag_name || 'vNext',
+                    // The body travels as `previous_notes`, not inside `instruction`:
+                    // the prompt clips an instruction to 1000 characters, so a real
+                    // release used to be truncated before the model ever saw it —
+                    // commit references included (gitset-dev/gitset#60).
+                    instruction: refinementPrompt,
+                    previous_notes: editBody,
+                    // The API reads `tag_name`; `tagName` was silently ignored.
+                    tag_name: editingRelease?.tag_name || 'vNext',
                     repo_info: repo ? { owner: repo.split('/')[0], name: repo.split('/')[1] } : undefined
                 })
             });
