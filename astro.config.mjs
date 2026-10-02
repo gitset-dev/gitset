@@ -18,6 +18,7 @@ for (const [key, value] of Object.entries(fileEnv)) {
 
 export default defineConfig({
   output: 'server',
+  devToolbar: { enabled: false },
   adapter: node({ mode: 'standalone' }),
   integrations: [react()],
   security: {
