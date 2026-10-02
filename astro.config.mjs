@@ -19,6 +19,9 @@ for (const [key, value] of Object.entries(fileEnv)) {
 export default defineConfig({
   output: 'server',
   devToolbar: { enabled: false },
+  // Astro 7 defaults to 'jsx' whitespace stripping; keep HTML-aware
+  // compression so inline text spacing renders as before.
+  compressHTML: true,
   adapter: node({ mode: 'standalone' }),
   integrations: [react()],
   security: {
