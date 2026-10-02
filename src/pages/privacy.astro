@@ -93,7 +93,7 @@ const sections: { title: string; paragraphs: string[]; bullets?: string[] }[] = 
     <Fragment slot="head">
         <meta charset="utf-8" />
         <link rel="icon" type="image/png" href="/favicon-96.png" />
-        <meta name="viewport" content="width=device-width" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
         <meta name="generator" content={Astro.generator} />
         <meta
             name="description"
@@ -120,23 +120,26 @@ const sections: { title: string; paragraphs: string[]; bullets?: string[] }[] = 
         class="bg-background text-foreground antialiased min-h-screen flex flex-col"
     >
         <SiteHeader client:load showBackButton={true} user={toClientUser(user?.user)} />
-        <main class="flex-1 container mx-auto px-4 py-12 max-w-4xl">
+        <div aria-hidden="true" class="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[520px] bg-grid"></div>
+        <div aria-hidden="true" class="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[520px] bg-glow"></div>
+        <main class="flex-1 w-full mx-auto px-4 sm:px-6 py-14 sm:py-20 max-w-3xl">
             <div class="space-y-8">
                 <div class="text-center space-y-3">
-                    <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">
+                    <p class="eyebrow">Legal</p>
+                    <h1 class="mt-3 text-4xl font-semibold tracking-[-0.04em] sm:text-5xl">
                         Privacy Policy
                     </h1>
-                    <p class="text-sm text-muted-foreground">
+                    <p class="inline-flex rounded-full border border-border bg-card px-3 py-1 font-mono text-xs text-muted-foreground">
                         Last updated: July 5, 2026
                     </p>
                 </div>
 
                 <div
-                    class="rounded-3xl border border-border bg-card shadow-sm p-8 space-y-8"
+                    class="rounded-2xl border border-border bg-card shadow-sm p-6 sm:p-10 space-y-10"
                 >
                     {sections.map((s) => (
                         <div class="space-y-3">
-                            <h2 class="text-xl font-semibold text-foreground">
+                            <h2 class="text-lg font-semibold tracking-tight text-foreground sm:text-xl">
                                 {s.title}
                             </h2>
                             {s.paragraphs.map((p) => (
@@ -145,7 +148,7 @@ const sections: { title: string; paragraphs: string[]; bullets?: string[] }[] = 
                                 </p>
                             ))}
                             {s.bullets && (
-                                <ul class="list-disc pl-5 space-y-1.5">
+                                <ul class="list-disc pl-5 space-y-1.5 marker:text-brand">
                                     {s.bullets.map((b) => (
                                         <li class="text-sm text-muted-foreground leading-relaxed">
                                             {b}

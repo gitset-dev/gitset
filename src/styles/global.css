@@ -4,14 +4,14 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* Design tokens: see DESIGN.md at the workspace root. Brand accent is a
-   teal pair — "--primary" is the button/surface fill, "--brand" is the
-   content color (text, icons, links, checkmarks) drawn on top of the page
-   background; neutrals are warm ink/paper, not cold gray. There is no
-   separate "success" or "CLI" green — every affirmative/checkmark color in
-   the app is the brand teal (fixed #6CE0DB on permanently-dark surfaces
-   like the terminal demo and the AI providers modal, which don't follow
-   site light/dark mode; the mode-aware --brand variable everywhere else). */
+/* Gitset design system v3 — "Graphite & Signal".
+   Dark-first graphite surfaces, one luminous teal signal color, Geist type,
+   soft layered elevation and a generous radius scale. Every component reads
+   semantic tokens below; hard-coded colors are reserved for status
+   (destructive / warning / success) and the always-dark terminal surfaces.
+   --primary  = filled actions (buttons, active states, progress)
+   --brand    = content color for links, icons and checkmarks on the page bg
+   Fixed #6CE0DB stays the brand teal on permanently-dark surfaces. */
 @theme {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -37,10 +37,32 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --radius-lg: var(--radius);
-  --radius-xl: 0.5rem;
-  --font-sans: var(--font-sans, "IBM Plex Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
-  --font-mono: var(--font-mono, "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace);
+  --color-surface: var(--surface);
+
+  /* Radius scale — softer, modern. Every rounded-* utility in the app
+     resolves through these, so the whole UI shifts at once. */
+  --radius-xs: 0.25rem;
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.25rem;
+  --radius-3xl: 1.5rem;
+
+  /* Layered elevation: a hairline contact shadow plus a soft ambient one. */
+  --shadow-xs: 0 1px 2px 0 rgb(15 23 42 / 0.05);
+  --shadow-sm: 0 1px 2px 0 rgb(15 23 42 / 0.04), 0 2px 6px -1px rgb(15 23 42 / 0.06);
+  --shadow: 0 1px 3px 0 rgb(15 23 42 / 0.06), 0 4px 12px -2px rgb(15 23 42 / 0.08);
+  --shadow-md: 0 2px 4px -1px rgb(15 23 42 / 0.06), 0 8px 20px -4px rgb(15 23 42 / 0.1);
+  --shadow-lg: 0 4px 8px -2px rgb(15 23 42 / 0.06), 0 16px 36px -8px rgb(15 23 42 / 0.16);
+  --shadow-xl: 0 8px 16px -4px rgb(15 23 42 / 0.08), 0 24px 48px -12px rgb(15 23 42 / 0.22);
+  --shadow-2xl: 0 12px 24px -6px rgb(15 23 42 / 0.1), 0 40px 80px -16px rgb(15 23 42 / 0.32);
+
+  --font-sans: "Geist Variable", "Geist", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: "Geist Mono Variable", "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+
+  --animate-fade-up: fade-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-shimmer: shimmer 2.4s linear infinite;
 
   @keyframes typing {
     0%,
@@ -75,6 +97,26 @@
       opacity: 0.4;
     }
   }
+
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes shimmer {
+    from {
+      background-position: 200% 0;
+    }
+    to {
+      background-position: -200% 0;
+    }
+  }
 }
 
 @layer base {
@@ -87,70 +129,223 @@
   }
 
   :root {
-    --background: hsl(40 20% 98%);
-    --foreground: hsl(30 10% 12%);
-    --card: hsl(40 15% 100%);
-    --card-foreground: hsl(30 10% 12%);
-    --popover: hsl(40 15% 100%);
-    --popover-foreground: hsl(30 10% 12%);
-    --primary: hsl(30 10% 12%);
-    --primary-foreground: hsl(40 20% 98%);
-    --brand: #197672;
-    --secondary: hsl(35 15% 92%);
-    --secondary-foreground: hsl(30 10% 12%);
-    --muted: hsl(38 15% 94%);
-    --muted-foreground: hsl(30 8% 42%);
-    --accent: hsl(38 15% 94%);
-    --accent-foreground: hsl(30 10% 12%);
-    --destructive: hsl(6 70% 45%);
-    --destructive-foreground: hsl(40 20% 98%);
-    --warning: hsl(20 85% 45%);
-    --warning-foreground: hsl(40 20% 98%);
-    --info: hsl(210 40% 42%);
-    --info-foreground: hsl(40 20% 98%);
-    --border: hsl(35 15% 88%);
-    --input: hsl(35 15% 88%);
-    --ring: #197672;
-    --radius: 0.375rem;
+    --background: oklch(0.985 0.002 250);
+    --foreground: oklch(0.2 0.015 260);
+    --surface: oklch(0.97 0.004 250);
+    --card: oklch(1 0 0);
+    --card-foreground: oklch(0.2 0.015 260);
+    --popover: oklch(1 0 0);
+    --popover-foreground: oklch(0.2 0.015 260);
+    --primary: oklch(0.52 0.095 192);
+    --primary-foreground: oklch(0.99 0.005 190);
+    --brand: oklch(0.5 0.09 192);
+    --secondary: oklch(0.955 0.005 250);
+    --secondary-foreground: oklch(0.25 0.015 260);
+    --muted: oklch(0.96 0.004 250);
+    --muted-foreground: oklch(0.5 0.018 260);
+    --accent: oklch(0.955 0.014 192);
+    --accent-foreground: oklch(0.22 0.02 220);
+    --destructive: oklch(0.56 0.2 25);
+    --destructive-foreground: oklch(0.99 0 0);
+    --warning: oklch(0.64 0.16 55);
+    --warning-foreground: oklch(0.99 0 0);
+    --info: oklch(0.55 0.13 250);
+    --info-foreground: oklch(0.99 0 0);
+    --border: oklch(0.915 0.006 255);
+    --input: oklch(0.89 0.008 255);
+    --ring: oklch(0.6 0.1 192);
+    --radius: 0.5rem;
+    --glow: oklch(0.75 0.12 190 / 0.18);
+    --grid-line: oklch(0.2 0.015 260 / 0.05);
+    color-scheme: light;
   }
 
   .dark {
-    --background: hsl(30 8% 7%);
-    --foreground: hsl(40 15% 95%);
-    --card: hsl(30 8% 6%);
-    --card-foreground: hsl(40 15% 95%);
-    --popover: hsl(30 8% 6%);
-    --popover-foreground: hsl(40 15% 95%);
-    --primary: hsl(40 15% 95%);
-    --primary-foreground: hsl(30 10% 12%);
-    --brand: #6CE0DB;
-    --secondary: hsl(30 8% 14%);
-    --secondary-foreground: hsl(40 15% 95%);
-    --muted: hsl(30 8% 14%);
-    --muted-foreground: hsl(35 8% 60%);
-    --accent: hsl(30 8% 16%);
-    --accent-foreground: hsl(40 15% 95%);
-    --destructive: hsl(6 70% 55%);
-    --destructive-foreground: hsl(40 15% 95%);
-    --warning: hsl(20 85% 55%);
-    --warning-foreground: hsl(30 10% 10%);
-    --info: hsl(210 45% 62%);
-    --info-foreground: hsl(30 10% 10%);
-    --border: hsl(30 8% 18%);
-    --input: hsl(30 8% 18%);
-    --ring: #6CE0DB;
+    --background: oklch(0.145 0.006 255);
+    --foreground: oklch(0.965 0.004 250);
+    --surface: oklch(0.17 0.007 255);
+    --card: oklch(0.185 0.008 255);
+    --card-foreground: oklch(0.965 0.004 250);
+    --popover: oklch(0.2 0.009 255);
+    --popover-foreground: oklch(0.965 0.004 250);
+    --primary: oklch(0.85 0.115 188);
+    --primary-foreground: oklch(0.2 0.03 200);
+    --brand: oklch(0.85 0.11 188);
+    --secondary: oklch(0.24 0.009 255);
+    --secondary-foreground: oklch(0.965 0.004 250);
+    --muted: oklch(0.225 0.008 255);
+    --muted-foreground: oklch(0.7 0.012 255);
+    --accent: oklch(0.255 0.014 210);
+    --accent-foreground: oklch(0.965 0.004 250);
+    --destructive: oklch(0.66 0.19 22);
+    --destructive-foreground: oklch(0.99 0 0);
+    --warning: oklch(0.76 0.15 65);
+    --warning-foreground: oklch(0.2 0.02 60);
+    --info: oklch(0.72 0.12 250);
+    --info-foreground: oklch(0.18 0.02 250);
+    --border: oklch(1 0 0 / 0.085);
+    --input: oklch(1 0 0 / 0.12);
+    --ring: oklch(0.85 0.11 188);
+    --glow: oklch(0.85 0.12 188 / 0.14);
+    --grid-line: oklch(1 0 0 / 0.045);
+    color-scheme: dark;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
   }
 
   body {
     background: var(--background);
     color: var(--foreground);
     font-family: var(--font-sans);
+    font-feature-settings: "ss01", "cv11";
     min-height: 100vh;
+    min-height: 100dvh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    overflow-x: clip;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    text-wrap: balance;
+    letter-spacing: -0.02em;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  ::selection {
+    background: color-mix(in oklch, var(--brand) 28%, transparent);
+    color: var(--foreground);
+  }
+
+  :focus-visible {
+    outline-color: var(--ring);
+  }
+
+  input[type="checkbox"],
+  input[type="radio"],
+  input[type="range"],
+  progress {
+    accent-color: var(--primary);
+  }
+
+  img,
+  video {
+    max-width: 100%;
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in oklch, var(--foreground) 18%, transparent) transparent;
   }
 }
 
-code {
+code,
+kbd,
+samp,
+pre {
   font-family: var(--font-mono);
+}
+
+/* ---------- Signature utilities ---------- */
+
+/* Faint engineering grid that fades out toward the edges. */
+@utility bg-grid {
+  background-image:
+    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 40%, transparent 100%);
+}
+
+/* Soft brand light that sits behind hero content. */
+@utility bg-glow {
+  background:
+    radial-gradient(60% 50% at 50% 0%, var(--glow), transparent 70%),
+    radial-gradient(40% 35% at 85% 10%, color-mix(in oklch, var(--info) 10%, transparent), transparent 70%);
+}
+
+@utility text-gradient {
+  background: linear-gradient(120deg, var(--foreground) 10%, color-mix(in oklch, var(--foreground) 55%, var(--brand)) 60%, var(--brand) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Shimmering text for live AI status lines. */
+@utility text-shimmer {
+  background: linear-gradient(90deg, var(--muted-foreground) 0%, var(--muted-foreground) 35%, var(--foreground) 50%, var(--muted-foreground) 65%, var(--muted-foreground) 100%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer 2.4s linear infinite;
+}
+
+/* Hairline gradient border for featured surfaces. */
+@utility ring-gradient {
+  position: relative;
+  isolation: isolate;
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    padding: 1px;
+    border-radius: inherit;
+    background: linear-gradient(140deg, color-mix(in oklch, var(--brand) 55%, transparent), transparent 45%, color-mix(in oklch, var(--brand) 25%, transparent));
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    z-index: -1;
+  }
+}
+
+/* Translucent chrome for sticky bars and floating menus. */
+@utility glass {
+  background: color-mix(in oklch, var(--background) 72%, transparent);
+  backdrop-filter: saturate(180%) blur(14px);
+  -webkit-backdrop-filter: saturate(180%) blur(14px);
+}
+
+/* Small uppercase section label. */
+@utility eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--brand);
+}
+
+/* Interactive surface lift used by cards that link somewhere. */
+@utility card-hover {
+  transition:
+    transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.25s ease,
+    border-color 0.25s ease,
+    background-color 0.25s ease;
+  &:hover {
+    transform: translateY(-2px);
+    border-color: color-mix(in oklch, var(--brand) 40%, var(--border));
+    box-shadow: var(--shadow-lg);
+  }
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 @media (prefers-reduced-motion: no-preference) {

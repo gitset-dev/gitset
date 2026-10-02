@@ -288,7 +288,7 @@ export function RepositorySelector({
                                 className="fixed inset-0 z-40"
                                 onClick={() => setOpen(false)}
                             />
-                            <div className="absolute top-full mt-1 z-50 w-full rounded-md border bg-popover text-popover-foreground shadow-md outline-none animate-in fade-in-0 zoom-in-95">
+                            <div className="absolute top-full mt-1.5 z-50 w-full rounded-xl border bg-popover text-popover-foreground shadow-xl outline-none animate-in fade-in-0 zoom-in-95">
                                 <div className="flex items-center border-b px-3">
                                     <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
                                     <input
@@ -318,7 +318,7 @@ export function RepositorySelector({
                                         <div
                                             key={repo.id}
                                             className={cn(
-                                                "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50",
+                                                "relative flex cursor-default select-none items-center rounded-lg px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50",
                                                 (value === repo.full_name || index === focusedIndex) && "bg-accent text-accent-foreground"
                                             )}
                                             onClick={() => {
@@ -329,7 +329,7 @@ export function RepositorySelector({
                                         >
                                             <Check
                                                 className={cn(
-                                                    "mr-2 h-4 w-4",
+                                                    "mr-2 h-4 w-4 text-brand",
                                                     value === repo.full_name ? "opacity-100" : "opacity-0"
                                                 )}
                                             />
@@ -342,7 +342,7 @@ export function RepositorySelector({
                                     <div className="border-t my-1"></div>
                                     <div
                                         className={cn(
-                                            "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground font-medium text-brand",
+                                            "relative flex cursor-default select-none items-center rounded-lg px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground font-medium text-brand",
                                             focusedIndex === filteredRepos.length && "bg-accent text-accent-foreground"
                                         )}
                                         onClick={() => {
@@ -357,7 +357,7 @@ export function RepositorySelector({
                                         href="/api/auth/github/manage"
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-xs outline-none text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                                        className="relative flex cursor-pointer select-none items-center rounded-lg px-2 py-1.5 transition-colors text-xs outline-none text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                                     >
                                         <span className="ml-6">
                                             Can't find your organization or repository? Manage GitHub permissions, then refresh.
@@ -414,7 +414,7 @@ export function RepositorySelector({
                                     className="fixed inset-0 z-40"
                                     onClick={() => setBranchOpen(false)}
                                 />
-                                <div className="absolute top-full mt-1 z-50 w-full rounded-md border bg-popover text-popover-foreground shadow-md outline-none animate-in fade-in-0 zoom-in-95">
+                                <div className="absolute top-full mt-1.5 z-50 w-full rounded-xl border bg-popover text-popover-foreground shadow-xl outline-none animate-in fade-in-0 zoom-in-95">
                                     <div className="flex items-center border-b px-3">
                                         <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
                                         <input
@@ -435,7 +435,7 @@ export function RepositorySelector({
                                             <div
                                                 key={branch.name}
                                                 className={cn(
-                                                    "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50",
+                                                    "relative flex cursor-default select-none items-center rounded-lg px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50",
                                                     branchValue === branch.name && "bg-accent text-accent-foreground"
                                                 )}
                                                 onClick={() => {
@@ -446,7 +446,7 @@ export function RepositorySelector({
                                             >
                                                 <Check
                                                     className={cn(
-                                                        "mr-2 h-4 w-4",
+                                                        "mr-2 h-4 w-4 text-brand",
                                                         branchValue === branch.name ? "opacity-100" : "opacity-0"
                                                     )}
                                                 />

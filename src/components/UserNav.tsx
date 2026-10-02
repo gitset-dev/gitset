@@ -77,7 +77,7 @@ export function UserNav({ user }: UserNavProps) {
         <div className="relative user-nav-container">
             <Button
                 variant="ghost"
-                className="relative h-10 w-10 rounded-full p-0 overflow-hidden border-0 dark:border-2 dark:border-foreground/60 dark:hover:border-foreground transition-all duration-300 trigger-button"
+                className="relative h-9 w-9 rounded-full p-0 overflow-hidden ring-2 ring-border hover:ring-brand/50 transition-all duration-300 trigger-button"
                 onClick={() => setIsOpen(!isOpen)}
             >
                 <img
@@ -89,20 +89,23 @@ export function UserNav({ user }: UserNavProps) {
             </Button>
 
             {isOpen && (
-                <div className="absolute right-0 top-full mt-2 w-64 rounded-3xl border border-border/50 bg-card/80 backdrop-blur-xl shadow-2xl p-1 z-50 animate-in fade-in zoom-in-95 duration-200">
-                    <div className="px-4 py-3 border-b border-border/50">
+                <div className="absolute right-0 top-full mt-2 w-64 origin-top-right rounded-2xl border border-border bg-popover shadow-xl p-1 z-50 animate-in fade-in zoom-in-95 slide-in-from-top-1 duration-150">
+                    <div className="flex items-center gap-3 px-3 py-3 border-b border-border">
+                        <img src={avatarSrc} alt="" className="h-9 w-9 shrink-0 rounded-full object-cover ring-1 ring-border" />
+                        <div className="min-w-0">
                         <p className="text-sm font-semibold text-foreground truncate">
                             {username}
                         </p>
                         <p className="text-xs text-muted-foreground truncate">
                             {user.userEmail}
                         </p>
+                        </div>
                     </div>
 
                     <div className="p-1">
                         <a
                             href="/dashboard"
-                            className="flex items-center gap-2 w-full rounded-lg px-3 py-2 text-sm text-foreground hover:bg-accent/50 transition-colors"
+                            className="flex items-center gap-2 w-full rounded-xl px-3 py-2 text-sm text-foreground hover:bg-accent transition-colors"
                             onClick={() => setIsOpen(false)}
                         >
                             <LayoutDashboard className="h-4 w-4 text-brand" />
@@ -111,7 +114,7 @@ export function UserNav({ user }: UserNavProps) {
 
                         <button
                             onClick={toggleTheme}
-                            className="flex items-center justify-between w-full rounded-lg px-3 py-2 text-sm text-foreground hover:bg-accent/50 transition-colors"
+                            className="flex items-center justify-between w-full rounded-xl px-3 py-2 text-sm text-foreground hover:bg-accent transition-colors"
                         >
                             <div className="flex items-center gap-2">
                                 {theme === 'dark' ? (
@@ -121,16 +124,16 @@ export function UserNav({ user }: UserNavProps) {
                                 )}
                                 <span>Theme</span>
                             </div>
-                            <span className="text-xs text-muted-foreground capitalize bg-secondary px-2 py-0.5 rounded-md">
+                            <span className="font-mono text-[11px] text-muted-foreground capitalize border border-border bg-muted px-2 py-0.5 rounded-full">
                                 {theme}
                             </span>
                         </button>
                     </div>
 
-                    <div className="p-1 border-t border-border/50">
+                    <div className="p-1 border-t border-border">
                         <a
                             href="/api/auth/logout"
-                            className="flex items-center gap-2 w-full rounded-lg px-3 py-2 text-sm text-destructive hover:bg-destructive/10 transition-colors"
+                            className="flex items-center gap-2 w-full rounded-xl px-3 py-2 text-sm text-destructive hover:bg-destructive/10 transition-colors"
                         >
                             <LogOut className="h-4 w-4" />
                             Logout

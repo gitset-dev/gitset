@@ -55,42 +55,42 @@ export function ChangelogReleaseItem({ release }: { release: Release }) {
     }
 
     return (
-        <div className="mb-10 ml-8 relative">
+        <div className="mb-10 ml-6 sm:ml-8 relative">
             <span
-                className={`absolute -left-11 flex h-6 w-6 items-center justify-center rounded-full ring-8 ring-background ${release.type === 'prerelease'
+                className={`absolute -left-[33px] sm:-left-[41px] top-6 flex h-4 w-4 items-center justify-center rounded-full ring-[6px] ring-background ${release.type === 'prerelease'
                     ? "bg-orange-500"
                     : release.type === 'latest'
-                        ? "bg-blue-500"
-                        : "bg-foreground"
+                        ? "bg-brand shadow-[0_0_0_4px_var(--glow)]"
+                        : "bg-muted-foreground/50"
                     }`}
             />
-            <div className="rounded-lg border border-border bg-card p-6 shadow-sm hover:shadow-md transition-shadow">
+            <div className="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-sm transition-[box-shadow,border-color] hover:shadow-md hover:border-brand/25">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
                     <div className="flex items-center gap-2 flex-wrap">
-                        <h3 className="text-xl font-semibold text-foreground">
+                        <h3 className="rounded-lg border border-border bg-muted px-2 py-0.5 font-mono text-sm font-medium text-foreground">
                             {release.version}
                         </h3>
                         {release.type === 'prerelease' && (
-                            <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-orange-500/10 text-orange-600 border border-orange-500/20">
+                            <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20">
                                 Pre-release
                             </span>
                         )}
                         {release.type === 'latest' && (
-                            <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-blue-500/10 text-blue-600 border border-blue-500/20">
+                            <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-brand/10 text-brand border border-brand/25">
                                 Latest Release
                             </span>
                         )}
                     </div>
-                    <time className="text-sm text-muted-foreground">
+                    <time className="font-mono text-xs text-muted-foreground">
                         {release.date}
                     </time>
                 </div>
-                <h4 className="text-lg font-medium mb-2 text-foreground">
+                <h4 className="text-lg font-semibold tracking-tight mb-2 text-foreground">
                     {release.title}
                 </h4>
                 <div
                     ref={contentRef}
-                    className="text-sm text-muted-foreground leading-relaxed prose prose-sm dark:prose-invert max-w-none prose-headings:text-foreground prose-headings:font-semibold prose-headings:mt-4 prose-headings:mb-2 prose-p:text-muted-foreground prose-p:my-2 prose-a:text-brand prose-a:underline prose-strong:text-foreground prose-strong:font-semibold prose-code:text-foreground prose-code:bg-muted prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-xs prose-ul:my-2 prose-ul:list-disc prose-ul:pl-6 prose-ol:my-2 prose-ol:list-decimal prose-ol:pl-6 prose-li:text-muted-foreground prose-li:my-1"
+                    className="min-w-0 [overflow-wrap:anywhere] text-sm text-muted-foreground leading-relaxed prose prose-sm dark:prose-invert max-w-none prose-code:rounded-md prose-code:bg-muted prose-code:px-1 prose-code:py-0.5 prose-code:before:content-none prose-code:after:content-none prose-pre:overflow-x-auto prose-headings:text-foreground prose-headings:font-semibold prose-headings:mt-4 prose-headings:mb-2 prose-p:text-muted-foreground prose-p:my-2 prose-a:text-brand prose-a:underline prose-strong:text-foreground prose-strong:font-semibold prose-code:text-foreground prose-code:bg-muted prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-xs prose-ul:my-2 prose-ul:list-disc prose-ul:pl-6 prose-ol:my-2 prose-ol:list-decimal prose-ol:pl-6 prose-li:text-muted-foreground prose-li:my-1"
                 >
                     <div dangerouslySetInnerHTML={{ __html: beforeModifiedFiles }} />
 
@@ -98,7 +98,7 @@ export function ChangelogReleaseItem({ release }: { release: Release }) {
                         <div className="my-4">
                             <button
                                 onClick={() => setIsModifiedFilesExpanded(!isModifiedFilesExpanded)}
-                                className="flex items-center gap-2 w-full text-left font-semibold text-foreground hover:text-brand transition-colors py-2 px-3 rounded-md hover:bg-muted/50"
+                                className="flex items-center gap-2 w-full text-left font-semibold text-foreground hover:text-brand transition-colors py-2 px-3 rounded-lg border border-border bg-surface/60 hover:bg-muted/50"
                             >
                                 <ChevronDown
                                     className={`h-4 w-4 transition-transform ${isModifiedFilesExpanded ? 'rotate-180' : ''}`}

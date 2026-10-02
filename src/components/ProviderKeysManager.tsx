@@ -44,20 +44,20 @@ function CustomModelField({ show, value, onChange, showHelp, setShowHelp }: {
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder="exact model id, e.g. claude-sonnet-5"
-          className="flex-1 rounded-md border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm font-mono"
+          className="flex-1 rounded-lg border border-white/15 bg-black/40 px-3 py-2 text-sm font-mono"
         />
         <button
           type="button"
           onClick={() => setShowHelp(!showHelp)}
           aria-label="What goes in this field?"
           aria-expanded={showHelp}
-          className={`shrink-0 rounded-md border p-2 ${showHelp ? 'border-[#6CE0DB] text-[#6CE0DB]' : 'border-zinc-700 text-zinc-400 hover:text-zinc-200'}`}
+          className={`shrink-0 rounded-lg border p-2 ${showHelp ? 'border-[#6CE0DB] text-[#6CE0DB]' : 'border-white/15 text-zinc-400 hover:text-zinc-200'}`}
         >
           <HelpCircle className="h-4 w-4" />
         </button>
       </div>
       {showHelp && (
-        <p className="rounded-md border border-zinc-800 bg-zinc-950/60 p-2.5 text-xs text-zinc-400">
+        <p className="rounded-lg border border-white/10 bg-black/40/60 p-2.5 text-xs text-zinc-400">
           Paste the model id exactly as your provider documents it — same spelling, same
           capitalization, same punctuation. There's no autocorrect here: a small typo won't be
           fixed, it will just fail with an error from the provider when you try to use it.
@@ -109,13 +109,13 @@ function StyledSelect({ value, onChange, options, placeholder, disabled, compact
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-label={ariaLabel}
-        className={`w-full flex items-center justify-between gap-2 rounded-md border bg-zinc-950 text-left transition-colors disabled:opacity-50 ${compact ? 'px-2 py-1 text-xs' : 'px-3 py-2 text-sm'} ${open ? 'border-[#6CE0DB]' : 'border-zinc-700 hover:border-zinc-600'}`}
+        className={`w-full flex items-center justify-between gap-2 rounded-lg border bg-black/40 text-left transition-colors disabled:opacity-50 ${compact ? 'px-2 py-1 text-xs' : 'px-3 py-2 text-sm'} ${open ? 'border-[#6CE0DB]' : 'border-white/15 hover:border-zinc-600'}`}
       >
         <span className="truncate">{current?.label ?? <span className="text-zinc-500">{placeholder}</span>}</span>
         <ChevronDown className={`${compact ? 'h-3 w-3' : 'h-4 w-4'} shrink-0 text-zinc-500 transition-transform ${open ? 'rotate-180 text-[#6CE0DB]' : ''}`} />
       </button>
       {open && (
-        <div role="listbox" className={`absolute z-20 mt-1 max-h-64 overflow-y-auto rounded-md border border-zinc-700 bg-zinc-900 py-1 shadow-2xl ${compact ? 'w-max max-w-xs' : 'w-full'}`}>
+        <div role="listbox" className={`absolute z-20 mt-1 max-h-64 overflow-y-auto rounded-xl border border-white/15 bg-[#14181d] p-1 shadow-2xl ${compact ? 'w-max max-w-xs' : 'w-full'}`}>
           {options.map((o) => {
             const selected = o.value === value;
             return (
@@ -125,7 +125,7 @@ function StyledSelect({ value, onChange, options, placeholder, disabled, compact
                 role="option"
                 aria-selected={selected}
                 onClick={() => { onChange(o.value); setOpen(false); }}
-                className={`flex w-full items-center justify-between gap-2 text-left ${compact ? 'px-2 py-1.5 text-xs' : 'px-3 py-2 text-sm'} ${selected ? 'bg-[#6CE0DB]/15 text-[#6CE0DB]' : 'text-zinc-200 hover:bg-zinc-800'}`}
+                className={`flex w-full items-center justify-between gap-2 rounded-lg text-left transition-colors ${compact ? 'px-2 py-1.5 text-xs' : 'px-3 py-2 text-sm'} ${selected ? 'bg-[#6CE0DB]/15 text-[#6CE0DB]' : 'text-zinc-200 hover:bg-white/10'}`}
               >
                 <span className="truncate">{o.label}</span>
                 {selected && <Check className="h-3.5 w-3.5 shrink-0" />}
@@ -261,7 +261,7 @@ export default function ProviderKeysManager({ triggerLabel = 'Manage AI provider
     finally { setBusy(false); }
   }
 
-  const inputCls = 'w-full rounded-md border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm';
+  const inputCls = 'w-full rounded-lg border border-white/12 bg-black/40 px-3 py-2 text-sm transition-colors placeholder:text-zinc-500 hover:border-white/20 focus:outline-none focus:border-[#6CE0DB]/70 focus:ring-[3px] focus:ring-[#6CE0DB]/20';
 
   return (
     <>
@@ -270,30 +270,30 @@ export default function ProviderKeysManager({ triggerLabel = 'Manage AI provider
         onClick={() => setOpen(true)}
         aria-label={triggerLabel}
         title={iconOnly ? triggerLabel : undefined}
-        className={triggerClassName ?? "inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90"}
+        className={triggerClassName ?? "inline-flex h-10 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"}
       >
         <KeyRound className="h-4 w-4" /> {!iconOnly && triggerLabel}
       </button>
 
       {open && typeof document !== 'undefined' && createPortal(
         <div
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+          className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-md sm:p-4 animate-in fade-in duration-200"
           onClick={() => setOpen(false)}
         >
           <div
             role="dialog"
             aria-modal="true"
             aria-labelledby="byoai-modal-title"
-            className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl border border-zinc-800 bg-zinc-900 text-zinc-100 shadow-2xl"
+            className="w-full max-w-2xl max-h-[94dvh] sm:max-h-[90vh] overflow-y-auto overscroll-contain rounded-t-3xl sm:rounded-2xl border border-white/10 bg-[#0e1115] text-zinc-100 shadow-2xl ring-1 ring-black/40 animate-in slide-in-from-bottom-4 sm:slide-in-from-bottom-0 sm:zoom-in-95 duration-200 [color-scheme:dark]"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between border-b border-zinc-800 px-5 py-4">
+            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-white/10 bg-[#0e1115]/90 px-5 py-4 backdrop-blur-xl">
               <h2 id="byoai-modal-title" className="font-semibold flex items-center gap-2"><KeyRound className="h-4 w-4 text-[#6CE0DB]" /> AI providers (BYOAI)</h2>
-              <button onClick={() => setOpen(false)} aria-label="Close" className="rounded-md p-1.5 hover:bg-zinc-800"><X className="h-4 w-4" /></button>
+              <button onClick={() => setOpen(false)} aria-label="Close" className="inline-flex size-8 items-center justify-center rounded-lg text-zinc-400 transition-colors hover:bg-white/10 hover:text-white"><X className="h-4 w-4" /></button>
             </div>
 
             <div className="space-y-5 p-5">
-              <div className="rounded-lg border border-zinc-800 bg-zinc-900/60 p-3 flex gap-3 items-start">
+              <div className="rounded-lg border border-white/10 bg-white/[0.03] p-3 flex gap-3 items-start">
                 <ShieldCheck className="h-5 w-5 text-[#6CE0DB] shrink-0 mt-0.5" />
                 <p className="text-sm text-zinc-300">
                   Your keys are encrypted at rest (AES-256-GCM), are <strong>never</strong> sent to the
@@ -301,10 +301,10 @@ export default function ProviderKeysManager({ triggerLabel = 'Manage AI provider
                 </p>
               </div>
 
-              {error && <div role="alert" className="rounded-md border border-red-900 bg-red-950/50 px-4 py-2 text-sm text-red-300">{error}</div>}
-              {notice && <div role="status" className="rounded-md border border-[#6CE0DB]/30 bg-[#6CE0DB]/10 px-4 py-2 text-sm text-[#6CE0DB]">{notice}</div>}
+              {error && <div role="alert" className="rounded-lg border border-red-900 bg-red-950/50 px-4 py-2 text-sm text-red-300">{error}</div>}
+              {notice && <div role="status" className="rounded-lg border border-[#6CE0DB]/30 bg-[#6CE0DB]/10 px-4 py-2 text-sm text-[#6CE0DB]">{notice}</div>}
 
-              <form onSubmit={addKey} className="rounded-lg border border-zinc-800 bg-zinc-900/40 p-4 space-y-3">
+              <form onSubmit={addKey} className="rounded-lg border border-white/10 bg-white/[0.02] p-4 space-y-3">
                 <h3 className="font-medium flex items-center gap-2 text-sm"><Plus className="h-4 w-4" /> Add a provider key</h3>
                 <div className="grid gap-3 sm:grid-cols-2">
                   <label className="text-sm space-y-1">
@@ -360,7 +360,7 @@ export default function ProviderKeysManager({ triggerLabel = 'Manage AI provider
                         Don't have a key? Create a free one → <ChevronDown className={`h-3 w-3 transition-transform ${showFreeKeyHelp ? 'rotate-180' : ''}`} />
                       </button>
                       {showFreeKeyHelp && (
-                        <ol className="mt-1 space-y-2 rounded-md border border-zinc-800 bg-zinc-950/60 p-3 text-xs text-zinc-300 list-decimal list-inside">
+                        <ol className="mt-1 space-y-2 rounded-lg border border-white/10 bg-black/40/60 p-3 text-xs text-zinc-300 list-decimal list-inside">
                           <li>
                             Sign in at{' '}
                             <a href="https://openrouter.ai" target="_blank" rel="noopener noreferrer" className="text-[#6CE0DB] hover:underline inline-flex items-center gap-0.5">
@@ -390,7 +390,7 @@ export default function ProviderKeysManager({ triggerLabel = 'Manage AI provider
                             role="radio"
                             aria-checked={selected}
                             onClick={() => setModelChoice(m.id)}
-                            className={`w-full text-left rounded-md border p-2.5 transition-colors ${selected ? 'border-[#6CE0DB] bg-[#6CE0DB]/10' : 'border-zinc-800 bg-zinc-950/40 hover:border-zinc-700'}`}
+                            className={`w-full text-left rounded-lg border p-2.5 transition-colors ${selected ? 'border-[#6CE0DB] bg-[#6CE0DB]/10' : 'border-white/10 bg-black/40/40 hover:border-white/15'}`}
                           >
                             <div className="flex items-center justify-between gap-2">
                               <div className="flex items-center gap-2 min-w-0">
@@ -412,7 +412,7 @@ export default function ProviderKeysManager({ triggerLabel = 'Manage AI provider
                       Or route a different model through OpenRouter <ChevronDown className={`h-3 w-3 transition-transform ${showMoreModels ? 'rotate-180' : ''}`} />
                     </button>
                     {showMoreModels && (
-                      <div className="space-y-2 rounded-md border border-zinc-800 p-3">
+                      <div className="space-y-2 rounded-lg border border-white/10 p-3">
                         <StyledSelect
                           value={modelChoice === CUSTOM || (current.models || []).includes(modelChoice) ? modelChoice : ''}
                           onChange={setModelChoice}
@@ -444,7 +444,7 @@ export default function ProviderKeysManager({ triggerLabel = 'Manage AI provider
                   </>
                 )}
 
-                <button type="submit" disabled={busy} className="inline-flex items-center gap-2 rounded-md bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:bg-primary/90 disabled:opacity-50">
+                <button type="submit" disabled={busy} className="inline-flex items-center gap-2 rounded-lg bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:bg-primary/90 disabled:opacity-50">
                   {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <KeyRound className="h-4 w-4" />} Save key
                 </button>
               </form>
@@ -456,23 +456,23 @@ export default function ProviderKeysManager({ triggerLabel = 'Manage AI provider
                 ) : keys.length === 0 ? (
                   <p className="text-sm text-zinc-500">No provider keys yet. Add one above to start using Gitset’s AI tools.</p>
                 ) : (
-                  <ul className="divide-y divide-zinc-800 rounded-lg border border-zinc-800">
+                  <ul className="divide-y divide-white/10 overflow-hidden rounded-xl border border-white/10">
                     {keys.map((k) => {
                       const models = providers[k.provider]?.models || [];
 
                       const modelOptions = k.defaultModel && !models.includes(k.defaultModel)
                         ? [k.defaultModel, ...models] : models;
                       return (
-                        <li key={k.id} className="flex items-center justify-between gap-4 p-3">
+                        <li key={k.id} className="flex flex-col gap-3 p-3 transition-colors hover:bg-white/[0.02] sm:flex-row sm:items-center sm:justify-between sm:gap-4">
                           <div className="min-w-0">
-                            <div className="flex items-center gap-2">
-                              <span className="font-medium text-sm">{providers[k.provider]?.label || k.provider}</span>
-                              {k.label && <span className="text-xs text-zinc-500">· {k.label}</span>}
+                            <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                              <span className="whitespace-nowrap font-medium text-sm">{providers[k.provider]?.label || k.provider}</span>
+                              {k.label && <span className="min-w-0 truncate text-xs text-zinc-500">· {k.label}</span>}
                               {k.isDefault && <span className="inline-flex items-center gap-1 rounded-full bg-[#6CE0DB]/10 px-2 py-0.5 text-xs text-[#6CE0DB]"><Star className="h-3 w-3" /> default</span>}
                             </div>
-                            <div className="text-xs text-zinc-500 font-mono">••••{k.keyLast4}{k.baseUrl ? ` · ${k.baseUrl}` : ''}</div>
+                            <div className="mt-0.5 truncate text-xs text-zinc-500 font-mono">••••{k.keyLast4}{k.baseUrl ? ` · ${k.baseUrl}` : ''}</div>
                           </div>
-                          <div className="flex items-center gap-2 shrink-0">
+                          <div className="flex flex-wrap items-center gap-2 shrink-0">
                             <StyledSelect
                               compact
                               value={k.defaultModel || ''}
@@ -484,13 +484,13 @@ export default function ProviderKeysManager({ triggerLabel = 'Manage AI provider
                                 ...modelOptions.map((m) => ({ value: m, label: m })),
                               ]}
                             />
-                            {!k.isDefault && <button onClick={() => makeDefault(k.id)} disabled={busy} className="rounded-md border border-zinc-700 px-2 py-1 text-xs hover:bg-zinc-800 disabled:opacity-50">Set default</button>}
+                            {!k.isDefault && <button onClick={() => makeDefault(k.id)} disabled={busy} className="whitespace-nowrap rounded-lg border border-white/15 px-2.5 py-1 text-xs transition-colors hover:bg-white/10 disabled:opacity-50">Set default</button>}
                             {confirmDeleteId === k.id ? (
-                              <button onClick={() => remove(k.id)} disabled={busy} className="rounded-md bg-red-900/80 px-2 py-1 text-xs font-medium text-red-100 hover:bg-red-800 disabled:opacity-50">
+                              <button onClick={() => remove(k.id)} disabled={busy} className="whitespace-nowrap rounded-lg bg-red-900/80 px-2.5 py-1 text-xs font-medium text-red-100 transition-colors hover:bg-red-800 disabled:opacity-50">
                                 Confirm delete
                               </button>
                             ) : (
-                              <button onClick={() => setConfirmDeleteId(k.id)} disabled={busy} aria-label="Delete key" className="rounded-md border border-red-900 p-1.5 text-red-400 hover:bg-red-950 disabled:opacity-50"><Trash2 className="h-4 w-4" /></button>
+                              <button onClick={() => setConfirmDeleteId(k.id)} disabled={busy} aria-label="Delete key" className="rounded-lg border border-red-900 p-1.5 text-red-400 transition-colors hover:bg-red-950 disabled:opacity-50"><Trash2 className="h-4 w-4" /></button>
                             )}
                           </div>
                         </li>

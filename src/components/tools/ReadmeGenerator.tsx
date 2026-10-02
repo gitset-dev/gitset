@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Loader2, Copy, Sparkles, FileText, Github, Check, AlertCircle, Scale, Eraser } from 'lucide-react';
+import { MarkdownTabs } from './MarkdownTabs';
+import { GeneratingStatus } from './GeneratingStatus';
 import { BranchSelector } from '../BranchSelector';
 import ToolErrorNotice from './ToolErrorNotice';
 import CollapsibleComposer from './CollapsibleComposer';
@@ -470,9 +472,9 @@ export function ReadmeGenerator({ user }: ReadmeGeneratorProps) {
     };
 
     return (
-        <div className="grid gap-8 lg:grid-cols-2">
+        <div className="grid gap-6 lg:gap-8 lg:grid-cols-2">
             {}
-            <div className="space-y-6">
+            <div className="space-y-6 rounded-2xl border bg-card p-4 sm:p-6 shadow-sm">
                 <div className="space-y-2">
                     <label className="text-sm font-medium leading-none">Repository Info (Optional)</label>
                     <div className="flex gap-2">
@@ -492,7 +494,7 @@ export function ReadmeGenerator({ user }: ReadmeGeneratorProps) {
 
                 {}
                 {repo && (
-                    <div className={`p-4 border rounded-lg space-y-4 ${licenseStatus === 'missing' ? 'bg-amber-50/50 dark:bg-amber-950/10 border-amber-200/50' : 'bg-card'}`}>
+                    <div className={`p-4 border rounded-xl space-y-4 ${licenseStatus === 'missing' ? 'bg-amber-500/5 border-amber-500/30' : 'bg-surface/60'}`}>
                         {licenseStatus === 'checking' ? (
                             <div className="flex items-center gap-2 text-muted-foreground">
                                 <Loader2 className="h-3 w-3 animate-spin" />
@@ -501,7 +503,7 @@ export function ReadmeGenerator({ user }: ReadmeGeneratorProps) {
                         ) : licenseStatus === 'exists' && !isChangingLicense ? (
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-3">
-                                    <div className="h-8 w-8 rounded-full bg-brand/10 flex items-center justify-center text-brand">
+                                    <div className="h-8 w-8 rounded-lg border border-brand/25 bg-brand/10 flex items-center justify-center text-brand">
                                         <Scale className="h-4 w-4" />
                                     </div>
                                     <div>
@@ -546,7 +548,7 @@ export function ReadmeGenerator({ user }: ReadmeGeneratorProps) {
                                         <div className="relative">
                                             <Scale className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                                             <select
-                                                className="flex h-10 w-full rounded-md border border-input bg-background pl-9 pr-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                                className="flex h-10 w-full rounded-lg border border-input bg-card/60 pl-9 pr-3 py-2 text-sm focus-visible:outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/25 disabled:cursor-not-allowed disabled:opacity-50"
                                                 value={selectedLicense}
                                                 onChange={(e) => setSelectedLicense(e.target.value)}
                                             >
@@ -577,7 +579,7 @@ export function ReadmeGenerator({ user }: ReadmeGeneratorProps) {
                                     size="sm"
                                     onClick={createLicense}
                                     disabled={!selectedLicense || (licenses.find(l => l.id === selectedLicense)?.requiresOwner && !licenseHolder) || creatingLicense}
-                                    className="w-full bg-amber-100 hover:bg-amber-200 text-amber-900 dark:bg-amber-900/30 dark:text-amber-100 dark:hover:bg-amber-900/50 border-0"
+                                    className="w-full bg-amber-500/15 hover:bg-amber-500/25 text-amber-800 dark:text-amber-200 border border-amber-500/30"
                                 >
                                     {creatingLicense ? <Loader2 className="mr-2 h-3 w-3 animate-spin" /> : <FileText className="mr-2 h-3 w-3" />}
                                     {isChangingLicense ? "Update License" : "Create License"}
@@ -659,7 +661,7 @@ export function ReadmeGenerator({ user }: ReadmeGeneratorProps) {
                 <Button
                     onClick={handleGenerate}
                     disabled={loading || (!projectName && !description)}
-                    className="w-full"
+                    className="w-full h-11 rounded-xl font-semibold shadow-[inset_0_1px_0_0_rgb(255_255_255/0.2),0_6px_20px_-6px_var(--glow)]"
                 >
                     {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
                     Generate Readme
@@ -668,8 +670,8 @@ export function ReadmeGenerator({ user }: ReadmeGeneratorProps) {
 
             {}
             <div className="space-y-6">
-                <div className="rounded-3xl border border-border bg-card text-card-foreground shadow-sm h-full flex flex-col">
-                    <div className="p-4 border-b border-border flex justify-between items-center bg-muted/20">
+                <div className="rounded-2xl border border-border bg-card text-card-foreground shadow-sm h-full flex flex-col">
+                    <div className="px-4 py-3.5 sm:px-5 border-b border-border flex justify-between items-center gap-3 bg-surface/60">
                         <h3 className="font-semibold leading-none tracking-tight">Generated Readme</h3>
                         <div className="flex items-center gap-2">
                             {currentVersion && repo && selectedBranch && (
@@ -693,44 +695,41 @@ export function ReadmeGenerator({ user }: ReadmeGeneratorProps) {
                         </div>
                     </div>
 
-                    <div className="p-6 flex-1 bg-muted/30 relative group min-h-[400px]">
+                    <div className="p-4 sm:p-6 flex-1 bg-surface/60 relative group min-h-[400px]">
                         {loading && (
-                            <div className="absolute inset-0 flex items-center justify-center bg-background/50 backdrop-blur-sm z-10">
-                                <div className="flex flex-col items-center gap-2">
-                                    <Loader2 className="h-8 w-8 animate-spin text-brand" />
-                                    <p className="text-sm text-muted-foreground">Crafting documentation...</p>
-                                </div>
+                            <div className="absolute inset-0 flex items-center justify-center bg-background/60 backdrop-blur-sm z-10 animate-in fade-in duration-300">
+                                <GeneratingStatus messages={["Crafting documentation…", "Studying the project…", "Outlining the sections…", "Writing installation steps…", "Documenting usage…", "Polishing the README…"]} />
                             </div>
                         )}
 
                         {!currentVersion ? (
                             <div className="h-full flex flex-col items-center justify-center text-center text-muted-foreground p-8">
-                                <FileText className="h-12 w-12 mb-4 opacity-20" />
+                                <FileText className="h-14 w-14 mb-5 p-3.5 rounded-2xl border border-border bg-card text-brand shadow-sm" />
                                 <p>Provide project details to generate a professional README.</p>
                             </div>
                         ) : (
                             <div className="h-full flex flex-col">
                                 {publishError && (
-                                    <div className="mb-4 p-3 bg-red-500/10 border border-red-200 rounded-md flex items-center gap-2 text-sm text-red-600">
+                                    <div className="mb-4 p-3 bg-destructive/5 border border-destructive/30 rounded-xl flex items-center gap-2 text-sm text-destructive">
                                         <AlertCircle className="h-4 w-4 shrink-0" />
                                         {publishError}
                                     </div>
                                 )}
                                 {publishSuccess && (
-                                    <div className="mb-4 p-3 bg-brand/10 border border-brand/20 rounded-md flex items-center gap-2 text-sm text-brand">
+                                    <div className="mb-4 p-3 bg-brand/10 border border-brand/25 rounded-xl flex items-center gap-2 text-sm text-brand">
                                         <Check className="h-4 w-4 shrink-0" />
                                         {publishSuccess}
                                     </div>
                                 )}
                                 {}
-                                <div className="flex items-center gap-2 mb-4 overflow-x-auto pb-2">
+                                <div className="flex items-center gap-1.5 mb-4 overflow-x-auto no-scrollbar pb-1">
                                     {versions.map((v, idx) => (
                                         <button
                                             key={v.version_number}
                                             onClick={() => setCurrentVersionIndex(idx)}
-                                            className={`px-3 py-1 rounded-full text-xs font-medium transition-colors whitespace-nowrap ${idx === currentVersionIndex
-                                                ? 'bg-primary text-primary-foreground'
-                                                : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                                            className={`px-2.5 py-1 rounded-full border font-mono text-[11px] font-medium transition-colors whitespace-nowrap ${idx === currentVersionIndex
+                                                ? 'border-brand/40 bg-brand/10 text-brand'
+                                                : 'border-border bg-card text-muted-foreground hover:bg-muted'
                                                 }`}
                                         >
                                             v{v.version_number}
@@ -739,19 +738,21 @@ export function ReadmeGenerator({ user }: ReadmeGeneratorProps) {
                                     ))}
                                 </div>
 
-                                <Textarea
-                                    value={currentVersion.content}
-                                    onChange={(e) => {
-                                        const newContent = e.target.value;
-                                        setVersions(prev => prev.map((v, i) =>
-                                            i === currentVersionIndex ? { ...v, content: newContent } : v
-                                        ));
-                                    }}
-                                    className="flex-1 font-mono text-sm min-h-[400px] bg-background border-border resize-none p-4"
-                                />
+                                <MarkdownTabs content={currentVersion.content} label="README.md" defaultView="preview">
+                                    <Textarea
+                                        value={currentVersion.content}
+                                        onChange={(e) => {
+                                            const newContent = e.target.value;
+                                            setVersions(prev => prev.map((v, i) =>
+                                                i === currentVersionIndex ? { ...v, content: newContent } : v
+                                            ));
+                                        }}
+                                        className="flex-1 font-mono text-sm min-h-[400px] bg-transparent border-0 rounded-none shadow-none resize-none p-4 hover:border-0 focus-visible:ring-0 focus-visible:border-0"
+                                    />
+                                </MarkdownTabs>
 
                                 {}
-                                <div className="p-4 border-t border-border bg-background">
+                                <div className="p-4 border-t border-border bg-surface/60">
                                     <div className="space-y-3">
                                         <div className="flex items-center justify-between">
                                             <label className="text-sm font-medium">Refine Content</label>
@@ -761,7 +762,7 @@ export function ReadmeGenerator({ user }: ReadmeGeneratorProps) {
                                                 value={refinementPrompt}
                                                 onChange={(e) => setRefinementPrompt(e.target.value)}
                                                 placeholder="e.g. Add installation steps, Make it more concise..."
-                                                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                                className="flex h-9 w-full rounded-lg border border-input bg-card/60 px-3 py-1 text-sm shadow-xs transition-colors hover:border-foreground/20 placeholder:text-muted-foreground focus-visible:outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/25 disabled:cursor-not-allowed disabled:opacity-50"
                                                 onKeyDown={(e) => {
                                                     if (e.key === 'Enter' && !e.shiftKey) {
                                                         e.preventDefault();
@@ -772,7 +773,7 @@ export function ReadmeGenerator({ user }: ReadmeGeneratorProps) {
                                             <button
                                                 onClick={handleRefine}
                                                 disabled={refining || !refinementPrompt.trim()}
-                                                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80 h-9 px-4 py-2"
+                                                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/25 disabled:pointer-events-none disabled:opacity-50 border border-brand/25 bg-brand/10 text-brand hover:bg-brand/15 h-9 px-4 py-2"
                                             >
                                                 {refining ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
                                                 Refine

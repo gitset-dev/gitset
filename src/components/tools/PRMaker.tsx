@@ -7,6 +7,8 @@ import { LabelManagerModal } from '../LabelManagerModal';
 import { PRManager } from './PRManager';
 import { Modal } from '../Modal';
 import { LayoutTemplate, Loader2, Copy, Check, Sparkles, History, Github, Tag, User as UserIcon, Calendar, ListTodo, ExternalLink, CheckCircle2, FileDiff, AlertTriangle, GitPullRequest, RefreshCw, Hash, X } from 'lucide-react';
+import { MarkdownTabs } from './MarkdownTabs';
+import { GeneratingStatus } from './GeneratingStatus';
 import { fetchAllBranches } from '@/lib/github';
 import ToolErrorNotice from './ToolErrorNotice';
 import CollapsibleComposer from './CollapsibleComposer';
@@ -407,18 +409,18 @@ export function PRMaker({ user }: PRMakerProps) {
     return (
         <div className="flex flex-col h-full gap-6">
             {}
-            <div className="flex items-center gap-4 border-b pb-4 justify-between">
-                <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3 border-b pb-4 justify-between">
+                <div className="inline-flex max-w-full items-center gap-1 overflow-x-auto no-scrollbar rounded-xl border bg-muted/60 p-1">
                     <button
                         onClick={() => setMode('maker')}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-md transition-colors ${mode === 'maker' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'}`}
+                        className={`flex shrink-0 items-center gap-2 px-3 sm:px-4 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${mode === 'maker' ? 'bg-card text-foreground shadow-sm ring-1 ring-border [&>svg]:text-brand' : 'text-muted-foreground hover:text-foreground'}`}
                     >
                         <Sparkles className="h-4 w-4" />
                         Composer
                     </button>
                     <button
                         onClick={() => setMode('manager')}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-md transition-colors ${mode === 'manager' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'}`}
+                        className={`flex shrink-0 items-center gap-2 px-3 sm:px-4 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${mode === 'manager' ? 'bg-card text-foreground shadow-sm ring-1 ring-border [&>svg]:text-brand' : 'text-muted-foreground hover:text-foreground'}`}
                     >
                         <ListTodo className="h-4 w-4" />
                         Manager
@@ -426,7 +428,7 @@ export function PRMaker({ user }: PRMakerProps) {
                 </div>
                 <button
                     onClick={resetForm}
-                    className="p-2 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                    className="p-2 rounded-lg hover:bg-accent text-muted-foreground hover:text-foreground transition-colors"
                     title="Reset Form"
                 >
                     <RefreshCw className="h-4 w-4" />
@@ -438,7 +440,7 @@ export function PRMaker({ user }: PRMakerProps) {
             ) : (
                 <div className="grid gap-8 lg:grid-cols-2 h-full">
                     {}
-                    <div className="space-y-6 flex flex-col">
+                    <div className="space-y-6 flex flex-col rounded-2xl border bg-card p-4 sm:p-6 shadow-sm">
                         <div className="space-y-2">
                             <label className="text-sm font-medium leading-none">
                                 Repository & Head Branch (Source)
@@ -484,14 +486,14 @@ export function PRMaker({ user }: PRMakerProps) {
 
                         {}
                         {repo && (
-                            <div className="p-4 border rounded-lg bg-card/50 space-y-4">
+                            <div className="p-4 border rounded-xl bg-surface/60 space-y-4">
                                 <div className="flex items-center justify-between">
                                     <h3 className="text-sm font-semibold flex items-center gap-2">
                                         <Tag className="h-4 w-4" /> Metadata
                                     </h3>
                                     <button
                                         onClick={() => setIsLabelModalOpen(true)}
-                                        className="h-6 px-2 text-xs font-medium rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors flex items-center gap-1.5"
+                                        className="h-7 px-2.5 text-xs font-medium rounded-lg bg-primary text-primary-foreground shadow-xs hover:bg-primary/90 transition-colors flex items-center gap-1.5"
                                         title="Manage Labels"
                                     >
                                         <Hash className="h-3 w-3" />
@@ -500,7 +502,7 @@ export function PRMaker({ user }: PRMakerProps) {
                                 </div>
 
                                 {selectedLabels.length > 0 && (
-                                    <div className="mb-4 space-y-2 p-2 bg-muted/30 rounded border">
+                                    <div className="mb-4 space-y-2 p-2.5 bg-surface/60 rounded-lg border">
                                         <div className="flex justify-between items-center">
                                             <label className="text-xs font-medium text-muted-foreground">Selected ({selectedLabels.length})</label>
                                             <button onClick={() => setSelectedLabels([])} className="text-[10px] text-muted-foreground hover:text-foreground">Clear all</button>
@@ -535,7 +537,7 @@ export function PRMaker({ user }: PRMakerProps) {
                                             <button
                                                 key={label.id}
                                                 onClick={() => setSelectedLabels(prev => prev.includes(label.name) ? prev.filter(l => l !== label.name) : [...prev, label.name])}
-                                                className={`px-2 py-0.5 rounded-full text-xs border transition-all ${selectedLabels.includes(label.name) ? 'ring-2 ring-brand ring-offset-1' : 'opacity-70 hover:opacity-100'}`}
+                                                className={`px-2 py-0.5 rounded-full text-xs border transition-all ${selectedLabels.includes(label.name) ? 'ring-2 ring-brand ring-offset-2 ring-offset-card' : 'opacity-70 hover:opacity-100'}`}
                                                 style={{ backgroundColor: `#${label.color}`, borderColor: `#${label.color}40`, color: getContrastColor(label.color) }}
                                             >
                                                 {label.name}
@@ -547,7 +549,7 @@ export function PRMaker({ user }: PRMakerProps) {
                                 {}
                                 <div className="space-y-2">
                                     <label className="text-xs font-medium text-muted-foreground">Assignees</label>
-                                    <div className="grid grid-cols-1 gap-1 max-h-[160px] overflow-y-auto pr-1 border rounded-md p-1 bg-background/50">
+                                    <div className="grid grid-cols-1 gap-1 max-h-[160px] overflow-y-auto pr-1 border rounded-lg p-1 bg-surface/60">
                                         {metadata.assignees.length === 0 ? (
                                             <p className="text-xs text-muted-foreground p-2 text-center">No assignees found.</p>
                                         ) : (
@@ -555,7 +557,7 @@ export function PRMaker({ user }: PRMakerProps) {
                                                 <button
                                                     key={user.login}
                                                     onClick={() => setSelectedAssignees(prev => prev.includes(user.login) ? prev.filter(l => l !== user.login) : [...prev, user.login])}
-                                                    className={`flex items-center gap-2 p-1.5 rounded-sm text-sm transition-all w-full text-left ${selectedAssignees.includes(user.login)
+                                                    className={`flex items-center gap-2 p-1.5 rounded-md text-sm transition-all w-full text-left ${selectedAssignees.includes(user.login)
                                                         ? 'bg-accent text-accent-foreground font-medium'
                                                         : 'hover:bg-muted text-muted-foreground hover:text-foreground'
                                                         }`}
@@ -580,7 +582,7 @@ export function PRMaker({ user }: PRMakerProps) {
                                 {}
                                 <div className="space-y-2">
                                     <label className="text-xs font-medium text-muted-foreground">Reviewers</label>
-                                    <div className="grid grid-cols-1 gap-1 max-h-[160px] overflow-y-auto pr-1 border rounded-md p-1 bg-background/50">
+                                    <div className="grid grid-cols-1 gap-1 max-h-[160px] overflow-y-auto pr-1 border rounded-lg p-1 bg-surface/60">
                                         {metadata.assignees.length === 0 ? (
                                             <p className="text-xs text-muted-foreground p-2 text-center">No reviewers found.</p>
                                         ) : (
@@ -588,7 +590,7 @@ export function PRMaker({ user }: PRMakerProps) {
                                                 <button
                                                     key={user.login}
                                                     onClick={() => setSelectedReviewers(prev => prev.includes(user.login) ? prev.filter(l => l !== user.login) : [...prev, user.login])}
-                                                    className={`flex items-center gap-2 p-1.5 rounded-sm text-sm transition-all w-full text-left ${selectedReviewers.includes(user.login)
+                                                    className={`flex items-center gap-2 p-1.5 rounded-md text-sm transition-all w-full text-left ${selectedReviewers.includes(user.login)
                                                         ? 'bg-accent text-accent-foreground font-medium'
                                                         : 'hover:bg-muted text-muted-foreground hover:text-foreground'
                                                         }`}
@@ -614,7 +616,7 @@ export function PRMaker({ user }: PRMakerProps) {
                                 <div className="space-y-2">
                                     <label className="text-xs font-medium text-muted-foreground">Milestone</label>
                                     <select
-                                        className="w-full rounded-md border bg-background px-3 py-1 text-sm"
+                                        className="h-9 w-full rounded-lg border border-input bg-card/60 px-3 py-1 text-sm shadow-xs focus-visible:outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/25"
                                         value={selectedMilestone || ''}
                                         onChange={(e) => setSelectedMilestone(e.target.value ? Number(e.target.value) : null)}
                                     >
@@ -632,7 +634,7 @@ export function PRMaker({ user }: PRMakerProps) {
                                         id="draft-checkbox"
                                         checked={isDraft}
                                         onChange={(e) => setIsDraft(e.target.checked)}
-                                        className="h-4 w-4 rounded border-gray-300"
+                                        className="h-4 w-4 rounded border-input"
                                     />
                                     <label htmlFor="draft-checkbox" className="text-xs font-medium text-muted-foreground cursor-pointer">
                                         Create as draft
@@ -645,7 +647,7 @@ export function PRMaker({ user }: PRMakerProps) {
                             <div className="flex-1 w-full">
                                 <button
                                     onClick={() => setIsTemplateModalOpen(true)}
-                                    className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2 w-full"
+                                    className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-colors border border-input bg-card/60 shadow-xs hover:bg-accent hover:text-accent-foreground hover:border-brand/30 h-9 px-4 py-2 w-full"
                                     type="button"
                                 >
                                     <LayoutTemplate className="h-4 w-4" />
@@ -664,7 +666,7 @@ export function PRMaker({ user }: PRMakerProps) {
                                     onChange={(e) => setDescription(e.target.value)}
                                     placeholder="Briefly describe what this PR does..."
                                     disabled={loading}
-                                    className="field-sizing-content flex min-h-[100px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm resize-none"
+                                    className="field-sizing-content flex min-h-[100px] w-full rounded-xl border border-input bg-card/60 px-3 py-2 text-base shadow-xs transition-colors hover:border-foreground/20 placeholder:text-muted-foreground focus-visible:outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/25 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm resize-none"
                                 ></textarea>
                             </CollapsibleComposer>
                         </div>
@@ -672,7 +674,7 @@ export function PRMaker({ user }: PRMakerProps) {
                         <button
                             onClick={handleGenerate}
                             disabled={loading}
-                            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors bg-primary text-primary-foreground shadow hover:bg-primary/90 h-9 px-4 py-2 w-full disabled:opacity-50"
+                            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-semibold transition-all bg-primary text-primary-foreground shadow-[inset_0_1px_0_0_rgb(255_255_255/0.2),0_6px_20px_-6px_var(--glow)] hover:bg-primary/90 active:scale-[0.99] h-11 px-4 py-2 w-full disabled:opacity-50"
                         >
                             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
                             Generate PR Description
@@ -681,8 +683,8 @@ export function PRMaker({ user }: PRMakerProps) {
 
                     {}
                     <div className="space-y-6 flex flex-col h-full">
-                        <div className="rounded-3xl border border-border bg-card text-card-foreground shadow-sm h-full flex flex-col overflow-hidden">
-                            <div className="p-4 border-b border-border flex justify-between items-center bg-muted/20">
+                        <div className="rounded-2xl border border-border bg-card text-card-foreground shadow-sm h-full flex flex-col overflow-hidden">
+                            <div className="px-4 py-3.5 sm:px-5 border-b border-border flex justify-between items-center gap-3 bg-surface/60">
                                 <h3 className="font-semibold leading-none tracking-tight flex items-center gap-2">
                                     Generated PR
                                     {versions.length > 1 && (
@@ -696,7 +698,7 @@ export function PRMaker({ user }: PRMakerProps) {
                                         <button
                                             onClick={handleCreatePR}
                                             disabled={creatingPR}
-                                            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors bg-primary text-primary-foreground hover:bg-primary/90 h-8 px-3"
+                                            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-colors bg-primary text-primary-foreground shadow-xs hover:bg-primary/90 h-8 px-3"
                                         >
                                             {creatingPR ? <Loader2 className="h-3 w-3 animate-spin" /> : <Github className="h-3 w-3" />}
                                             Create on GitHub
@@ -705,7 +707,7 @@ export function PRMaker({ user }: PRMakerProps) {
                                     {currentVersion && (
                                         <button
                                             onClick={() => copyToClipboard(currentVersion.body, setCopiedBody)}
-                                            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-8 px-3"
+                                            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-colors border border-input bg-card/60 shadow-xs hover:bg-accent hover:text-accent-foreground hover:border-brand/30 h-8 px-3"
                                         >
                                             {copiedBody ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
                                             Copy
@@ -714,19 +716,16 @@ export function PRMaker({ user }: PRMakerProps) {
                                 </div>
                             </div>
 
-                            <div className="flex-1 bg-muted/30 relative group flex flex-col min-h-[400px]">
+                            <div className="flex-1 bg-surface/60 relative group flex flex-col min-h-[400px]">
                                 {loading && (
-                                    <div className="absolute inset-0 flex items-center justify-center bg-background/50 backdrop-blur-sm z-10">
-                                        <div className="flex flex-col items-center gap-2">
-                                            <Loader2 className="h-8 w-8 animate-spin text-brand" />
-                                            <p className="text-sm text-muted-foreground">Analyzing changes...</p>
-                                        </div>
+                                    <div className="absolute inset-0 flex items-center justify-center bg-background/60 backdrop-blur-sm z-10 animate-in fade-in duration-300">
+                                        <GeneratingStatus messages={["Analyzing changes…", "Reading the branch diff…", "Mapping what changed and why…", "Drafting the summary…", "Writing the testing notes…", "Polishing the description…"]} />
                                     </div>
                                 )}
 
                                 {!currentVersion && !loading && !error && (
                                     <div className="h-full flex flex-col items-center justify-center text-center text-muted-foreground p-8 flex-1">
-                                        <GitPullRequest className="h-12 w-12 mb-4 opacity-20" />
+                                        <GitPullRequest className="h-14 w-14 mb-5 p-3.5 rounded-2xl border border-border bg-card text-brand shadow-sm" />
                                         <p>Fill in the details and generate your PR description.</p>
                                     </div>
                                 )}
@@ -741,7 +740,7 @@ export function PRMaker({ user }: PRMakerProps) {
                                     <div className="flex flex-col h-full">
                                         {}
                                         {prCreatedUrl && (
-                                            <div className="bg-brand/10 border-b border-brand/20 p-3 flex items-center justify-between animate-in slide-in-from-top-2">
+                                            <div className="bg-brand/10 border-b border-brand/20 px-4 py-3 flex flex-wrap gap-2 items-center justify-between animate-in slide-in-from-top-2">
                                                 <div className="flex items-center gap-2 text-brand">
                                                     <CheckCircle2 className="h-4 w-4" />
                                                     <span className="text-sm font-medium">PR created successfully!</span>
@@ -750,7 +749,7 @@ export function PRMaker({ user }: PRMakerProps) {
                                                     href={prCreatedUrl}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded-md hover:bg-primary/90 flex items-center gap-1"
+                                                    className="text-xs bg-primary text-primary-foreground px-2.5 py-1 rounded-lg shadow-xs hover:bg-primary/90 flex items-center gap-1"
                                                 >
                                                     View PR <ExternalLink className="h-3 w-3" />
                                                 </a>
@@ -759,15 +758,15 @@ export function PRMaker({ user }: PRMakerProps) {
 
                                         {}
                                         {versions.length > 0 && (
-                                            <div className="flex items-center gap-1 p-2 border-b border-border bg-background/50 overflow-x-auto">
+                                            <div className="flex items-center gap-1 px-3 py-2 border-b border-border bg-card overflow-x-auto no-scrollbar">
                                                 <History className="h-4 w-4 text-muted-foreground mr-2 shrink-0" />
                                                 {versions.map((v, idx) => (
                                                     <button
                                                         key={v.version}
                                                         onClick={() => setSelectedVersionIndex(idx)}
-                                                        className={`px-3 py-1 text-xs rounded-full transition-colors whitespace-nowrap ${selectedVersionIndex === idx
-                                                            ? 'bg-primary text-primary-foreground font-medium'
-                                                            : 'bg-muted hover:bg-muted/80 text-muted-foreground'
+                                                        className={`px-2.5 py-1 font-mono text-[11px] rounded-full border transition-colors whitespace-nowrap ${selectedVersionIndex === idx
+                                                            ? 'border-brand/40 bg-brand/10 text-brand font-medium'
+                                                            : 'border-border bg-card hover:bg-muted text-muted-foreground'
                                                             }`}
                                                     >
                                                         v{v.version} {v.version === 1 ? '(Original)' : ''}
@@ -778,7 +777,7 @@ export function PRMaker({ user }: PRMakerProps) {
 
                                         <div className="p-4 flex-1 overflow-auto">
                                             <div className="mb-4">
-                                                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Title</label>
+                                                <label className="font-mono text-[11px] font-medium text-muted-foreground uppercase tracking-[0.12em]">Title</label>
                                                 <input
                                                     value={editedTitle}
                                                     onChange={(e) => setEditedTitle(e.target.value)}
@@ -786,12 +785,14 @@ export function PRMaker({ user }: PRMakerProps) {
                                                 />
                                             </div>
                                             <div className="flex-1 flex flex-col">
-                                                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Body</label>
-                                                <textarea
-                                                    value={editedBody}
-                                                    onChange={(e) => setEditedBody(e.target.value)}
-                                                    className="field-sizing-content flex-1 font-mono text-sm whitespace-pre-wrap p-4 rounded-md bg-background border border-border overflow-auto resize-none focus:outline-none focus:ring-1 focus:ring-brand min-h-[400px]"
-                                                />
+                                                <label className="font-mono text-[11px] font-medium text-muted-foreground uppercase tracking-[0.12em] mb-1">Body</label>
+                                                <MarkdownTabs content={editedBody} label="PR description">
+                                                    <textarea
+                                                        value={editedBody}
+                                                        onChange={(e) => setEditedBody(e.target.value)}
+                                                        className="field-sizing-content flex-1 font-mono text-sm whitespace-pre-wrap p-4 bg-transparent overflow-auto resize-none focus:outline-none min-h-[400px]"
+                                                    />
+                                                </MarkdownTabs>
                                                 <div className="text-xs text-muted-foreground text-right mt-1 px-1">
                                                     {editedBody.length} chars
                                                 </div>
@@ -799,7 +800,7 @@ export function PRMaker({ user }: PRMakerProps) {
                                         </div>
 
                                         {}
-                                        <div className="p-4 border-t border-border bg-background">
+                                        <div className="p-4 border-t border-border bg-surface/60">
                                             <div className="space-y-3">
                                                 <div className="flex items-center justify-between">
                                                     <label className="text-sm font-medium">Refine Description</label>
@@ -809,7 +810,7 @@ export function PRMaker({ user }: PRMakerProps) {
                                                         value={refinementPrompt}
                                                         onChange={(e) => setRefinementPrompt(e.target.value)}
                                                         placeholder="e.g. Make it more technical, Add testing section..."
-                                                        className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                                        className="flex h-9 w-full rounded-lg border border-input bg-card/60 px-3 py-1 text-sm shadow-xs transition-colors hover:border-foreground/20 placeholder:text-muted-foreground focus-visible:outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/25 disabled:cursor-not-allowed disabled:opacity-50"
                                                         onKeyDown={(e) => {
                                                             if (e.key === 'Enter' && !e.shiftKey) {
                                                                 e.preventDefault();
@@ -820,7 +821,7 @@ export function PRMaker({ user }: PRMakerProps) {
                                                     <button
                                                         onClick={handleRefine}
                                                         disabled={refining || !refinementPrompt.trim()}
-                                                        className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80 h-9 px-4 py-2"
+                                                        className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/25 disabled:pointer-events-none disabled:opacity-50 border border-brand/25 bg-brand/10 text-brand hover:bg-brand/15 h-9 px-4 py-2"
                                                     >
                                                         {refining ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
                                                         Refine
@@ -866,14 +867,14 @@ export function PRMaker({ user }: PRMakerProps) {
                         footer={
                             <button
                                 onClick={() => setSuccessModal({ isOpen: false, url: '' })}
-                                className="px-4 py-2 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 text-sm font-medium"
+                                className="px-4 py-2 rounded-lg bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 text-sm font-medium transition-colors"
                             >
                                 Close
                             </button>
                         }
                     >
                         <div className="flex flex-col items-center gap-4 py-4 text-center">
-                            <div className="h-12 w-12 rounded-full bg-brand/10 flex items-center justify-center text-brand">
+                            <div className="h-12 w-12 rounded-2xl border border-brand/25 bg-brand/10 flex items-center justify-center text-brand">
                                 <CheckCircle2 className="h-6 w-6" />
                             </div>
                             <div className="space-y-2">
@@ -884,7 +885,7 @@ export function PRMaker({ user }: PRMakerProps) {
                                 href={successModal.url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="flex items-center gap-2 text-brand hover:underline font-medium p-2 bg-muted/50 rounded-md border w-full justify-center"
+                                className="flex items-center gap-2 text-brand hover:underline font-medium p-2 bg-surface/60 rounded-lg border w-full justify-center"
                             >
                                 {successModal.url}
                                 <ExternalLink className="h-4 w-4" />

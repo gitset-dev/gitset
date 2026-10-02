@@ -93,7 +93,7 @@ export default function FeedbackWidget() {
             <button
                 onClick={() => setOpen(true)}
                 aria-label="Send feedback"
-                className={`fixed bottom-6 right-6 z-40 inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground shadow-lg px-4 py-3 text-sm font-medium hover:bg-primary/90 transition-all duration-300 ${footerVisible ? 'opacity-0 translate-y-2 pointer-events-none' : 'opacity-100'}`}
+                className={`fixed bottom-[max(1rem,env(safe-area-inset-bottom))] right-4 sm:bottom-6 sm:right-6 z-40 inline-flex items-center gap-2 rounded-full border border-border bg-popover/90 backdrop-blur-xl text-foreground shadow-xl px-4 h-11 text-sm font-medium hover:border-brand/50 hover:-translate-y-0.5 transition-all duration-300 [&>svg]:text-brand ${footerVisible ? 'opacity-0 translate-y-2 pointer-events-none' : 'opacity-100'}`}
             >
                 <MessageSquarePlus className="h-4 w-4" />
                 Feedback
@@ -102,7 +102,7 @@ export default function FeedbackWidget() {
             <Modal isOpen={open} onClose={close} title="Send Feedback" maxWidth="max-w-lg">
                 {issueUrl ? (
                     <div className="p-6 flex flex-col items-center text-center gap-3">
-                        <Check className="h-10 w-10 text-brand" />
+                        <span className="flex h-14 w-14 items-center justify-center rounded-2xl border border-brand/25 bg-brand/10"><Check className="h-7 w-7 text-brand" /></span>
                         <p className="font-medium">Thanks for the feedback!</p>
                         <a
                             href={issueUrl}
@@ -114,19 +114,19 @@ export default function FeedbackWidget() {
                         </a>
                         <button
                             onClick={close}
-                            className="mt-2 inline-flex items-center justify-center rounded-md text-sm font-medium bg-muted hover:bg-muted/80 h-9 px-4"
+                            className="mt-2 inline-flex items-center justify-center rounded-lg text-sm font-medium bg-secondary hover:bg-secondary/70 h-9 px-4 transition-colors"
                         >
                             Close
                         </button>
                     </div>
                 ) : (
-                    <div className="p-6 space-y-4">
+                    <div className="p-1 space-y-4">
                         <div className="space-y-1.5">
                             <label className="text-sm font-medium">Feedback type</label>
                             <select
                                 value={type}
                                 onChange={(e) => setType(e.target.value)}
-                                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm"
+                                className="flex h-10 w-full rounded-lg border border-input bg-card/60 px-3 text-sm shadow-xs transition-colors hover:border-foreground/20 focus-visible:outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/25"
                             >
                                 {TYPE_OPTIONS.map((o) => (
                                     <option key={o.value} value={o.value}>{o.label}</option>
@@ -141,7 +141,7 @@ export default function FeedbackWidget() {
                                 onChange={(e) => setTitle(e.target.value)}
                                 placeholder="Short summary of your feedback"
                                 maxLength={120}
-                                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm"
+                                className="flex h-10 w-full rounded-lg border border-input bg-card/60 px-3 text-sm shadow-xs transition-colors hover:border-foreground/20 focus-visible:outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/25"
                             />
                         </div>
 
@@ -150,7 +150,7 @@ export default function FeedbackWidget() {
                             <input
                                 value={tool}
                                 onChange={(e) => setTool(e.target.value)}
-                                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm"
+                                className="flex h-10 w-full rounded-lg border border-input bg-card/60 px-3 text-sm shadow-xs transition-colors hover:border-foreground/20 focus-visible:outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/25"
                             />
                         </div>
 
@@ -161,11 +161,11 @@ export default function FeedbackWidget() {
                                 onChange={(e) => setMessage(e.target.value)}
                                 placeholder="Describe the bug, suggestion, or feedback..."
                                 rows={5}
-                                className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm resize-none"
+                                className="flex w-full rounded-lg border border-input bg-card/60 px-3 py-2 text-sm shadow-xs resize-none transition-colors hover:border-foreground/20 focus-visible:outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/25"
                             />
                         </div>
 
-                        <label className="flex items-start gap-2 text-xs text-muted-foreground">
+                        <label className="flex items-start gap-2.5 rounded-lg border border-border bg-muted/40 p-3 text-xs leading-relaxed text-muted-foreground">
                             <input
                                 type="checkbox"
                                 checked={consent}
@@ -176,7 +176,7 @@ export default function FeedbackWidget() {
                         </label>
 
                         {error && (
-                            <div className="flex items-start gap-2 text-sm text-red-600 dark:text-red-400">
+                            <div className="flex items-start gap-2 rounded-lg border border-destructive/25 bg-destructive/5 p-3 text-sm text-destructive">
                                 <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
                                 <span>{error}</span>
                             </div>
@@ -185,7 +185,7 @@ export default function FeedbackWidget() {
                         <button
                             onClick={submit}
                             disabled={submitting || !title.trim() || !message.trim()}
-                            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-4 w-full disabled:opacity-50"
+                            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 h-10 px-4 w-full disabled:opacity-50 transition-colors"
                         >
                             {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                             Submit feedback

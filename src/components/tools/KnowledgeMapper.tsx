@@ -119,8 +119,8 @@ function relativeTime(iso: string): string {
 function CopyableCommand({ command }: { command: string }) {
     const [copied, setCopied] = useState(false);
     return (
-        <div className="flex items-center gap-2 rounded-md bg-muted px-3 py-2 font-mono text-xs">
-            <Terminal className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+        <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-[#0b0e12] px-3 py-2.5 font-mono text-xs text-[#e6edf3] shadow-sm">
+            <Terminal className="h-3.5 w-3.5 shrink-0 text-[#6CE0DB]" />
             <span className="flex-1 overflow-x-auto whitespace-nowrap">{command}</span>
             <button
                 type="button"
@@ -130,10 +130,10 @@ function CopyableCommand({ command }: { command: string }) {
                         setTimeout(() => setCopied(false), 2000);
                     });
                 }}
-                className="shrink-0 rounded p-1 hover:bg-background"
+                className="shrink-0 rounded-md p-1 transition-colors hover:bg-white/10"
                 aria-label={`Copy ${command}`}
             >
-                {copied ? <Check className="h-3.5 w-3.5 text-brand" /> : <Copy className="h-3.5 w-3.5 text-muted-foreground" />}
+                {copied ? <Check className="h-3.5 w-3.5 text-[#6CE0DB]" /> : <Copy className="h-3.5 w-3.5 text-white/50" />}
             </button>
         </div>
     );
@@ -310,21 +310,21 @@ export function KnowledgeMapper({ user }: { user: User }) {
             </div>
 
             {status === 'idle' && (
-                <div className="rounded-lg border border-border bg-card p-8 text-center text-muted-foreground">
-                    <Network className="mx-auto mb-3 h-10 w-10 opacity-20" />
+                <div className="rounded-2xl border border-dashed border-border bg-card p-8 text-center text-muted-foreground">
+                    <Network className="mx-auto mb-4 h-12 w-12 p-3 rounded-2xl border border-border bg-card text-brand shadow-sm" />
                     <p className="text-sm">Select a repository to view its knowledge base — or set one up in two minutes.</p>
                 </div>
             )}
 
             {status === 'loading' && (
-                <div className="flex items-center justify-center gap-2 rounded-lg border border-border bg-card p-8 text-muted-foreground">
+                <div className="flex items-center justify-center gap-2 rounded-2xl border border-dashed border-border bg-card p-8 text-muted-foreground">
                     <Loader2 className="h-4 w-4 animate-spin" />
                     <span className="text-sm">Checking {repo} for a knowledge base…</span>
                 </div>
             )}
 
             {status === 'error' && (
-                <div className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-500/10 p-4 text-sm text-red-600 dark:text-red-400">
+                <div className="flex items-start gap-2 rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
                     <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
                     <span>{error}</span>
                 </div>
@@ -332,7 +332,7 @@ export function KnowledgeMapper({ user }: { user: User }) {
 
             {status === 'missing' && (
                 <div className="space-y-4">
-                    <div className="rounded-lg border border-brand/30 bg-brand/5 p-4">
+                    <div className="rounded-xl border border-brand/25 bg-brand/5 p-4">
                         <p className="text-sm font-medium">No knowledge base in this repository yet.</p>
                         <p className="mt-1 text-xs text-muted-foreground">
                             Knowledge Mapper builds <code>{KNOWLEDGE_DIR}/</code> — an always-current map of your codebase
@@ -342,41 +342,41 @@ export function KnowledgeMapper({ user }: { user: User }) {
                     </div>
 
                     <div className="grid gap-3 sm:grid-cols-3">
-                        <div className="flex items-start gap-2 rounded-lg border border-border bg-card p-3">
+                        <div className="flex items-start gap-2.5 rounded-xl border border-border bg-card p-3">
                             <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-brand" />
                             <p className="text-xs text-muted-foreground"><span className="font-medium text-foreground">Private by design.</span> Runs on your machine with your own AI key. Secrets are redacted locally before any AI call.</p>
                         </div>
-                        <div className="flex items-start gap-2 rounded-lg border border-border bg-card p-3">
+                        <div className="flex items-start gap-2.5 rounded-xl border border-border bg-card p-3">
                             <Coins className="mt-0.5 h-4 w-4 shrink-0 text-brand" />
                             <p className="text-xs text-muted-foreground"><span className="font-medium text-foreground">Cost-honest.</span> Shows the exact call/token estimate and asks before spending. Typical repo: cents.</p>
                         </div>
-                        <div className="flex items-start gap-2 rounded-lg border border-border bg-card p-3">
+                        <div className="flex items-start gap-2.5 rounded-xl border border-border bg-card p-3">
                             <RefreshCw className="mt-0.5 h-4 w-4 shrink-0 text-brand" />
                             <p className="text-xs text-muted-foreground"><span className="font-medium text-foreground">Incremental.</span> Updates re-analyze only what changed — you never pay twice for the same code.</p>
                         </div>
                     </div>
 
-                    <section className="space-y-3 rounded-lg border border-border bg-card p-5">
+                    <section className="space-y-3 rounded-2xl border border-border bg-card p-5 shadow-sm">
                         <h2 className="flex items-center gap-2 text-sm font-semibold">
-                            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-brand/10 text-xs text-brand">1</span>
+                            <span className="flex h-6 w-6 items-center justify-center rounded-lg border border-brand/25 bg-brand/10 font-mono text-[11px] text-brand">1</span>
                             Install the CLI and connect your AI key
                         </h2>
                         <CopyableCommand command="npm i -g @gitset-dev/cli" />
                         <CopyableCommand command="gitset config" />
                     </section>
 
-                    <section className="space-y-3 rounded-lg border border-border bg-card p-5">
+                    <section className="space-y-3 rounded-2xl border border-border bg-card p-5 shadow-sm">
                         <h2 className="flex items-center gap-2 text-sm font-semibold">
-                            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-brand/10 text-xs text-brand">2</span>
+                            <span className="flex h-6 w-6 items-center justify-center rounded-lg border border-brand/25 bg-brand/10 font-mono text-[11px] text-brand">2</span>
                             Preview the plan — free, zero AI calls
                         </h2>
                         <p className="text-xs text-muted-foreground">Inside your repository, see exactly what would be analyzed and what it would cost:</p>
                         <CopyableCommand command="gitset knowledge scan" />
                     </section>
 
-                    <section className="space-y-3 rounded-lg border border-border bg-card p-5">
+                    <section className="space-y-3 rounded-2xl border border-border bg-card p-5 shadow-sm">
                         <h2 className="flex items-center gap-2 text-sm font-semibold">
-                            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-brand/10 text-xs text-brand">3</span>
+                            <span className="flex h-6 w-6 items-center justify-center rounded-lg border border-brand/25 bg-brand/10 font-mono text-[11px] text-brand">3</span>
                             Generate, review, commit
                         </h2>
                         <CopyableCommand command="gitset knowledge generate" />
@@ -392,7 +392,7 @@ export function KnowledgeMapper({ user }: { user: User }) {
                     <button
                         type="button"
                         onClick={() => load(repo)}
-                        className="inline-flex items-center gap-2 rounded-md border border-input bg-background px-3 py-2 text-sm font-medium hover:bg-accent"
+                        className="inline-flex items-center gap-2 rounded-lg border border-input bg-card/60 px-3 py-2 text-sm font-medium shadow-xs transition-colors hover:bg-accent hover:border-brand/30"
                     >
                         <RefreshCw className="h-3.5 w-3.5" />
                         Already pushed it? Refresh
@@ -403,33 +403,33 @@ export function KnowledgeMapper({ user }: { user: User }) {
             {status === 'loaded' && state && (
                 <div className="space-y-4">
                     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                        <div className="rounded-lg border border-border bg-card p-4">
-                            <p className="text-xs text-muted-foreground">Generated</p>
-                            <p className="mt-1 text-sm font-semibold" title={state.generatedAt}>{relativeTime(state.generatedAt)}</p>
+                        <div className="rounded-2xl border border-border bg-card p-4 sm:p-5 shadow-sm">
+                            <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-muted-foreground">Generated</p>
+                            <p className="mt-1.5 text-sm font-semibold" title={state.generatedAt}>{relativeTime(state.generatedAt)}</p>
                         </div>
-                        <div className="rounded-lg border border-border bg-card p-4">
-                            <p className="text-xs text-muted-foreground">Model</p>
+                        <div className="rounded-2xl border border-border bg-card p-4 sm:p-5 shadow-sm">
+                            <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-muted-foreground">Model</p>
                             <p className="mt-1 truncate text-sm font-semibold" title={`${state.provider} / ${state.model}`}>{state.provider}{state.model ? ` / ${state.model}` : ''}</p>
                         </div>
-                        <div className="rounded-lg border border-border bg-card p-4">
-                            <p className="text-xs text-muted-foreground">Coverage</p>
+                        <div className="rounded-2xl border border-border bg-card p-4 sm:p-5 shadow-sm">
+                            <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-muted-foreground">Coverage</p>
                             <p className="mt-1 text-sm font-semibold">{mappedFileCount} files · {moduleCount} modules</p>
                         </div>
-                        <div className="rounded-lg border border-border bg-card p-4">
-                            <p className="text-xs text-muted-foreground">Snapshot</p>
+                        <div className="rounded-2xl border border-border bg-card p-4 sm:p-5 shadow-sm">
+                            <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-muted-foreground">Snapshot</p>
                             <p className="mt-1 truncate text-sm font-semibold" title={state.commit || undefined}>{state.tag || (state.commit ? state.commit.slice(0, 7) : '—')}</p>
                         </div>
                     </div>
 
                     {drift === null && state.commit === null && (
-                        <div className="flex items-start gap-2 rounded-lg border border-border bg-card p-4 text-xs text-muted-foreground">
+                        <div className="flex items-start gap-2 rounded-xl border border-border bg-card p-4 text-xs text-muted-foreground">
                             <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
                             <span>This snapshot predates drift tracking. Regenerate with the latest CLI to enable it.</span>
                         </div>
                     )}
 
                     {drift && drift.changedMapped.length === 0 && (
-                        <div className="flex items-start gap-2 rounded-lg border border-brand/30 bg-brand/5 p-4">
+                        <div className="flex items-start gap-2 rounded-xl border border-brand/25 bg-brand/5 p-4">
                             <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-brand" />
                             <div className="text-sm">
                                 <p className="font-medium">Up to date</p>
@@ -443,7 +443,7 @@ export function KnowledgeMapper({ user }: { user: User }) {
                     )}
 
                     {drift && drift.changedMapped.length > 0 && (
-                        <div className="space-y-3 rounded-lg border border-amber-300/50 bg-amber-500/5 p-4">
+                        <div className="space-y-3 rounded-xl border border-amber-500/30 bg-amber-500/5 p-4">
                             <div className="flex items-start gap-2">
                                 <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
                                 <div className="text-sm">
@@ -466,7 +466,7 @@ export function KnowledgeMapper({ user }: { user: User }) {
                     )}
 
                     {automation && automation.status === 'none' && (
-                        <div className="space-y-2 rounded-lg border border-border bg-card p-4">
+                        <div className="space-y-2 rounded-xl border border-border bg-card p-4 shadow-sm">
                             <div className="flex items-start gap-2">
                                 <Workflow className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
                                 <div className="text-sm">
@@ -479,7 +479,7 @@ export function KnowledgeMapper({ user }: { user: User }) {
                     )}
 
                     {automation && automation.status === 'configured' && (
-                        <div className="space-y-2 rounded-lg border border-brand/30 bg-brand/5 p-4">
+                        <div className="space-y-2 rounded-xl border border-brand/25 bg-brand/5 p-4">
                             <div className="flex items-start gap-2">
                                 <Workflow className="mt-0.5 h-4 w-4 shrink-0 text-brand" />
                                 <div className="text-sm">
@@ -502,26 +502,26 @@ export function KnowledgeMapper({ user }: { user: User }) {
                                         href={automation.lastRun.url}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="inline-flex items-center gap-1.5 rounded-full bg-background px-2.5 py-1 text-[11px] font-medium hover:bg-accent"
+                                        className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-2.5 py-1 text-[11px] font-medium transition-colors hover:bg-accent"
                                     >
                                         {automation.lastRun.status !== 'completed'
                                             ? <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
                                             : automation.lastRun.conclusion === 'success'
                                                 ? <CheckCircle2 className="h-3 w-3 text-brand" />
-                                                : <XCircle className="h-3 w-3 text-red-500" />}
+                                                : <XCircle className="h-3 w-3 text-destructive" />}
                                         Last run: {automation.lastRun.status !== 'completed' ? 'running' : automation.lastRun.conclusion} · {relativeTime(automation.lastRun.at)}
                                         <ExternalLink className="h-3 w-3 text-muted-foreground" />
                                     </a>
                                 )}
                                 {!automation.lastRun && (
-                                    <span className="rounded-full bg-background px-2.5 py-1 text-[11px] text-muted-foreground">No runs yet</span>
+                                    <span className="rounded-full border border-border bg-card px-2.5 py-1 text-[11px] text-muted-foreground">No runs yet</span>
                                 )}
                                 {automation.updatePr && (
                                     <a
                                         href={automation.updatePr.url}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-2.5 py-1 text-[11px] font-medium text-amber-700 hover:bg-amber-500/20 dark:text-amber-400"
+                                        className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 px-2.5 py-1 text-[11px] font-medium text-amber-700 transition-colors hover:bg-amber-500/20 dark:text-amber-400"
                                     >
                                         <GitPullRequest className="h-3 w-3" />
                                         Update PR #{automation.updatePr.number} awaiting review
@@ -539,7 +539,7 @@ export function KnowledgeMapper({ user }: { user: User }) {
                                 href={`https://github.com/${repo}/blob/${branch}/${KNOWLEDGE_DIR}/${f}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1.5 rounded-md border border-input bg-background px-2.5 py-1.5 text-xs font-medium hover:bg-accent"
+                                className="inline-flex items-center gap-1.5 rounded-lg border border-input bg-card/60 px-2.5 py-1.5 text-xs font-medium shadow-xs transition-colors hover:bg-accent hover:border-brand/30"
                             >
                                 <FileText className="h-3 w-3 text-muted-foreground" />
                                 {f}
@@ -549,28 +549,28 @@ export function KnowledgeMapper({ user }: { user: User }) {
                     </div>
 
                     <div className="space-y-3">
-                        <div className="flex items-center justify-between gap-3">
+                        <div className="flex flex-wrap items-center justify-between gap-3">
                             <h2 className="flex items-center gap-2 text-sm font-semibold">
                                 <BookOpen className="h-4 w-4 text-brand" />
                                 Module explorer
                             </h2>
-                            <div className="relative w-56">
+                            <div className="relative w-full sm:w-56">
                                 <Search className="absolute left-2.5 top-2 h-3.5 w-3.5 text-muted-foreground" />
                                 <input
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
                                     placeholder="Filter modules or files…"
-                                    className="h-8 w-full rounded-md border border-input bg-background pl-8 pr-2 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                                    className="h-8 w-full rounded-lg border border-input bg-card/60 pl-8 pr-2 text-xs focus-visible:outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/25"
                                 />
                             </div>
                         </div>
 
                         {modules.map((mod) => (
-                            <div key={mod.name} className="rounded-lg border border-border bg-card">
+                            <div key={mod.name} className="overflow-hidden rounded-xl border border-border bg-card shadow-xs transition-colors hover:border-brand/25">
                                 <button
                                     type="button"
                                     onClick={() => toggleModule(mod.name)}
-                                    className="flex w-full items-center gap-2 px-4 py-3 text-left hover:bg-muted/40"
+                                    className="flex w-full items-center gap-2 px-4 py-3 text-left transition-colors hover:bg-muted/40"
                                 >
                                     {expanded.has(mod.name)
                                         ? <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
@@ -584,7 +584,7 @@ export function KnowledgeMapper({ user }: { user: User }) {
                                     )}
                                 </button>
                                 {expanded.has(mod.name) && (
-                                    <div className="space-y-3 border-t border-border px-4 py-3">
+                                    <div className="space-y-3 border-t border-border bg-surface/60 px-4 py-3">
                                         {mod.raw && <p className="whitespace-pre-wrap text-xs text-muted-foreground">{mod.raw}</p>}
                                         {mod.files.map((f) => (
                                             <div key={f.path} className="space-y-1">
@@ -600,7 +600,7 @@ export function KnowledgeMapper({ user }: { user: User }) {
                                                 {f.exports.length > 0 && (
                                                     <div className="flex flex-wrap gap-1">
                                                         {f.exports.map((ex) => (
-                                                            <code key={ex} className="rounded bg-muted px-1.5 py-0.5 text-[11px]">{ex}</code>
+                                                            <code key={ex} className="rounded-md border border-border bg-muted px-1.5 py-0.5 text-[11px]">{ex}</code>
                                                         ))}
                                                     </div>
                                                 )}
@@ -613,7 +613,7 @@ export function KnowledgeMapper({ user }: { user: User }) {
                         ))}
 
                         {modules.length === 0 && (
-                            <p className="rounded-lg border border-border bg-card p-4 text-center text-xs text-muted-foreground">
+                            <p className="rounded-xl border border-dashed border-border bg-card p-4 text-center text-xs text-muted-foreground">
                                 No modules match “{search}”.
                             </p>
                         )}

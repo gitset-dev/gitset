@@ -1,14 +1,6 @@
 ---
-import "@fontsource/ibm-plex-sans/400.css";
-import "@fontsource/ibm-plex-sans/500.css";
-import "@fontsource/ibm-plex-sans/600.css";
-import "@fontsource/ibm-plex-sans/700.css";
-import "@fontsource/jetbrains-mono/400.css";
-import "@fontsource/jetbrains-mono/500.css";
-// Trial: Work Sans for the homepage headlines only — see index.astro.
-import "@fontsource/work-sans/600.css";
-import "@fontsource/work-sans/700.css";
-import "@fontsource/work-sans/800.css";
+import "@fontsource-variable/geist";
+import "@fontsource-variable/geist-mono";
 import FeedbackWidget from "@/components/FeedbackWidget";
 
 interface Props {
@@ -26,6 +18,8 @@ const canonicalURL = new URL(Astro.url.pathname, "https://gitset.dev").toString(
         <link rel="canonical" href={canonicalURL} />
         <link rel="manifest" href="/manifest.json" />
         <link rel="apple-touch-icon" href="/favicon-192.png" />
+        <meta name="theme-color" content="#0b0d10" media="(prefers-color-scheme: dark)" />
+        <meta name="theme-color" content="#fbfbfc" media="(prefers-color-scheme: light)" />
         <slot name="head" />
     </head>
     <body>

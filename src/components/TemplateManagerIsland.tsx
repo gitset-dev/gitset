@@ -24,7 +24,7 @@ export function TemplateManagerIsland({ type, elementId }: TemplateManagerIsland
         <>
             <button
                 onClick={() => setIsModalOpen(true)}
-                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2"
+                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/25 disabled:pointer-events-none disabled:opacity-50 border border-input bg-card/60 shadow-xs hover:bg-accent hover:text-accent-foreground hover:border-brand/30 h-9 px-4 py-2"
                 type="button"
             >
                 <LayoutTemplate className="h-4 w-4" />

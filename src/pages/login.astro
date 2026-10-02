@@ -24,22 +24,25 @@ const signInHref = next ? `/api/auth/github?next=${encodeURIComponent(next)}` : 
     <Fragment slot="head">
         <meta charset="utf-8" />
         <link rel="icon" href="/favicon.ico" />
-        <meta name="viewport" content="width=device-width" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
         <meta name="generator" content={Astro.generator} />
         <meta name="robots" content="noindex" />
         <meta name="description" content="Sign in to Gitset." />
     </Fragment>
 
-    <div class="flex min-h-screen flex-col bg-background">
+    <div class="relative isolate flex min-h-screen flex-col bg-background">
         <SiteHeader client:load showBackButton={false} user={undefined} />
+        <div aria-hidden="true" class="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[520px] bg-grid"></div>
+        <div aria-hidden="true" class="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[520px] bg-glow"></div>
 
-        <main class="flex flex-1 items-center justify-center p-4 sm:p-6">
+        <main class="flex flex-1 items-center justify-center px-4 py-16 sm:p-6">
             <div
-                class="relative w-full max-w-md transform overflow-hidden rounded-3xl border border-border bg-card p-6 shadow-2xl"
+                class="ring-gradient relative w-full max-w-md transform overflow-hidden rounded-3xl border border-border bg-popover p-6 shadow-2xl sm:p-8"
             >
-                <div class="flex flex-col items-center text-center">
+                <div aria-hidden="true" class="pointer-events-none absolute inset-x-0 top-0 h-40 bg-glow"></div>
+                <div class="relative flex flex-col items-center text-center">
                     <div
-                        class="mb-6 flex h-12 w-12 items-center justify-center rounded-full bg-brand/10"
+                        class="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl border border-brand/25 bg-card shadow-lg"
                     >
                         <svg
                             class="h-6 w-6 text-brand"
@@ -53,7 +56,7 @@ const signInHref = next ? `/api/auth/github?next=${encodeURIComponent(next)}` : 
                                 clip-rule="evenodd"></path>
                         </svg>
                     </div>
-                    <h1 class="text-2xl font-bold tracking-tight text-foreground">
+                    <h1 class="text-2xl font-semibold tracking-tight text-foreground">
                         Welcome back
                     </h1>
                     <p class="mt-2 text-sm text-muted-foreground">
@@ -65,17 +68,17 @@ const signInHref = next ? `/api/auth/github?next=${encodeURIComponent(next)}` : 
                     error && (
                         <div
                             role="alert"
-                            class="mt-6 rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+                            class="relative mt-6 rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive"
                         >
                             {error}
                         </div>
                     )
                 }
 
-                <div class="mt-8 space-y-4">
+                <div class="relative mt-8 space-y-4">
                     <a
                         href={signInHref}
-                        class="flex w-full items-center justify-center gap-3 rounded-lg bg-[#24292F] px-4 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[#24292F]/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#24292F]"
+                        class="flex h-12 w-full items-center justify-center gap-3 rounded-xl bg-[#24292F] px-4 text-sm font-semibold text-white shadow-md ring-1 ring-white/10 transition-all hover:bg-[#24292F]/90 active:scale-[0.99] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
                     >
                         <svg
                             class="h-5 w-5"
@@ -92,7 +95,7 @@ const signInHref = next ? `/api/auth/github?next=${encodeURIComponent(next)}` : 
                     </a>
                 </div>
 
-                <div class="mt-6 text-center text-xs text-muted-foreground">
+                <div class="relative mt-6 text-center text-xs leading-relaxed text-muted-foreground">
                     By clicking continue, you agree to our{" "}
                     <a
                         href="/terms"

@@ -32,29 +32,29 @@ export function Modal({ isOpen, onClose, title, children, footer, maxWidth = "ma
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-md p-0 sm:p-4 animate-in fade-in duration-200">
             <div
                 ref={modalRef}
-                className={`bg-background text-foreground rounded-lg shadow-lg border w-full ${maxWidth} flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200`}
+                className={`bg-popover text-foreground rounded-t-3xl sm:rounded-2xl shadow-2xl border w-full ${maxWidth} flex flex-col max-h-[92dvh] sm:max-h-[90vh] animate-in slide-in-from-bottom-4 sm:zoom-in-95 sm:slide-in-from-bottom-0 duration-200`}
                 role="dialog"
                 aria-modal="true"
             >
-                <div className="flex items-center justify-between p-4 border-b">
-                    <h2 className="text-lg font-semibold">{title}</h2>
+                <div className="flex items-center justify-between gap-4 px-5 py-4 border-b">
+                    <h2 className="text-base font-semibold tracking-tight">{title}</h2>
                     <button
                         onClick={onClose}
-                        className="p-1 hover:bg-muted rounded-md transition-colors"
+                        className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
                     >
                         <X className="h-4 w-4" />
                     </button>
                 </div>
 
-                <div className="p-4 overflow-y-auto">
+                <div className="p-5 overflow-y-auto">
                     {children}
                 </div>
 
                 {footer && (
-                    <div className="p-4 border-t bg-muted/20 flex justify-end gap-2">
+                    <div className="px-5 py-4 border-t bg-muted/40 flex flex-wrap justify-end gap-2 sm:rounded-b-2xl">
                         {footer}
                     </div>
                 )}

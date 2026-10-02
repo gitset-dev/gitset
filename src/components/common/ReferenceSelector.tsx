@@ -79,14 +79,14 @@ export function ReferenceSelector({
                         className="fixed inset-0 z-40"
                         onClick={() => setOpen(false)}
                     />
-                    <div className="absolute top-full mt-1 z-50 w-full rounded-md border bg-popover text-popover-foreground shadow-md outline-none animate-in fade-in-0 zoom-in-95 overflow-hidden flex flex-col">
+                    <div className="absolute top-full mt-1.5 z-50 w-full rounded-xl border bg-popover text-popover-foreground shadow-xl outline-none animate-in fade-in-0 zoom-in-95 overflow-hidden flex flex-col">
 
                         {}
-                        <div className="flex border-b">
+                        <div className="flex gap-1 border-b p-1">
                             <button
                                 onClick={() => setActiveTab('branches')}
                                 className={cn(
-                                    "flex-1 px-3 py-2 text-xs font-medium transition-colors flex items-center justify-center gap-1",
+                                    "flex-1 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors flex items-center justify-center gap-1",
                                     activeTab === 'branches' ? "bg-accent text-accent-foreground" : "hover:bg-muted text-muted-foreground"
                                 )}
                             >
@@ -95,7 +95,7 @@ export function ReferenceSelector({
                             <button
                                 onClick={() => setActiveTab('tags')}
                                 className={cn(
-                                    "flex-1 px-3 py-2 text-xs font-medium transition-colors flex items-center justify-center gap-1",
+                                    "flex-1 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors flex items-center justify-center gap-1",
                                     activeTab === 'tags' ? "bg-accent text-accent-foreground" : "hover:bg-muted text-muted-foreground"
                                 )}
                             >
@@ -105,7 +105,7 @@ export function ReferenceSelector({
 
                         {}
                         <div className="p-2">
-                            <div className="flex items-center border rounded-md px-3 mb-2">
+                            <div className="flex items-center border border-input rounded-lg bg-card/60 px-3 mb-2">
                                 <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
                                 <input
                                     className="flex h-9 w-full bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
@@ -125,7 +125,7 @@ export function ReferenceSelector({
                                     <div
                                         key={item}
                                         className={cn(
-                                            "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50",
+                                            "relative flex cursor-default select-none items-center rounded-lg px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50",
                                             value === item && "bg-accent text-accent-foreground"
                                         )}
                                         onClick={() => {
@@ -136,7 +136,7 @@ export function ReferenceSelector({
                                     >
                                         <Check
                                             className={cn(
-                                                "mr-2 h-4 w-4",
+                                                "mr-2 h-4 w-4 text-brand",
                                                 value === item ? "opacity-100" : "opacity-0"
                                             )}
                                         />

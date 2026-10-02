@@ -18,7 +18,7 @@ if (!user) {
     <Fragment slot="head">
         <meta charset="utf-8" />
         <link rel="icon" type="image/png" href="/favicon-96.png" />
-        <meta name="viewport" content="width=device-width" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
         <meta name="generator" content={Astro.generator} />
         <meta
             name="description"
@@ -61,10 +61,12 @@ if (!user) {
         class="bg-background text-foreground antialiased min-h-screen flex flex-col"
     >
         <SiteHeader client:load user={toClientUser(user.user)} />
+        <div aria-hidden="true" class="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[360px] bg-grid"></div>
+        <div aria-hidden="true" class="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[360px] bg-glow"></div>
 
-        <main class="flex-1 container mx-auto px-4 py-8 max-w-6xl">
-            <div class="mb-6 flex items-center gap-3">
-                <div class="p-2 bg-brand/10 rounded-lg">
+        <main class="flex-1 w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 max-w-7xl">
+            <div class="mb-6 flex items-center gap-4 border-b border-border pb-6 sm:pb-8">
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-brand/25 bg-gradient-to-b from-brand/20 to-brand/5 shadow-sm">
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="24"
@@ -84,10 +86,10 @@ if (!user) {
                     </svg>
                 </div>
                 <div>
-                    <h1 class="text-2xl font-bold tracking-tight">
+                    <h1 class="text-2xl font-semibold tracking-[-0.035em] sm:text-3xl">
                         PR Maker
                     </h1>
-                    <p class="text-sm text-muted-foreground">
+                    <p class="mt-1 text-sm text-muted-foreground sm:text-[15px]">
                         Generate comprehensive pull request descriptions from
                         your changes.
                     </p>

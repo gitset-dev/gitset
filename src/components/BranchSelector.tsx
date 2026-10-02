@@ -58,7 +58,7 @@ export function BranchSelector({
                         className="fixed inset-0 z-40"
                         onClick={() => setOpen(false)}
                     />
-                    <div className="absolute top-full mt-1 z-50 w-full rounded-md border bg-popover text-popover-foreground shadow-md outline-none animate-in fade-in-0 zoom-in-95">
+                    <div className="absolute top-full mt-1.5 z-50 w-full rounded-xl border bg-popover text-popover-foreground shadow-xl outline-none animate-in fade-in-0 zoom-in-95">
                         <div className="flex items-center border-b px-3">
                             <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
                             <input
@@ -79,7 +79,7 @@ export function BranchSelector({
                                 <div
                                     key={branch}
                                     className={cn(
-                                        "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50",
+                                        "relative flex cursor-default select-none items-center rounded-lg px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50",
                                         value === branch && "bg-accent text-accent-foreground"
                                     )}
                                     onClick={() => {
@@ -90,7 +90,7 @@ export function BranchSelector({
                                 >
                                     <Check
                                         className={cn(
-                                            "mr-2 h-4 w-4",
+                                            "mr-2 h-4 w-4 text-brand",
                                             value === branch ? "opacity-100" : "opacity-0"
                                         )}
                                     />

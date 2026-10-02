@@ -6,6 +6,8 @@ import { LabelManagerModal } from '../LabelManagerModal';
 import { IssueManager } from './IssueManager';
 import { Modal } from '../Modal';
 import { LayoutTemplate, Loader2, Copy, Check, RefreshCw, ArrowRight, Sparkles, History, Github, Tag, User as UserIcon, Calendar, ListTodo, ExternalLink, CheckCircle2, GitBranch, Terminal, Hash, X } from 'lucide-react';
+import { MarkdownTabs } from './MarkdownTabs';
+import { GeneratingStatus } from './GeneratingStatus';
 import { fetchAllBranches } from '@/lib/github';
 import ToolErrorNotice from './ToolErrorNotice';
 import CollapsibleComposer from './CollapsibleComposer';
@@ -424,18 +426,18 @@ export function IssueCrafter({ user, backendUrl }: IssueCrafterProps) {
     return (
         <div className="flex flex-col h-full gap-6">
             {}
-            <div className="flex items-center gap-4 border-b pb-4 justify-between">
-                <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3 border-b pb-4 justify-between">
+                <div className="inline-flex max-w-full items-center gap-1 overflow-x-auto no-scrollbar rounded-xl border bg-muted/60 p-1">
                     <button
                         onClick={() => setMode('crafter')}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-md transition-colors ${mode === 'crafter' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'}`}
+                        className={`flex shrink-0 items-center gap-2 px-3 sm:px-4 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${mode === 'crafter' ? 'bg-card text-foreground shadow-sm ring-1 ring-border [&>svg]:text-brand' : 'text-muted-foreground hover:text-foreground'}`}
                     >
                         <Sparkles className="h-4 w-4" />
                         Composer
                     </button>
                     <button
                         onClick={() => setMode('manager')}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-md transition-colors ${mode === 'manager' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'}`}
+                        className={`flex shrink-0 items-center gap-2 px-3 sm:px-4 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${mode === 'manager' ? 'bg-card text-foreground shadow-sm ring-1 ring-border [&>svg]:text-brand' : 'text-muted-foreground hover:text-foreground'}`}
                     >
                         <ListTodo className="h-4 w-4" />
                         Manager
@@ -443,7 +445,7 @@ export function IssueCrafter({ user, backendUrl }: IssueCrafterProps) {
                 </div>
                 <button
                     onClick={resetForm}
-                    className="p-2 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                    className="p-2 rounded-lg hover:bg-accent text-muted-foreground hover:text-foreground transition-colors"
                     title="Reset Form"
                 >
                     <RefreshCw className="h-4 w-4" />
@@ -455,7 +457,7 @@ export function IssueCrafter({ user, backendUrl }: IssueCrafterProps) {
             ) : (
                 <div className="grid gap-8 lg:grid-cols-2 h-full">
                     {}
-                    <div className="space-y-6 flex flex-col">
+                    <div className="space-y-6 flex flex-col rounded-2xl border bg-card p-4 sm:p-6 shadow-sm">
                         <div className="space-y-2">
                             <label className="text-sm font-medium leading-none">
                                 Repository Context
@@ -471,14 +473,14 @@ export function IssueCrafter({ user, backendUrl }: IssueCrafterProps) {
 
                         {}
                         {repoContext && (
-                            <div className="p-4 border rounded-lg bg-card/50 space-y-4">
+                            <div className="p-4 border rounded-xl bg-surface/60 space-y-4">
                                 <div className="flex items-center justify-between">
                                     <h3 className="text-sm font-semibold flex items-center gap-2">
                                         <Tag className="h-4 w-4" /> Metadata
                                     </h3>
                                     <button
                                         onClick={() => setIsLabelModalOpen(true)}
-                                        className="h-6 px-2 text-xs font-medium rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors flex items-center gap-1.5"
+                                        className="h-7 px-2.5 text-xs font-medium rounded-lg bg-primary text-primary-foreground shadow-xs hover:bg-primary/90 transition-colors flex items-center gap-1.5"
                                         title="Manage Labels"
                                     >
                                         <Hash className="h-3 w-3" />
@@ -487,7 +489,7 @@ export function IssueCrafter({ user, backendUrl }: IssueCrafterProps) {
                                 </div>
 
                                 {selectedLabels.length > 0 && (
-                                    <div className="mb-4 space-y-2 p-2 bg-muted/30 rounded border">
+                                    <div className="mb-4 space-y-2 p-2.5 bg-surface/60 rounded-lg border">
                                         <div className="flex justify-between items-center">
                                             <label className="text-xs font-medium text-muted-foreground">Selected ({selectedLabels.length})</label>
                                             <button onClick={() => setSelectedLabels([])} className="text-[10px] text-muted-foreground hover:text-foreground">Clear all</button>
@@ -522,7 +524,7 @@ export function IssueCrafter({ user, backendUrl }: IssueCrafterProps) {
                                             <button
                                                 key={label.id}
                                                 onClick={() => setSelectedLabels(prev => prev.includes(label.name) ? prev.filter(l => l !== label.name) : [...prev, label.name])}
-                                                className={`px-2 py-0.5 rounded-full text-xs border transition-all ${selectedLabels.includes(label.name) ? 'ring-2 ring-brand ring-offset-1' : 'opacity-70 hover:opacity-100'}`}
+                                                className={`px-2 py-0.5 rounded-full text-xs border transition-all ${selectedLabels.includes(label.name) ? 'ring-2 ring-brand ring-offset-2 ring-offset-card' : 'opacity-70 hover:opacity-100'}`}
                                                 style={{ backgroundColor: `#${label.color}`, borderColor: `#${label.color}40`, color: getContrastColor(label.color) }}
                                             >
                                                 {label.name}
@@ -534,7 +536,7 @@ export function IssueCrafter({ user, backendUrl }: IssueCrafterProps) {
                                 {}
                                 <div className="space-y-2">
                                     <label className="text-xs font-medium text-muted-foreground">Assignees</label>
-                                    <div className="grid grid-cols-1 gap-1 max-h-[160px] overflow-y-auto pr-1 border rounded-md p-1 bg-background/50">
+                                    <div className="grid grid-cols-1 gap-1 max-h-[160px] overflow-y-auto pr-1 border rounded-lg p-1 bg-surface/60">
                                         {metadata.assignees.length === 0 ? (
                                             <p className="text-xs text-muted-foreground p-2 text-center">No assignees found.</p>
                                         ) : (
@@ -542,7 +544,7 @@ export function IssueCrafter({ user, backendUrl }: IssueCrafterProps) {
                                                 <button
                                                     key={user.login}
                                                     onClick={() => setSelectedAssignees(prev => prev.includes(user.login) ? prev.filter(l => l !== user.login) : [...prev, user.login])}
-                                                    className={`flex items-center gap-2 p-1.5 rounded-sm text-sm transition-all w-full text-left ${selectedAssignees.includes(user.login)
+                                                    className={`flex items-center gap-2 p-1.5 rounded-md text-sm transition-all w-full text-left ${selectedAssignees.includes(user.login)
                                                         ? 'bg-accent text-accent-foreground font-medium'
                                                         : 'hover:bg-muted text-muted-foreground hover:text-foreground'
                                                         }`}
@@ -568,7 +570,7 @@ export function IssueCrafter({ user, backendUrl }: IssueCrafterProps) {
                                 <div className="space-y-2">
                                     <label className="text-xs font-medium text-muted-foreground">Milestone</label>
                                     <select
-                                        className="w-full rounded-md border bg-background px-3 py-1 text-sm"
+                                        className="h-9 w-full rounded-lg border border-input bg-card/60 px-3 py-1 text-sm shadow-xs focus-visible:outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/25"
                                         value={selectedMilestone || ''}
                                         onChange={(e) => setSelectedMilestone(e.target.value ? Number(e.target.value) : null)}
                                     >
@@ -585,7 +587,7 @@ export function IssueCrafter({ user, backendUrl }: IssueCrafterProps) {
                             <div className="flex-1 w-full">
                                 <button
                                     onClick={() => setIsTemplateModalOpen(true)}
-                                    className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2 w-full"
+                                    className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-colors border border-input bg-card/60 shadow-xs hover:bg-accent hover:text-accent-foreground hover:border-brand/30 h-9 px-4 py-2 w-full"
                                     type="button"
                                 >
                                     <LayoutTemplate className="h-4 w-4" />
@@ -600,16 +602,16 @@ export function IssueCrafter({ user, backendUrl }: IssueCrafterProps) {
                                 </label>
                                 <div className="flex items-center gap-2">
                                     <span className="text-xs text-muted-foreground">Mode:</span>
-                                    <div className="flex bg-muted rounded-md p-0.5">
+                                    <div className="flex rounded-lg border bg-muted/60 p-0.5">
                                         <button
                                             onClick={() => setGenerationMode('auto')}
-                                            className={`px-2 py-0.5 text-xs rounded-sm transition-all ${generationMode === 'auto' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+                                            className={`px-2.5 py-0.5 text-xs rounded-md transition-all ${generationMode === 'auto' ? 'bg-card shadow-sm text-foreground ring-1 ring-border' : 'text-muted-foreground hover:text-foreground'}`}
                                         >
                                             Auto
                                         </button>
                                         <button
                                             onClick={() => setGenerationMode('manual')}
-                                            className={`px-2 py-0.5 text-xs rounded-sm transition-all ${generationMode === 'manual' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+                                            className={`px-2.5 py-0.5 text-xs rounded-md transition-all ${generationMode === 'manual' ? 'bg-card shadow-sm text-foreground ring-1 ring-border' : 'text-muted-foreground hover:text-foreground'}`}
                                         >
                                             Manual
                                         </button>
@@ -624,7 +626,7 @@ export function IssueCrafter({ user, backendUrl }: IssueCrafterProps) {
                                         onChange={(e) => setDescription(e.target.value)}
                                         placeholder="Describe the bug or feature request..."
                                         disabled={loading}
-                                        className="field-sizing-content flex min-h-[150px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm resize-none"
+                                        className="field-sizing-content flex min-h-[150px] w-full rounded-xl border border-input bg-card/60 px-3 py-2 text-base shadow-xs transition-colors hover:border-foreground/20 placeholder:text-muted-foreground focus-visible:outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/25 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm resize-none"
                                     ></textarea>
                                 ) : (
                                     <div className="space-y-4">
@@ -633,14 +635,14 @@ export function IssueCrafter({ user, backendUrl }: IssueCrafterProps) {
                                             onChange={(e) => setManualTitle(e.target.value)}
                                             placeholder="Issue Title"
                                             disabled={loading}
-                                            className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                            className="flex h-9 w-full rounded-lg border border-input bg-card/60 px-3 py-1 text-sm shadow-xs transition-colors hover:border-foreground/20 placeholder:text-muted-foreground focus-visible:outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/25 disabled:cursor-not-allowed disabled:opacity-50"
                                         />
                                         <textarea
                                             value={manualBody}
                                             onChange={(e) => setManualBody(e.target.value)}
                                             placeholder="Issue Body..."
                                             disabled={loading}
-                                            className="field-sizing-content flex min-h-[150px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm resize-none"
+                                            className="field-sizing-content flex min-h-[150px] w-full rounded-xl border border-input bg-card/60 px-3 py-2 text-base shadow-xs transition-colors hover:border-foreground/20 placeholder:text-muted-foreground focus-visible:outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/25 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm resize-none"
                                         ></textarea>
                                     </div>
                                 )}
@@ -649,7 +651,7 @@ export function IssueCrafter({ user, backendUrl }: IssueCrafterProps) {
                         <button
                             onClick={handleGenerate}
                             disabled={loading || (generationMode === 'auto' ? !description.trim() : (!manualTitle.trim() || !manualBody.trim()))}
-                            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors bg-primary text-primary-foreground shadow hover:bg-primary/90 h-9 px-4 py-2 w-full"
+                            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-semibold transition-all bg-primary text-primary-foreground shadow-[inset_0_1px_0_0_rgb(255_255_255/0.2),0_6px_20px_-6px_var(--glow)] hover:bg-primary/90 active:scale-[0.99] h-11 px-4 py-2 w-full"
                         >
                             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : (generationMode === 'auto' ? <Sparkles className="h-4 w-4" /> : <ArrowRight className="h-4 w-4" />)}
                             {generationMode === 'auto' ? 'Generate Issue' : 'Draft Issue'}
@@ -658,8 +660,8 @@ export function IssueCrafter({ user, backendUrl }: IssueCrafterProps) {
 
                     {}
                     <div className="space-y-6 flex flex-col h-full">
-                        <div className="rounded-3xl border border-border bg-card text-card-foreground shadow-sm h-full flex flex-col overflow-hidden">
-                            <div className="p-4 border-b border-border flex justify-between items-center bg-muted/20">
+                        <div className="rounded-2xl border border-border bg-card text-card-foreground shadow-sm h-full flex flex-col overflow-hidden">
+                            <div className="px-4 py-3.5 sm:px-5 border-b border-border flex justify-between items-center gap-3 bg-surface/60">
                                 <h3 className="font-semibold leading-none tracking-tight flex items-center gap-2">
                                     Generated Issue
                                     {versions.length > 1 && (
@@ -673,7 +675,7 @@ export function IssueCrafter({ user, backendUrl }: IssueCrafterProps) {
                                         <button
                                             onClick={handleCreateIssue}
                                             disabled={creatingIssue}
-                                            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors bg-primary text-primary-foreground hover:bg-primary/90 h-8 px-3"
+                                            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-colors bg-primary text-primary-foreground shadow-xs hover:bg-primary/90 h-8 px-3"
                                         >
                                             {creatingIssue ? <Loader2 className="h-3 w-3 animate-spin" /> : <Github className="h-3 w-3" />}
                                             Create on GitHub
@@ -682,7 +684,7 @@ export function IssueCrafter({ user, backendUrl }: IssueCrafterProps) {
                                     {currentVersion && (
                                         <button
                                             onClick={() => copyToClipboard(currentVersion.body, setCopiedBody)}
-                                            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-8 px-3"
+                                            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-colors border border-input bg-card/60 shadow-xs hover:bg-accent hover:text-accent-foreground hover:border-brand/30 h-8 px-3"
                                         >
                                             {copiedBody ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
                                             Copy
@@ -691,19 +693,16 @@ export function IssueCrafter({ user, backendUrl }: IssueCrafterProps) {
                                 </div>
                             </div>
 
-                            <div className="flex-1 bg-muted/30 relative group flex flex-col min-h-[400px]">
+                            <div className="flex-1 bg-surface/60 relative group flex flex-col min-h-[400px]">
                                 {loading && (
-                                    <div className="absolute inset-0 flex items-center justify-center bg-background/50 backdrop-blur-sm z-10">
-                                        <div className="flex flex-col items-center gap-2">
-                                            <Loader2 className="h-8 w-8 animate-spin text-brand" />
-                                            <p className="text-sm text-muted-foreground">Structuring issue...</p>
-                                        </div>
+                                    <div className="absolute inset-0 flex items-center justify-center bg-background/60 backdrop-blur-sm z-10 animate-in fade-in duration-300">
+                                        <GeneratingStatus messages={["Structuring issue…", "Reading your description…", "Pulling in repository context…", "Outlining steps to reproduce…", "Choosing a clear title…", "Formatting the issue…"]} />
                                     </div>
                                 )}
 
                                 {!currentVersion && !loading && !error && (
                                     <div className="h-full flex flex-col items-center justify-center text-center text-muted-foreground p-8 flex-1">
-                                        <Sparkles className="h-12 w-12 mb-4 opacity-20" />
+                                        <Sparkles className="h-14 w-14 mb-5 p-3.5 rounded-2xl border border-border bg-card text-brand shadow-sm" />
                                         <p>Describe the problem and let AI handle the formatting.</p>
                                     </div>
                                 )}
@@ -718,7 +717,7 @@ export function IssueCrafter({ user, backendUrl }: IssueCrafterProps) {
                                     <div className="flex flex-col h-full">
                                         {}
                                         {issueCreatedUrl && (
-                                            <div className="bg-brand/10 border-b border-brand/20 p-3 flex items-center justify-between animate-in slide-in-from-top-2">
+                                            <div className="bg-brand/10 border-b border-brand/20 px-4 py-3 flex flex-wrap gap-2 items-center justify-between animate-in slide-in-from-top-2">
                                                 <div className="flex items-center gap-2 text-brand">
                                                     <CheckCircle2 className="h-4 w-4" />
                                                     <span className="text-sm font-medium">Issue created successfully!</span>
@@ -727,7 +726,7 @@ export function IssueCrafter({ user, backendUrl }: IssueCrafterProps) {
                                                     {!branchCreatedName && (
                                                         <button
                                                             onClick={() => setSuccessModal({ isOpen: true, url: issueCreatedUrl || '', issueNumber: issueNumber || undefined })}
-                                                            className="text-xs bg-secondary text-secondary-foreground border border-secondary/50 px-2 py-1 rounded-md hover:bg-secondary/80 flex items-center gap-1"
+                                                            className="text-xs bg-card text-foreground border border-border px-2.5 py-1 rounded-lg shadow-xs hover:bg-accent flex items-center gap-1"
                                                         >
                                                             <GitBranch className="h-3 w-3" />
                                                             Create Branch
@@ -737,7 +736,7 @@ export function IssueCrafter({ user, backendUrl }: IssueCrafterProps) {
                                                         href={issueCreatedUrl}
                                                         target="_blank"
                                                         rel="noopener noreferrer"
-                                                        className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded-md hover:bg-primary/90 flex items-center gap-1"
+                                                        className="text-xs bg-primary text-primary-foreground px-2.5 py-1 rounded-lg shadow-xs hover:bg-primary/90 flex items-center gap-1"
                                                     >
                                                         View Issue <ExternalLink className="h-3 w-3" />
                                                     </a>
@@ -747,15 +746,15 @@ export function IssueCrafter({ user, backendUrl }: IssueCrafterProps) {
 
                                         {}
                                         {versions.length > 0 && (
-                                            <div className="flex items-center gap-1 p-2 border-b border-border bg-background/50 overflow-x-auto">
+                                            <div className="flex items-center gap-1 px-3 py-2 border-b border-border bg-card overflow-x-auto no-scrollbar">
                                                 <History className="h-4 w-4 text-muted-foreground mr-2 shrink-0" />
                                                 {versions.map((v, idx) => (
                                                     <button
                                                         key={v.version}
                                                         onClick={() => setSelectedVersionIndex(idx)}
-                                                        className={`px-3 py-1 text-xs rounded-full transition-colors whitespace-nowrap ${selectedVersionIndex === idx
-                                                            ? 'bg-primary text-primary-foreground font-medium'
-                                                            : 'bg-muted hover:bg-muted/80 text-muted-foreground'
+                                                        className={`px-2.5 py-1 font-mono text-[11px] rounded-full border transition-colors whitespace-nowrap ${selectedVersionIndex === idx
+                                                            ? 'border-brand/40 bg-brand/10 text-brand font-medium'
+                                                            : 'border-border bg-card hover:bg-muted text-muted-foreground'
                                                             }`}
                                                     >
                                                         v{v.version} {v.version === 1 ? '(Original)' : ''}
@@ -766,7 +765,7 @@ export function IssueCrafter({ user, backendUrl }: IssueCrafterProps) {
 
                                         <div className="p-4 flex-1 overflow-auto">
                                             <div className="mb-4">
-                                                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Title</label>
+                                                <label className="font-mono text-[11px] font-medium text-muted-foreground uppercase tracking-[0.12em]">Title</label>
                                                 <input
                                                     value={editedTitle}
                                                     onChange={(e) => setEditedTitle(e.target.value)}
@@ -774,22 +773,24 @@ export function IssueCrafter({ user, backendUrl }: IssueCrafterProps) {
                                                 />
                                             </div>
                                             <div className="flex-1 flex flex-col">
-                                                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Body</label>
-                                                <div className="relative">
-                                                    <textarea
-                                                        value={editedBody}
-                                                        onChange={(e) => setEditedBody(e.target.value)}
-                                                        className="w-full font-mono text-sm whitespace-pre-wrap p-4 rounded-md bg-background border border-border overflow-hidden resize-none focus:outline-none focus:ring-1 focus:ring-brand min-h-[500px] field-sizing-content"
-                                                    />
-                                                    <div className="absolute bottom-2 right-2 text-xs text-muted-foreground bg-background/80 px-2 py-1 rounded border border-border">
-                                                        {editedBody.length} chars
+                                                <label className="font-mono text-[11px] font-medium text-muted-foreground uppercase tracking-[0.12em] mb-1">Body</label>
+                                                <MarkdownTabs content={editedBody} label="Issue body">
+                                                    <div className="relative flex-1">
+                                                        <textarea
+                                                            value={editedBody}
+                                                            onChange={(e) => setEditedBody(e.target.value)}
+                                                            className="w-full font-mono text-sm whitespace-pre-wrap p-4 bg-transparent overflow-hidden resize-none focus:outline-none min-h-[500px] field-sizing-content"
+                                                        />
+                                                        <div className="absolute bottom-2 right-2 font-mono text-[11px] text-muted-foreground bg-card/90 backdrop-blur px-2 py-0.5 rounded-md border border-border">
+                                                            {editedBody.length} chars
+                                                        </div>
                                                     </div>
-                                                </div>
+                                                </MarkdownTabs>
                                             </div>
                                         </div>
 
                                         {}
-                                        <div className="p-4 border-t border-border bg-background">
+                                        <div className="p-4 border-t border-border bg-surface/60">
                                             <div className="space-y-3">
                                                 <div className="flex items-center justify-between">
                                                     <label className="text-sm font-medium">Refine Description</label>
@@ -799,7 +800,7 @@ export function IssueCrafter({ user, backendUrl }: IssueCrafterProps) {
                                                         value={refinementPrompt}
                                                         onChange={(e) => setRefinementPrompt(e.target.value)}
                                                         placeholder="e.g. Make it more technical, Add acceptance criteria..."
-                                                        className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                                        className="flex h-9 w-full rounded-lg border border-input bg-card/60 px-3 py-1 text-sm shadow-xs transition-colors hover:border-foreground/20 placeholder:text-muted-foreground focus-visible:outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/25 disabled:cursor-not-allowed disabled:opacity-50"
                                                         onKeyDown={(e) => {
                                                             if (e.key === 'Enter' && !e.shiftKey) {
                                                                 e.preventDefault();
@@ -810,7 +811,7 @@ export function IssueCrafter({ user, backendUrl }: IssueCrafterProps) {
                                                     <button
                                                         onClick={handleRefine}
                                                         disabled={refining || !refinementPrompt.trim()}
-                                                        className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80 h-9 px-4 py-2"
+                                                        className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/25 disabled:pointer-events-none disabled:opacity-50 border border-brand/25 bg-brand/10 text-brand hover:bg-brand/15 h-9 px-4 py-2"
                                                     >
                                                         {refining ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
                                                         Refine
@@ -861,14 +862,14 @@ export function IssueCrafter({ user, backendUrl }: IssueCrafterProps) {
                                         setSuccessModal({ isOpen: false, url: '' });
                                         resetForm();
                                     }}
-                                    className="px-4 py-2 rounded-md border hover:bg-muted text-sm font-medium flex items-center gap-2"
+                                    className="px-4 py-2 rounded-lg border bg-card shadow-xs hover:bg-accent hover:border-brand/30 text-sm font-medium flex items-center gap-2 transition-colors"
                                 >
                                     <RefreshCw className="h-4 w-4" />
                                     Draft another Issue
                                 </button>
                                 <button
                                     onClick={() => setSuccessModal({ isOpen: false, url: '' })}
-                                    className="px-4 py-2 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 text-sm font-medium"
+                                    className="px-4 py-2 rounded-lg bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 text-sm font-medium transition-colors"
                                 >
                                     Close
                                 </button>
@@ -878,7 +879,7 @@ export function IssueCrafter({ user, backendUrl }: IssueCrafterProps) {
                         <div className="flex flex-col gap-6 py-2">
                             {}
                             <div className="flex flex-col items-center gap-2 text-center">
-                                <div className="h-12 w-12 rounded-full bg-brand/10 flex items-center justify-center text-brand">
+                                <div className="h-12 w-12 rounded-2xl border border-brand/25 bg-brand/10 flex items-center justify-center text-brand">
                                     <CheckCircle2 className="h-6 w-6" />
                                 </div>
                                 <div className="space-y-1">
@@ -906,7 +907,7 @@ export function IssueCrafter({ user, backendUrl }: IssueCrafterProps) {
                                             <div className="space-y-2">
                                                 <label className="text-xs font-medium text-muted-foreground">Source Branch</label>
                                                 <select
-                                                    className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+                                                    className="w-full rounded-lg border border-input bg-card/60 px-3 py-2 text-sm shadow-xs focus-visible:outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/25"
                                                     value={sourceBranch}
                                                     onChange={(e) => setSourceBranch(e.target.value)}
                                                     disabled={loadingBranches || isCreatingBranch}
@@ -919,7 +920,7 @@ export function IssueCrafter({ user, backendUrl }: IssueCrafterProps) {
                                             <div className="space-y-2">
                                                 <label className="text-xs font-medium text-muted-foreground">New Branch Name</label>
                                                 <input
-                                                    className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+                                                    className="w-full rounded-lg border border-input bg-card/60 px-3 py-2 text-sm shadow-xs focus-visible:outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/25"
                                                     value={newBranchName}
                                                     onChange={(e) => setNewBranchName(e.target.value)}
                                                     placeholder="feature/my-new-feature"
@@ -929,7 +930,7 @@ export function IssueCrafter({ user, backendUrl }: IssueCrafterProps) {
                                         </div>
 
                                         {branchCreationError && (
-                                            <div className="text-xs text-destructive bg-destructive/10 p-2 rounded">
+                                            <div className="text-xs text-destructive bg-destructive/5 border border-destructive/25 p-2.5 rounded-lg">
                                                 {branchCreationError}
                                             </div>
                                         )}
@@ -937,14 +938,14 @@ export function IssueCrafter({ user, backendUrl }: IssueCrafterProps) {
                                         <button
                                             onClick={createBranch}
                                             disabled={isCreatingBranch || !newBranchName || !sourceBranch}
-                                            className="w-full flex items-center justify-center gap-2 bg-secondary text-secondary-foreground hover:bg-secondary/80 px-4 py-2 rounded-md text-sm font-medium transition-colors"
+                                            className="w-full h-10 flex items-center justify-center gap-2 bg-secondary text-secondary-foreground hover:bg-secondary/70 px-4 rounded-lg text-sm font-medium transition-colors"
                                         >
                                             {isCreatingBranch ? <Loader2 className="h-4 w-4 animate-spin" /> : <GitBranch className="h-4 w-4" />}
                                             Create Branch from Issue
                                         </button>
                                     </div>
                                 ) : (
-                                    <div className="bg-muted/50 rounded-lg p-4 space-y-3 border">
+                                    <div className="bg-surface/60 rounded-xl p-4 space-y-3 border">
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center gap-2 text-brand font-medium text-sm">
                                                 <Check className="h-4 w-4" />
@@ -961,7 +962,7 @@ export function IssueCrafter({ user, backendUrl }: IssueCrafterProps) {
                                         </div>
                                         <div className="space-y-1">
                                             <p className="text-xs text-muted-foreground">The branch has been created on the remote repository. To switch to it locally:</p>
-                                            <div className="bg-black/90 text-white p-3 rounded-md font-mono text-xs flex items-center justify-between group">
+                                            <div className="bg-[#0b0e12] text-[#e6edf3] border border-white/10 p-3 rounded-xl font-mono text-xs flex items-center justify-between gap-3 group shadow-sm">
                                                 <span>git fetch origin && git checkout {branchCreatedName}</span>
                                                 <button
                                                     onClick={() => copyToClipboard(`git fetch origin && git checkout ${branchCreatedName}`, setBranchCommandCopied)}

@@ -10,6 +10,8 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Modal } from '../Modal';
 import { Loader2, Copy, Sparkles, Tag, GitCommit, LayoutTemplate, Check, Github, ExternalLink, CheckCircle2, ArrowLeft, PenLine, FileText, ListTodo, RefreshCw, Info, Package, AlertCircle } from 'lucide-react';
+import { MarkdownTabs } from './MarkdownTabs';
+import { GeneratingStatus } from './GeneratingStatus';
 import { ReleaseManager } from './ReleaseManager';
 import ToolErrorNotice from './ToolErrorNotice';
 import CollapsibleComposer from './CollapsibleComposer';
@@ -650,18 +652,18 @@ export function ReleaseCreator({ user, initialRepo = '' }: ReleaseCreatorProps) 
     return (
         <div className="h-full flex flex-col gap-6">
             {}
-            <div className="flex items-center gap-4 border-b pb-4 justify-between">
-                <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3 border-b pb-4 justify-between">
+                <div className="inline-flex max-w-full items-center gap-1 overflow-x-auto no-scrollbar rounded-xl border bg-muted/60 p-1">
                     <button
                         onClick={() => setMode('composer')}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-md transition-colors ${mode === 'composer' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'}`}
+                        className={`flex shrink-0 items-center gap-2 px-3 sm:px-4 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${mode === 'composer' ? 'bg-card text-foreground shadow-sm ring-1 ring-border [&>svg]:text-brand' : 'text-muted-foreground hover:text-foreground'}`}
                     >
                         <Sparkles className="h-4 w-4" />
                         Composer
                     </button>
                     <button
                         onClick={() => setMode('manager')}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-md transition-colors ${mode === 'manager' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'}`}
+                        className={`flex shrink-0 items-center gap-2 px-3 sm:px-4 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${mode === 'manager' ? 'bg-card text-foreground shadow-sm ring-1 ring-border [&>svg]:text-brand' : 'text-muted-foreground hover:text-foreground'}`}
                     >
                         <ListTodo className="h-4 w-4" />
                         Manager
@@ -669,7 +671,7 @@ export function ReleaseCreator({ user, initialRepo = '' }: ReleaseCreatorProps) 
                 </div>
                 <button
                     onClick={resetForm}
-                    className="p-2 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                    className="p-2 rounded-lg hover:bg-accent text-muted-foreground hover:text-foreground transition-colors"
                     title="Reset Form"
                 >
                     <RefreshCw className="h-4 w-4" />
@@ -685,11 +687,11 @@ export function ReleaseCreator({ user, initialRepo = '' }: ReleaseCreatorProps) 
                     />
                 </div>
             ) : (
-                <div className="grid gap-8 lg:grid-cols-2 flex-1 overflow-y-auto pb-8">
+                <div className="grid gap-6 lg:gap-8 lg:grid-cols-2 flex-1 overflow-y-auto pb-8">
                     {}
-                    <div className="space-y-6">
-                        <div className="space-y-4 p-4 border rounded-lg bg-muted/20">
-                            <h3 className="font-semibold text-sm">Repository & Range</h3>
+                    <div className="space-y-6 rounded-2xl border bg-card p-4 sm:p-6 shadow-sm">
+                        <div className="space-y-4 p-4 border rounded-xl bg-surface/60">
+                            <h3 className="font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-muted-foreground">Repository & Range</h3>
 
                             <div className="space-y-2">
                                 <label className="text-xs font-medium leading-none text-muted-foreground">Repository</label>
@@ -746,13 +748,13 @@ export function ReleaseCreator({ user, initialRepo = '' }: ReleaseCreatorProps) 
 
                         <div className="space-y-2">
                             <label className="text-sm font-medium leading-none flex gap-1">
-                                New Tag Name / Version <span className="text-red-500">*</span>
+                                New Tag Name / Version <span className="text-destructive">*</span>
                             </label>
                             <Input
                                 placeholder="e.g. v1.2.0"
                                 value={tagName}
                                 onChange={(e) => setTagName(e.target.value)}
-                                className={!tagName && error?.includes("Tag Name") ? "border-red-500" : ""}
+                                className={!tagName && error?.includes("Tag Name") ? "border-destructive" : ""}
                             />
                         </div>
 
@@ -771,16 +773,16 @@ export function ReleaseCreator({ user, initialRepo = '' }: ReleaseCreatorProps) 
                                 <label className="text-sm font-medium leading-none">Commits / Content</label>
                                 <div className="flex items-center gap-2">
                                     <span className="text-xs text-muted-foreground">Mode:</span>
-                                    <div className="flex bg-muted rounded-md p-0.5">
+                                    <div className="flex rounded-lg border bg-muted/60 p-0.5">
                                         <button
                                             onClick={() => setManualMode(false)}
-                                            className={`px-2 py-0.5 text-xs rounded-sm transition-all ${!manualMode ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+                                            className={`px-2.5 py-0.5 text-xs rounded-md transition-all ${!manualMode ? 'bg-card shadow-sm text-foreground ring-1 ring-border' : 'text-muted-foreground hover:text-foreground'}`}
                                         >
                                             Auto
                                         </button>
                                         <button
                                             onClick={() => setManualMode(true)}
-                                            className={`px-2 py-0.5 text-xs rounded-sm transition-all ${manualMode ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+                                            className={`px-2.5 py-0.5 text-xs rounded-md transition-all ${manualMode ? 'bg-card shadow-sm text-foreground ring-1 ring-border' : 'text-muted-foreground hover:text-foreground'}`}
                                         >
                                             Manual
                                         </button>
@@ -813,7 +815,7 @@ export function ReleaseCreator({ user, initialRepo = '' }: ReleaseCreatorProps) 
                         {error && <ToolErrorNotice error={error} />}
 
                         {infoMessage && (
-                            <div className="text-sm text-blue-500 bg-blue-500/10 p-3 rounded-md border border-blue-200 flex items-start gap-2">
+                            <div className="text-sm text-info bg-info/10 p-3 rounded-xl border border-info/25 flex items-start gap-2">
                                 <Info className="h-4 w-4 mt-0.5 shrink-0" />
                                 <span>{infoMessage}</span>
                             </div>
@@ -822,7 +824,7 @@ export function ReleaseCreator({ user, initialRepo = '' }: ReleaseCreatorProps) 
                         <Button
                             onClick={handleGenerate}
                             disabled={loading || (!manualMode && commits.length === 0) || (manualMode && !rawCommits)}
-                            className="w-full"
+                            className="w-full h-11 rounded-xl font-semibold shadow-[inset_0_1px_0_0_rgb(255_255_255/0.2),0_6px_20px_-6px_var(--glow)]"
                         >
                             {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
                             Generate Release Notes
@@ -831,15 +833,15 @@ export function ReleaseCreator({ user, initialRepo = '' }: ReleaseCreatorProps) 
 
                     {}
                     <div className="space-y-6">
-                        <div className="rounded-3xl border border-border bg-card text-card-foreground shadow-sm h-full flex flex-col">
-                            <div className="p-4 border-b border-border flex justify-between items-center bg-muted/20">
+                        <div className="rounded-2xl border border-border bg-card text-card-foreground shadow-sm h-full flex flex-col">
+                            <div className="px-4 py-3.5 sm:px-5 border-b border-border flex justify-between items-center gap-3 bg-surface/60">
                                 <h3 className="font-semibold leading-none tracking-tight">Generated Notes</h3>
                                 <div className="flex gap-2">
                                     {currentVersion && repo && tagName && (
                                         <button
                                             onClick={handleCreateRelease}
                                             disabled={creatingRelease || manifestSync.status === 'checking'}
-                                            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors bg-primary text-primary-foreground hover:bg-primary/90 h-8 px-3"
+                                            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-colors bg-primary text-primary-foreground shadow-xs hover:bg-primary/90 h-8 px-3"
                                         >
                                             {(creatingRelease || manifestSync.status === 'checking') ? <Loader2 className="h-3 w-3 animate-spin" /> : <Github className="h-3 w-3" />}
                                             Create Release
@@ -848,7 +850,7 @@ export function ReleaseCreator({ user, initialRepo = '' }: ReleaseCreatorProps) 
                                     {currentVersion && (
                                         <button
                                             onClick={() => copyToClipboard(currentVersion.content)}
-                                            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-8 px-3"
+                                            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-colors border border-input bg-card/60 shadow-xs hover:bg-accent hover:text-accent-foreground hover:border-brand/30 h-8 px-3"
                                         >
                                             {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
                                             Copy
@@ -857,32 +859,29 @@ export function ReleaseCreator({ user, initialRepo = '' }: ReleaseCreatorProps) 
                                 </div>
                             </div>
 
-                            <div className="p-6 flex-1 bg-muted/30 relative group min-h-[400px] flex flex-col">
+                            <div className="p-4 sm:p-6 flex-1 bg-surface/60 relative group min-h-[400px] flex flex-col">
                                 {loading && (
-                                    <div className="absolute inset-0 flex items-center justify-center bg-background/50 backdrop-blur-sm z-10">
-                                        <div className="flex flex-col items-center gap-2">
-                                            <Loader2 className="h-8 w-8 animate-spin text-brand" />
-                                            <p className="text-sm text-muted-foreground">Compiling release notes...</p>
-                                        </div>
+                                    <div className="absolute inset-0 flex items-center justify-center bg-background/60 backdrop-blur-sm z-10 animate-in fade-in duration-300">
+                                        <GeneratingStatus messages={["Compiling release notes…", "Reading the commit range…", "Grouping changes by type…", "Highlighting what matters…", "Writing the changelog…", "Formatting the release…"]} />
                                     </div>
                                 )}
 
                                 {!currentVersion ? (
                                     <div className="h-full flex flex-col items-center justify-center text-center text-muted-foreground p-8 flex-1">
-                                        <Tag className="h-12 w-12 mb-4 opacity-20" />
+                                        <Tag className="h-14 w-14 mb-5 p-3.5 rounded-2xl border border-border bg-card text-brand shadow-sm" />
                                         <p>Paste your commits to generate structured release notes.</p>
                                     </div>
                                 ) : (
                                     <div className="h-full flex flex-col flex-1">
                                         {}
-                                        <div className="flex items-center gap-2 mb-4 overflow-x-auto pb-2">
+                                        <div className="flex items-center gap-1.5 mb-4 overflow-x-auto no-scrollbar pb-1">
                                             {versions.map((v, idx) => (
                                                 <button
                                                     key={v.version_number}
                                                     onClick={() => setCurrentVersionIndex(idx)}
-                                                    className={`px-3 py-1 rounded-full text-xs font-medium transition-colors whitespace-nowrap ${idx === currentVersionIndex
-                                                        ? 'bg-primary text-primary-foreground'
-                                                        : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                                                    className={`px-2.5 py-1 rounded-full border font-mono text-[11px] font-medium transition-colors whitespace-nowrap ${idx === currentVersionIndex
+                                                        ? 'border-brand/40 bg-brand/10 text-brand'
+                                                        : 'border-border bg-card text-muted-foreground hover:bg-muted'
                                                         }`}
                                                 >
                                                     v{v.version_number}
@@ -891,14 +890,16 @@ export function ReleaseCreator({ user, initialRepo = '' }: ReleaseCreatorProps) 
                                             ))}
                                         </div>
 
-                                        <textarea
-                                            className="flex-1 font-mono text-sm whitespace-pre-wrap p-4 rounded-md bg-background border border-border overflow-auto resize-none focus:outline-none focus:ring-1 focus:ring-brand w-full"
-                                            value={currentVersion.content}
-                                            onChange={handleNotesChange}
-                                        />
+                                        <MarkdownTabs content={currentVersion.content} label="Release notes">
+                                            <textarea
+                                                className="flex-1 font-mono text-sm whitespace-pre-wrap p-4 bg-transparent overflow-auto resize-none focus:outline-none w-full min-h-[400px]"
+                                                value={currentVersion.content}
+                                                onChange={handleNotesChange}
+                                            />
+                                        </MarkdownTabs>
 
                                         {}
-                                        <div className="mt-4 pt-4 border-t border-border space-y-3 bg-background p-4 rounded-md">
+                                        <div className="mt-4 space-y-3 bg-card border border-border p-4 rounded-xl shadow-sm">
                                             <div className="flex items-center justify-between">
                                                 <label className="text-sm font-medium">Refine Notes</label>
                                             </div>
@@ -908,12 +909,12 @@ export function ReleaseCreator({ user, initialRepo = '' }: ReleaseCreatorProps) 
                                                     value={refinementPrompt}
                                                     onChange={(e) => setRefinementPrompt(e.target.value)}
                                                     onKeyDown={(e) => e.key === 'Enter' && handleRefine()}
-                                                    className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                                    className="flex h-9 w-full rounded-lg border border-input bg-card/60 px-3 py-1 text-sm shadow-xs transition-colors hover:border-foreground/20 placeholder:text-muted-foreground focus-visible:outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/25 disabled:cursor-not-allowed disabled:opacity-50"
                                                 />
                                                 <button
                                                     onClick={handleRefine}
                                                     disabled={loading || !refinementPrompt}
-                                                    className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80 h-9 px-4 py-2"
+                                                    className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/25 disabled:pointer-events-none disabled:opacity-50 border border-brand/25 bg-brand/10 text-brand hover:bg-brand/15 h-9 px-4 py-2"
                                                 >
                                                     {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
                                                     Refine
@@ -953,7 +954,7 @@ export function ReleaseCreator({ user, initialRepo = '' }: ReleaseCreatorProps) 
                                         setSuccessModal({ isOpen: false, url: '' });
                                         setMode('manager');
                                     }}
-                                    className="px-4 py-2 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 text-sm font-medium"
+                                    className="px-4 py-2 rounded-lg bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 text-sm font-medium transition-colors"
                                 >
                                     Close
                                 </button>
@@ -962,7 +963,7 @@ export function ReleaseCreator({ user, initialRepo = '' }: ReleaseCreatorProps) 
                     >
                         <div className="flex flex-col gap-6 py-2">
                             <div className="flex flex-col items-center gap-2 text-center">
-                                <div className="h-12 w-12 rounded-full bg-brand/10 flex items-center justify-center text-brand">
+                                <div className="h-12 w-12 rounded-2xl border border-brand/25 bg-brand/10 flex items-center justify-center text-brand">
                                     <CheckCircle2 className="h-6 w-6" />
                                 </div>
                                 <div className="space-y-1">
@@ -993,19 +994,19 @@ export function ReleaseCreator({ user, initialRepo = '' }: ReleaseCreatorProps) 
                                 <div className="flex justify-end gap-2 w-full">
                                     <button
                                         onClick={cancelManifestSync}
-                                        className="px-3 py-2 rounded-md text-sm font-medium text-muted-foreground hover:bg-muted"
+                                        className="px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground transition-colors hover:bg-muted"
                                     >
                                         Cancel
                                     </button>
                                     <button
                                         onClick={skipManifestSync}
-                                        className="px-3 py-2 rounded-md text-sm font-medium border border-input bg-background hover:bg-accent"
+                                        className="px-3 py-2 rounded-lg text-sm font-medium border border-input bg-card/60 shadow-xs transition-colors hover:bg-accent"
                                     >
                                         Skip &amp; Create Release
                                     </button>
                                     <button
                                         onClick={applyManifestSync}
-                                        className="px-3 py-2 rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90"
+                                        className="px-3 py-2 rounded-lg text-sm font-medium bg-primary text-primary-foreground shadow-xs hover:bg-primary/90 transition-colors"
                                     >
                                         Update &amp; Create Release
                                     </button>
@@ -1014,13 +1015,13 @@ export function ReleaseCreator({ user, initialRepo = '' }: ReleaseCreatorProps) 
                                 <div className="flex justify-end gap-2 w-full">
                                     <button
                                         onClick={cancelManifestSync}
-                                        className="px-3 py-2 rounded-md text-sm font-medium text-muted-foreground hover:bg-muted"
+                                        className="px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground transition-colors hover:bg-muted"
                                     >
                                         Cancel
                                     </button>
                                     <button
                                         onClick={skipManifestSync}
-                                        className="px-3 py-2 rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90"
+                                        className="px-3 py-2 rounded-lg text-sm font-medium bg-primary text-primary-foreground shadow-xs hover:bg-primary/90 transition-colors"
                                     >
                                         Continue Without Updating
                                     </button>
@@ -1037,14 +1038,14 @@ export function ReleaseCreator({ user, initialRepo = '' }: ReleaseCreatorProps) 
                                     </span>
                                 </div>
                             ) : manifestSync.status === 'error' ? (
-                                <div className="flex items-start gap-2 text-sm text-red-500 bg-red-500/10 p-3 rounded-md border border-red-200">
+                                <div className="flex items-start gap-2 text-sm text-destructive bg-destructive/5 p-3 rounded-xl border border-destructive/30">
                                     <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
                                     <span>{manifestSync.error}</span>
                                 </div>
                             ) : (
                                 <>
                                     <div className="flex items-start gap-3">
-                                        <div className="h-8 w-8 rounded-full bg-brand/10 flex items-center justify-center text-brand shrink-0">
+                                        <div className="h-8 w-8 rounded-lg border border-brand/25 bg-brand/10 flex items-center justify-center text-brand shrink-0">
                                             <Package className="h-4 w-4" />
                                         </div>
                                         <p className="text-sm text-muted-foreground">
@@ -1059,7 +1060,7 @@ export function ReleaseCreator({ user, initialRepo = '' }: ReleaseCreatorProps) 
                                     </div>
                                     <div className="space-y-2">
                                         {manifestSync.files?.map((f) => (
-                                            <div key={f.file} className="font-mono text-xs rounded-md border border-border overflow-hidden">
+                                            <div key={f.file} className="font-mono text-xs rounded-xl border border-border overflow-hidden">
                                                 {(manifestSync.files?.length ?? 0) > 1 && (
                                                     <div className="px-3 py-1 bg-muted/40 text-foreground border-b border-border">{f.file}</div>
                                                 )}

@@ -18,7 +18,7 @@ if (!user) {
     <Fragment slot="head">
         <meta charset="utf-8" />
         <link rel="icon" type="image/png" href="/favicon-96.png" />
-        <meta name="viewport" content="width=device-width" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
         <meta name="generator" content={Astro.generator} />
         <meta
             name="description"
@@ -61,9 +61,11 @@ if (!user) {
         class="bg-background text-foreground antialiased min-h-screen flex flex-col"
     >
         <SiteHeader client:load user={toClientUser(user.user)} />
-        <main class="flex-1 container mx-auto px-4 py-8 max-w-3xl">
-            <div class="mb-8 flex items-center gap-3">
-                <div class="p-2 bg-brand/10 rounded-lg">
+        <div aria-hidden="true" class="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[360px] bg-grid"></div>
+        <div aria-hidden="true" class="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[360px] bg-glow"></div>
+        <main class="flex-1 w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 max-w-3xl">
+            <div class="mb-8 flex items-center gap-4 border-b border-border pb-6 sm:pb-8">
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-brand/25 bg-gradient-to-b from-brand/20 to-brand/5 shadow-sm">
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="24"
@@ -84,10 +86,10 @@ if (!user) {
                     </svg>
                 </div>
                 <div>
-                    <h1 class="text-2xl font-bold tracking-tight">
+                    <h1 class="text-2xl font-semibold tracking-[-0.035em] sm:text-3xl">
                         Backup Automator
                     </h1>
-                    <p class="text-sm text-muted-foreground">
+                    <p class="mt-1 text-sm text-muted-foreground sm:text-[15px]">
                         Automatic mirror backups of your repository — set up in
                         two minutes, owned entirely by you.
                     </p>
@@ -95,7 +97,7 @@ if (!user) {
             </div>
 
             <div
-                class="mb-8 rounded-lg border border-brand/30 bg-brand/5 p-4 flex gap-3 items-start"
+                class="mb-8 rounded-2xl border border-brand/25 bg-brand/5 p-4 sm:p-5 flex gap-3 items-start"
             >
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -132,11 +134,11 @@ if (!user) {
             <div class="space-y-6">
 
                 <section
-                    class="rounded-lg border border-border bg-card p-5 space-y-3"
+                    class="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-sm space-y-3"
                 >
                     <h2 class="text-sm font-semibold flex items-center gap-2">
                         <span
-                            class="flex h-6 w-6 items-center justify-center rounded-full bg-brand/10 text-brand text-xs"
+                            class="flex h-6 w-6 items-center justify-center rounded-lg border border-brand/25 bg-brand/10 font-mono text-[11px] text-brand"
                             >1</span
                         >
                         Choose the repository to back up
@@ -157,17 +159,17 @@ if (!user) {
                         <input
                             id="branch-input"
                             value="main"
-                            class="flex h-8 w-32 rounded-md border border-input bg-transparent px-2 py-1 text-xs font-mono shadow-xs focus-visible:outline-1 focus-visible:ring-4 focus-visible:ring-ring/10"
+                            class="flex h-8 w-32 rounded-md border border-input bg-card/60 px-2 py-1 text-xs font-mono shadow-xs focus-visible:outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/25"
                         />
                     </div>
                 </section>
 
                 <section
-                    class="rounded-lg border border-border bg-card p-5 space-y-3"
+                    class="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-sm space-y-3"
                 >
                     <h2 class="text-sm font-semibold flex items-center gap-2">
                         <span
-                            class="flex h-6 w-6 items-center justify-center rounded-full bg-brand/10 text-brand text-xs"
+                            class="flex h-6 w-6 items-center justify-center rounded-lg border border-brand/25 bg-brand/10 font-mono text-[11px] text-brand"
                             >2</span
                         >
                         Pick a schedule
@@ -180,7 +182,7 @@ if (!user) {
                         <button
                             type="button"
                             data-schedule="daily"
-                            class="schedule-opt rounded-md border border-border px-3 py-2 text-sm hover:bg-muted"
+                            class="schedule-opt rounded-xl border border-border bg-card px-3 py-2.5 text-sm transition-colors hover:bg-muted"
                             role="radio"
                         >
                             Daily
@@ -191,7 +193,7 @@ if (!user) {
                         <button
                             type="button"
                             data-schedule="weekly"
-                            class="schedule-opt rounded-md border border-border px-3 py-2 text-sm hover:bg-muted"
+                            class="schedule-opt rounded-xl border border-border bg-card px-3 py-2.5 text-sm transition-colors hover:bg-muted"
                             role="radio"
                         >
                             Weekly
@@ -202,7 +204,7 @@ if (!user) {
                         <button
                             type="button"
                             data-schedule="monthly"
-                            class="schedule-opt rounded-md border border-border px-3 py-2 text-sm hover:bg-muted"
+                            class="schedule-opt rounded-xl border border-border bg-card px-3 py-2.5 text-sm transition-colors hover:bg-muted"
                             role="radio"
                         >
                             Monthly
@@ -218,11 +220,11 @@ if (!user) {
                 </section>
 
                 <section
-                    class="rounded-lg border border-border bg-card p-5 space-y-3"
+                    class="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-sm space-y-3"
                 >
                     <h2 class="text-sm font-semibold flex items-center gap-2">
                         <span
-                            class="flex h-6 w-6 items-center justify-center rounded-full bg-brand/10 text-brand text-xs"
+                            class="flex h-6 w-6 items-center justify-center rounded-lg border border-brand/25 bg-brand/10 font-mono text-[11px] text-brand"
                             >3</span
                         >
                         Add the workflow to your repository
@@ -258,14 +260,14 @@ if (!user) {
                         <button
                             id="copy-yaml"
                             type="button"
-                            class="inline-flex items-center rounded-md border border-input bg-background px-3 py-2 text-sm font-medium hover:bg-accent"
+                            class="inline-flex items-center rounded-md border border-input bg-card/60 px-3 py-2 text-sm font-medium hover:bg-accent"
                         >
                             Copy YAML
                         </button>
                         <button
                             id="download-yaml"
                             type="button"
-                            class="inline-flex items-center rounded-md border border-input bg-background px-3 py-2 text-sm font-medium hover:bg-accent"
+                            class="inline-flex items-center rounded-md border border-input bg-card/60 px-3 py-2 text-sm font-medium hover:bg-accent"
                         >
                             Download
                         </button>
@@ -277,7 +279,7 @@ if (!user) {
                         Pick a repository in step 1 to enable one-click
                         creation.
                     </p>
-                    <details class="rounded-md border border-border">
+                    <details class="rounded-xl border border-border bg-card">
                         <summary
                             class="cursor-pointer select-none px-3 py-2 text-xs font-medium text-muted-foreground"
                         >
@@ -297,11 +299,11 @@ if (!user) {
                 </section>
 
                 <section
-                    class="rounded-lg border border-border bg-card p-5 space-y-3"
+                    class="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-sm space-y-3"
                 >
                     <h2 class="text-sm font-semibold flex items-center gap-2">
                         <span
-                            class="flex h-6 w-6 items-center justify-center rounded-full bg-brand/10 text-brand text-xs"
+                            class="flex h-6 w-6 items-center justify-center rounded-lg border border-brand/25 bg-brand/10 font-mono text-[11px] text-brand"
                             >4</span
                         >
                         Point it at your mirror (one secret, in your GitHub)
@@ -340,7 +342,7 @@ if (!user) {
                             > named <code>BACKUP_MIRROR_URL</code> with the
                             value:
                             <pre
-                                class="mt-1 rounded-md bg-muted px-3 py-2 text-xs font-mono overflow-x-auto"><code>https://&lt;user&gt;:&lt;TOKEN&gt;@github.com/&lt;user&gt;/&lt;mirror-repo&gt;.git</code></pre>
+                                class="mt-1 rounded-lg border border-border bg-muted/60 px-3 py-2 text-xs font-mono overflow-x-auto"><code>https://&lt;user&gt;:&lt;TOKEN&gt;@github.com/&lt;user&gt;/&lt;mirror-repo&gt;.git</code></pre>
                         </li>
                         <li>
                             Done. Trigger the first run from

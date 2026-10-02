@@ -19,7 +19,7 @@ export default function CollapsibleComposer({ collapsed, dimmed = false, childre
         >
             {children}
             {collapsed && (
-                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-12 flex items-end justify-center pb-1 bg-gradient-to-t from-background to-transparent">
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-12 flex items-end justify-center pb-1 bg-gradient-to-t from-card to-transparent">
                     <span className="text-muted-foreground text-lg leading-none tracking-[0.3em]">···</span>
                 </div>
             )}

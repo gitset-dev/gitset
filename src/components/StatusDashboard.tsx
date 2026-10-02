@@ -130,15 +130,15 @@ export function StatusDashboard() {
 
     if (error) {
         return (
-            <div className="rounded-lg border border-red-200 bg-red-50 p-6">
+            <div className="rounded-2xl border border-destructive/30 bg-destructive/5 p-6">
                 <div className="flex items-start gap-3">
-                    <svg className="w-5 h-5 text-red-600 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className="w-5 h-5 text-destructive mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     <div>
-                        <h3 className="font-semibold text-red-900">Error Loading Status</h3>
-                        <p className="text-sm text-red-800 mt-1">{error}</p>
-                        <button onClick={fetchData} className="mt-3 text-sm font-medium text-red-700 hover:text-red-800 underline">
+                        <h3 className="font-semibold text-destructive">Error Loading Status</h3>
+                        <p className="text-sm text-muted-foreground mt-1">{error}</p>
+                        <button onClick={fetchData} className="mt-3 text-sm font-medium text-destructive underline underline-offset-4">
                             Try Again
                         </button>
                     </div>
@@ -158,43 +158,43 @@ export function StatusDashboard() {
 
     return (
         <div className="space-y-8">
-            <div className="rounded-lg border bg-card p-6">
-                <div className="flex items-center justify-between mb-4">
+            <div className="rounded-2xl border bg-card p-5 sm:p-6 shadow-sm">
+                <div className="flex flex-wrap items-start justify-between gap-4 mb-5">
                     <div>
-                        <h2 className="text-2xl font-bold">Overall Status</h2>
+                        <h2 className="text-xl sm:text-2xl font-semibold tracking-tight">Overall Status</h2>
                         <p className="text-sm text-muted-foreground mt-1">
                             Last updated: {formatRelativeTime(lastUpdated.toISOString())}
                         </p>
                     </div>
-                    <button onClick={fetchData} className="px-4 py-2 text-sm font-medium rounded-md border hover:bg-accent transition-colors">
+                    <button onClick={fetchData} className="inline-flex h-9 items-center px-4 text-sm font-medium rounded-lg border bg-card shadow-xs hover:bg-accent hover:border-brand/30 transition-colors">
                         Refresh
                     </button>
                 </div>
 
-                <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full font-semibold ${getStatusColor(summary.status.indicator)}`}>
+                <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-medium ${getStatusColor(summary.status.indicator)}`}>
                     <span className={`w-2 h-2 rounded-full ${summary.status.indicator === "none" ? "bg-green-600" : "bg-yellow-600"}`}></span>
                     {summary.status.description}
                 </div>
 
-                <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="p-4 rounded-lg bg-accent/50">
-                        <div className="text-2xl font-bold text-green-600">{operationalComponents.length}</div>
+                <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div className="p-4 rounded-xl border bg-surface/60">
+                        <div className="text-3xl font-semibold tracking-tight tabular-nums text-emerald-600 dark:text-emerald-400">{operationalComponents.length}</div>
                         <div className="text-sm text-muted-foreground">Operational Services</div>
                     </div>
-                    <div className="p-4 rounded-lg bg-accent/50">
-                        <div className="text-2xl font-bold text-orange-600">{degradedComponents.length}</div>
+                    <div className="p-4 rounded-xl border bg-surface/60">
+                        <div className="text-3xl font-semibold tracking-tight tabular-nums text-orange-600 dark:text-orange-400">{degradedComponents.length}</div>
                         <div className="text-sm text-muted-foreground">Issues Detected</div>
                     </div>
-                    <div className="p-4 rounded-lg bg-accent/50">
-                        <div className="text-2xl font-bold text-blue-600">{activeIncidents.length}</div>
+                    <div className="p-4 rounded-xl border bg-surface/60">
+                        <div className="text-3xl font-semibold tracking-tight tabular-nums text-blue-600 dark:text-blue-400">{activeIncidents.length}</div>
                         <div className="text-sm text-muted-foreground">Active Incidents</div>
                     </div>
                 </div>
             </div>
 
             {degradedComponents.length > 0 && (
-                <div className="rounded-lg border border-orange-200 bg-orange-50 p-6">
-                    <h3 className="text-lg font-semibold text-orange-900 mb-4 flex items-center gap-2">
+                <div className="rounded-2xl border border-orange-500/25 bg-orange-500/5 p-5 sm:p-6">
+                    <h3 className="text-lg font-semibold tracking-tight text-orange-700 dark:text-orange-400 mb-4 flex items-center gap-2">
                         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                         </svg>
@@ -202,11 +202,11 @@ export function StatusDashboard() {
                     </h3>
                     <div className="space-y-3">
                         {degradedComponents.map((component) => (
-                            <div key={component.id} className="bg-white rounded-lg border border-orange-200 p-4">
+                            <div key={component.id} className="bg-card rounded-xl border border-orange-500/20 p-4">
                                 <div className="flex items-center justify-between">
                                     <div>
-                                        <h4 className="font-semibold text-gray-900">{component.name}</h4>
-                                        {component.description && <p className="text-sm text-gray-600 mt-1">{component.description}</p>}
+                                        <h4 className="font-semibold text-foreground">{component.name}</h4>
+                                        {component.description && <p className="text-sm text-muted-foreground mt-1">{component.description}</p>}
                                     </div>
                                     <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(component.status)}`}>
                                         {getStatusLabel(component.status)}
@@ -218,8 +218,8 @@ export function StatusDashboard() {
                 </div>
             )}
 
-            <div className="rounded-lg border bg-card p-6">
-                <h3 className="text-lg font-semibold mb-4">All Services - Click for Details</h3>
+            <div className="rounded-2xl border bg-card p-5 sm:p-6 shadow-sm">
+                <h3 className="text-lg font-semibold tracking-tight mb-4">All Services - Click for Details</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                     {displayComponents
                         .sort((a, b) => a.position - b.position)
@@ -233,7 +233,7 @@ export function StatusDashboard() {
                                     fetchComponentDetails(component);
                                 }}
                                 type="button"
-                                className="flex items-center justify-between p-4 rounded-lg hover:bg-accent/50 transition-colors border text-left cursor-pointer"
+                                className="group flex items-center justify-between p-4 rounded-xl bg-surface/60 hover:bg-accent hover:border-brand/30 transition-colors border text-left cursor-pointer"
                             >
                                 <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-2">
@@ -253,11 +253,11 @@ export function StatusDashboard() {
             </div>
 
             {selectedComponent && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-                    <div className="bg-white dark:bg-gray-900 rounded-lg max-w-4xl w-full my-8">
-                        <div className="sticky top-0 bg-white dark:bg-gray-900 border-b p-6 flex items-center justify-between rounded-t-lg">
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-md flex items-center justify-center z-50 p-3 sm:p-4 overflow-y-auto animate-in fade-in duration-200">
+                    <div className="bg-popover border border-border shadow-2xl rounded-2xl max-w-4xl w-full my-4 sm:my-8 overflow-hidden animate-in zoom-in-95 duration-200">
+                        <div className="sticky top-0 bg-popover/95 backdrop-blur border-b p-5 sm:p-6 flex items-start justify-between gap-4">
                             <div>
-                                <h3 className="text-2xl font-bold">{selectedComponent.component.name}</h3>
+                                <h3 className="text-xl sm:text-2xl font-semibold tracking-tight">{selectedComponent.component.name}</h3>
                                 <p className="text-sm text-muted-foreground mt-1">{selectedComponent.component.description}</p>
                             </div>
                             <button onClick={() => setSelectedComponent(null)} className="p-2 hover:bg-accent rounded-lg flex-shrink-0">
@@ -267,11 +267,11 @@ export function StatusDashboard() {
                             </button>
                         </div>
 
-                        <div className="p-6 space-y-6 max-h-[calc(90vh-120px)] overflow-y-auto">
+                        <div className="p-5 sm:p-6 space-y-6 max-h-[calc(90dvh-120px)] overflow-y-auto">
                             <>
                                 <div>
                                     <h4 className="text-lg font-semibold mb-3">Current Status</h4>
-                                    <div className="p-4 rounded-lg border bg-accent/50">
+                                    <div className="p-4 rounded-xl border bg-muted/50">
                                         <div className="flex items-center justify-between">
                                             <div>
                                                 <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(selectedComponent.component.status)}`}>
@@ -296,7 +296,7 @@ export function StatusDashboard() {
                                     {selectedComponent.incidents && selectedComponent.incidents.length > 0 ? (
                                         <div className="space-y-4">
                                             {selectedComponent.incidents.map((incident) => (
-                                                <div key={incident.id} className="border rounded-lg p-4 bg-white dark:bg-gray-800">
+                                                <div key={incident.id} className="border rounded-xl p-4 bg-card">
                                                     <div className="flex items-start justify-between mb-3">
                                                         <div className="flex-1">
                                                             <h5 className="font-semibold text-lg">{incident.name}</h5>
@@ -318,7 +318,7 @@ export function StatusDashboard() {
                                                         <div className="mt-4 space-y-3 border-t pt-3">
                                                             <h6 className="text-sm font-semibold text-muted-foreground">Updates</h6>
                                                             {incident.incident_updates.slice(0, 3).map((update) => (
-                                                                <div key={update.id} className="bg-accent/30 rounded-md p-3">
+                                                                <div key={update.id} className="bg-muted/60 rounded-lg p-3">
                                                                     <div className="flex items-center justify-between mb-2">
                                                                         <span className="text-xs font-medium text-brand uppercase">
                                                                             {update.status.replace(/_/g, " ")}
@@ -348,12 +348,12 @@ export function StatusDashboard() {
                                             ))}
                                         </div>
                                     ) : (
-                                        <div className="p-6 rounded-lg border border-green-200 bg-green-50 text-center">
-                                            <svg className="w-12 h-12 text-green-600 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <div className="p-6 rounded-xl border border-emerald-500/25 bg-emerald-500/5 text-center">
+                                            <svg className="w-12 h-12 text-emerald-600 dark:text-emerald-400 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                             </svg>
-                                            <p className="font-semibold text-green-900">No Recent Incidents</p>
-                                            <p className="text-sm text-green-700 mt-1">This service has been running smoothly</p>
+                                            <p className="font-semibold text-emerald-700 dark:text-emerald-400">No Recent Incidents</p>
+                                            <p className="text-sm text-muted-foreground mt-1">This service has been running smoothly</p>
                                         </div>
                                     )}
                                 </div>

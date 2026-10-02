@@ -161,66 +161,86 @@ export function SiteHeader({ showBackButton = true, user }: SiteHeaderProps) {
         };
     }, []);
 
+    const avatarFor = (u: any) =>
+        u.avatarUrl ||
+        u.avatar_url ||
+        (u.username
+            ? `https://github.com/${u.username}.png`
+            : `https://ui-avatars.com/api/?name=${u.username || "User"}`);
+
+    const navLink =
+        "inline-flex h-9 items-center gap-2 rounded-lg px-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground";
+
     return (
         <>
-            <header className="sticky top-0 z-50 w-full border-b border-border bg-card/80 backdrop-blur-sm">
-                <div className="flex h-16 items-center justify-between px-4 sm:px-8">
-                    <div className="flex items-center gap-4">
+            <header className="glass sticky top-0 z-50 w-full border-b border-border/70">
+                <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
+                    <div className="flex min-w-0 items-center gap-3">
                         {showBackButton && (
                             <a
                                 href="/"
-                                className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-input bg-background text-sm font-medium shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground"
+                                className="inline-flex size-9 shrink-0 items-center justify-center rounded-lg border border-border bg-card/60 text-muted-foreground shadow-xs transition-colors hover:border-brand/40 hover:text-foreground"
                             >
                                 <ArrowLeft className="h-4 w-4" />
                                 <span className="sr-only">Back</span>
                             </a>
                         )}
-                        <a href="/" className="flex items-center gap-2">
+                        <a href="/" className="group flex items-center gap-2.5">
                             <img
                                 src="/favicon-192.png"
                                 alt="Gitset Logo"
-                                className="h-8 w-8 rounded-full"
+                                className="h-8 w-8 rounded-lg ring-1 ring-border transition-transform duration-300 group-hover:rotate-[-6deg]"
                             />
-                            <span className="text-xl font-bold">Gitset</span>
+                            <span className="text-[17px] font-semibold tracking-tight">Gitset</span>
                         </a>
                     </div>
 
-                    <div className="flex items-center gap-6">
-                        {}
-                        <nav className="hidden md:flex items-center gap-6">
+                    <div className="flex items-center gap-1.5 sm:gap-2">
+                        <nav className="hidden md:flex items-center gap-1">
+                            <a href="/docs" className={navLink}>Docs</a>
+                            <a href="/changelog" className={navLink}>Changelog</a>
                             <div className="relative" ref={dropdownRef}>
                                 <button
                                     onClick={() => setIsToolsOpen(!isToolsOpen)}
                                     aria-label="Tools"
-                                    className="inline-flex h-9 items-center gap-2 rounded-md border border-border px-3 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground hover:border-foreground/40"
+                                    aria-expanded={isToolsOpen}
+                                    className={`${navLink} ${isToolsOpen ? "bg-accent text-foreground" : ""}`}
                                 >
                                     <Hammer className="h-4 w-4" />
                                     Tools
+                                    <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-200 ${isToolsOpen ? "rotate-180" : ""}`} />
                                 </button>
                                 {isToolsOpen && (
-                                    <div className="absolute right-0 top-full mt-2 w-48 rounded-md border border-border bg-card p-1 shadow-lg z-50">
-                                        {toolsItems.map((item, index) => (
-                                            <a
-                                                key={index}
-                                                href={item.href}
-                                                className="flex items-center gap-2 w-full rounded-sm px-2 py-1.5 text-left text-sm text-foreground hover:bg-accent hover:text-accent-foreground"
-                                                onClick={(e) => handleToolClick(e, item.href)}
-                                            >
-                                                <item.icon className="h-4 w-4 text-brand" />
-                                                {item.name}
-                                            </a>
-                                        ))}
+                                    <div className="absolute right-0 top-full z-50 mt-2 w-[26rem] origin-top-right rounded-2xl border border-border bg-popover p-2 shadow-xl animate-in fade-in zoom-in-95 slide-in-from-top-1 duration-150">
+                                        <p className="eyebrow px-3 pb-1 pt-2">Toolkit</p>
+                                        <div className="grid grid-cols-2 gap-1">
+                                            {toolsItems.map((item, index) => (
+                                                <a
+                                                    key={index}
+                                                    href={item.href}
+                                                    className="group flex items-center gap-3 rounded-xl px-2.5 py-2 text-left text-sm text-foreground transition-colors hover:bg-accent"
+                                                    onClick={(e) => handleToolClick(e, item.href)}
+                                                >
+                                                    <span className="flex size-8 shrink-0 items-center justify-center rounded-lg border border-brand/20 bg-brand/10 transition-colors group-hover:border-brand/40">
+                                                        <item.icon className="h-4 w-4 text-brand" />
+                                                    </span>
+                                                    <span className="truncate font-medium">{item.name}</span>
+                                                </a>
+                                            ))}
+                                        </div>
                                     </div>
                                 )}
                             </div>
                         </nav>
+
+                        <span className="mx-1 hidden h-5 w-px bg-border md:block" aria-hidden="true" />
 
                         {!user && (
                             <>
                                 <ThemeToggle />
                                 <button
                                     onClick={() => setIsLoginModalOpen(true)}
-                                    className="hidden md:flex text-sm font-medium text-muted-foreground transition-colors hover:text-foreground items-center gap-2"
+                                    className="hidden md:inline-flex h-9 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground shadow-sm transition-all hover:bg-primary/90 active:scale-[0.98]"
                                 >
                                     <LogIn className="h-4 w-4" />
                                     Login
@@ -229,10 +249,10 @@ export function SiteHeader({ showBackButton = true, user }: SiteHeaderProps) {
                         )}
 
                         {user && (
-                            <div className="hidden md:flex items-center gap-6">
+                            <div className="hidden md:flex items-center gap-2">
                                 <ProviderKeysManager
                                     triggerLabel="AI Providers"
-                                    triggerClassName="inline-flex h-9 items-center gap-2 rounded-md border border-border px-3 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground hover:border-foreground/40"
+                                    triggerClassName="inline-flex h-9 items-center gap-2 rounded-lg border border-border bg-card/60 px-3 text-sm font-medium text-muted-foreground shadow-xs transition-colors hover:border-brand/40 hover:text-foreground"
                                 />
                                 <UserNav user={user as any} />
                             </div>
@@ -241,120 +261,112 @@ export function SiteHeader({ showBackButton = true, user }: SiteHeaderProps) {
                         <Button
                             variant="ghost"
                             size="icon"
-                            className="md:hidden rounded-full overflow-hidden border-0 dark:border-2 dark:border-foreground/60 dark:hover:border-foreground transition-all duration-300"
+                            className={`md:hidden overflow-hidden transition-all duration-300 ${user ? "rounded-full p-0 ring-2 ring-border hover:ring-brand/50" : "rounded-lg border border-border bg-card/60"}`}
                             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                             aria-label="Toggle menu"
+                            aria-expanded={isMobileMenuOpen}
                         >
                             {user ? (
                                 <img
-                                    src={
-                                        (user as any).avatarUrl ||
-                                        (user as any).avatar_url ||
-                                        ((user as any).username
-                                            ? `https://github.com/${(user as any).username}.png`
-                                            : `https://ui-avatars.com/api/?name=${(user as any).username || "User"}`)
-                                    }
+                                    src={avatarFor(user)}
                                     alt="Menu"
                                     className="h-full w-full object-cover"
                                 />
+                            ) : isMobileMenuOpen ? (
+                                <X className="h-4 w-4" />
                             ) : (
-                                <ChevronDown
-                                    className={`h-4 w-4 transition-transform ${isMobileMenuOpen ? "rotate-180" : ""}`}
-                                />
+                                <Menu className="h-4 w-4" />
                             )}
                         </Button>
                     </div>
                 </div>
                 {isMobileMenuOpen && (
-                    <div className="absolute top-full left-0 right-0 border-b border-border bg-card p-4 shadow-lg md:hidden flex flex-col gap-4 z-50 animate-in slide-in-from-top-2 duration-200">
-                        {user && (
-                            <div className="flex flex-col gap-1 pb-4 border-b border-border">
-                                <div className="flex items-center gap-3">
+                    <div className="absolute inset-x-0 top-full z-50 h-[calc(100dvh-4rem)] overflow-y-auto overscroll-contain border-t border-border bg-background md:hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                        <div className="mx-auto flex max-w-7xl flex-col gap-5 px-4 py-5 sm:px-6">
+                            {user && (
+                                <div className="flex items-center gap-3 rounded-2xl border border-border bg-card p-3">
                                     <img
-                                        src={
-                                            (user as any).avatarUrl ||
-                                            (user as any).avatar_url ||
-                                            ((user as any).username
-                                                ? `https://github.com/${(user as any).username}.png`
-                                                : `https://ui-avatars.com/api/?name=${(user as any).username || "User"}`)
-                                        }
+                                        src={avatarFor(user)}
                                         alt={(user as any).username || "User"}
-                                        className="h-10 w-10 rounded-full object-cover border border-border"
+                                        className="h-11 w-11 rounded-full object-cover ring-2 ring-brand/30"
                                     />
-                                    <div className="flex flex-col min-w-0">
-                                        <span className="text-sm font-semibold text-foreground truncate">
+                                    <div className="flex min-w-0 flex-col">
+                                        <span className="truncate text-sm font-semibold text-foreground">
                                             {(user as any).username}
                                         </span>
-                                        <span className="text-xs text-muted-foreground truncate">
+                                        <span className="truncate text-xs text-muted-foreground">
                                             {(user as any).userEmail || (user as any).user_email}
                                         </span>
                                     </div>
                                 </div>
-                            </div>
-                        )}
+                            )}
 
-                        {user && (
-                            <a
-                                href="/dashboard"
-                                className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-                                onClick={() => setIsMobileMenuOpen(false)}
-                            >
-                                <LayoutDashboard className="h-4 w-4" />
-                                Dashboard
-                            </a>
-                        )}
-
-                        {user && (
-                            <ProviderKeysManager
-                                triggerLabel="AI Providers"
-                                triggerClassName="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors text-left"
-                            />
-                        )}
-
-                        <div className="flex flex-col gap-2">
-                            <span className="flex items-center gap-2 text-sm font-medium text-foreground">
-                                <Hammer className="h-4 w-4" />
-                                Tools
-                            </span>
-                            <div className="pl-4 flex flex-col gap-2 border-l border-border">
-                                {toolsItems.map((item, index) => (
+                            {user && (
+                                <div className="grid grid-cols-2 gap-2">
                                     <a
-                                        key={index}
-                                        href={item.href}
-                                        className="flex items-center gap-2 text-left text-sm text-muted-foreground hover:text-foreground transition-colors"
-                                        onClick={(e) => handleToolClick(e, item.href)}
+                                        href="/dashboard"
+                                        className="flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:border-brand/40"
+                                        onClick={() => setIsMobileMenuOpen(false)}
                                     >
-                                        <item.icon className="h-4 w-4 text-brand" />
-                                        {item.name}
+                                        <LayoutDashboard className="h-4 w-4 text-brand" />
+                                        Dashboard
                                     </a>
-                                ))}
-                            </div>
-                        </div>
+                                    <ProviderKeysManager
+                                        triggerLabel="AI Providers"
+                                        triggerClassName="flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:border-brand/40 text-left"
+                                    />
+                                </div>
+                            )}
 
-                        {!user && (
-                            <button
-                                onClick={() => {
-                                    setIsMobileMenuOpen(false);
-                                    setIsLoginModalOpen(true);
-                                }}
-                                className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors text-left"
-                            >
-                                <LogIn className="h-4 w-4" />
-                                Login
-                            </button>
-                        )}
-                        {user && (
-                            <>
-                                <div className="border-t border-border my-2" />
+                            <div className="flex flex-col gap-2">
+                                <span className="eyebrow flex items-center gap-2">
+                                    <Hammer className="h-3.5 w-3.5" />
+                                    Tools
+                                </span>
+                                <div className="grid grid-cols-1 gap-1 min-[420px]:grid-cols-2">
+                                    {toolsItems.map((item, index) => (
+                                        <a
+                                            key={index}
+                                            href={item.href}
+                                            className="flex items-center gap-3 rounded-xl px-2 py-2 text-left text-sm text-foreground transition-colors hover:bg-accent"
+                                            onClick={(e) => handleToolClick(e, item.href)}
+                                        >
+                                            <span className="flex size-8 shrink-0 items-center justify-center rounded-lg border border-brand/20 bg-brand/10">
+                                                <item.icon className="h-4 w-4 text-brand" />
+                                            </span>
+                                            {item.name}
+                                        </a>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div className="flex flex-wrap gap-2 border-t border-border pt-4">
+                                <a href="/docs" className="rounded-lg px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground">Docs</a>
+                                <a href="/changelog" className="rounded-lg px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground">Changelog</a>
+                            </div>
+
+                            {!user && (
+                                <button
+                                    onClick={() => {
+                                        setIsMobileMenuOpen(false);
+                                        setIsLoginModalOpen(true);
+                                    }}
+                                    className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-primary text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
+                                >
+                                    <LogIn className="h-4 w-4" />
+                                    Login
+                                </button>
+                            )}
+                            {user && (
                                 <a
                                     href="/api/auth/logout"
-                                    className="flex items-center gap-2 text-sm font-medium text-destructive hover:text-destructive/90 transition-colors w-full text-left"
+                                    className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-destructive/30 bg-destructive/5 text-sm font-medium text-destructive transition-colors hover:bg-destructive/10"
                                 >
                                     <LogOut className="h-4 w-4" />
                                     Logout
                                 </a>
-                            </>
-                        )}
+                            )}
+                        </div>
                     </div>
                 )}
             </header>

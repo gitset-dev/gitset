@@ -13,7 +13,7 @@ const user = await getUser(Astro.cookies.get("app_auth_token")?.value);
     <Fragment slot="head">
         <meta charset="utf-8" />
         <link rel="icon" type="image/png" href="/favicon-96.png" />
-        <meta name="viewport" content="width=device-width" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
         <meta name="generator" content={Astro.generator} />
         <meta
             name="description"
@@ -21,27 +21,29 @@ const user = await getUser(Astro.cookies.get("app_auth_token")?.value);
         />
     </Fragment>
 
-    <div class="flex min-h-screen flex-col bg-background text-foreground antialiased">
+    <div class="relative isolate flex min-h-screen flex-col bg-background text-foreground antialiased">
         <SiteHeader
             client:load
             showBackButton={true}
             user={toClientUser(user?.user)}
         />
+        <div aria-hidden="true" class="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[520px] bg-grid"></div>
+        <div aria-hidden="true" class="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[520px] bg-glow"></div>
 
         <main class="flex-1">
-            <div class="mx-auto max-w-4xl px-6 py-16 sm:py-24">
+            <div class="mx-auto max-w-5xl px-4 sm:px-6 py-14 sm:py-24">
 
                 <div class="text-center">
-                    <h2 class="text-base font-semibold leading-7 text-brand">
+                    <h2 class="eyebrow">
                         Pricing
                     </h2>
                     <h1
-                        class="mt-2 text-4xl font-bold tracking-tight text-foreground sm:text-5xl"
+                        class="mt-3 text-4xl font-semibold tracking-[-0.04em] text-foreground sm:text-6xl"
                     >
                         Free. Open source. Your keys.
                     </h1>
                     <p
-                        class="mx-auto mt-6 max-w-2xl text-lg leading-8 text-muted-foreground"
+                        class="mx-auto mt-6 max-w-2xl text-base sm:text-lg leading-relaxed text-muted-foreground"
                     >
                         Gitset has no plans, no seats, and no token quotas. You
                         bring your own AI provider key and pay your provider
@@ -51,20 +53,21 @@ const user = await getUser(Astro.cookies.get("app_auth_token")?.value);
                 </div>
 
                 <div
-                    class="mx-auto mt-12 max-w-lg rounded-3xl bg-card p-8 ring-1 ring-border"
+                    class="ring-gradient relative mx-auto mt-12 max-w-xl overflow-hidden rounded-3xl border border-border bg-card p-6 shadow-xl sm:p-10"
                 >
-                    <div class="flex items-baseline justify-between gap-x-4">
-                        <h3 class="text-lg font-semibold leading-8 text-foreground">
+                    <div aria-hidden="true" class="pointer-events-none absolute -right-24 -top-24 h-56 w-56 rounded-full bg-brand/20 blur-3xl"></div>
+                    <div class="relative flex flex-wrap items-end justify-between gap-4">
+                        <h3 class="text-lg font-semibold tracking-tight text-foreground">
                             Everything, for everyone
                         </h3>
-                        <p class="text-3xl font-bold text-foreground">
+                        <p class="text-5xl font-semibold tracking-[-0.04em] text-foreground">
                             $0<span
                                 class="text-sm font-normal text-muted-foreground"
                                 >/forever</span
                             >
                         </p>
                     </div>
-                    <ul class="mt-6 space-y-3 text-sm leading-6 text-foreground">
+                    <ul class="relative mt-8 space-y-3 border-t border-border pt-6 text-sm leading-6 text-foreground">
                         {
                             [
                                 "All tools: commits, issues, PRs, READMEs, releases, labels, .gitignore, repo profiles, backups",
@@ -76,7 +79,7 @@ const user = await getUser(Astro.cookies.get("app_auth_token")?.value);
                             ].map((item) => (
                                 <li class="flex items-start gap-3">
                                     <svg
-                                        class="mt-1 h-4 w-4 shrink-0 text-brand"
+                                        class="mt-0.5 h-5 w-5 shrink-0 rounded-full bg-brand/10 p-1 text-brand"
                                         viewBox="0 0 20 20"
                                         fill="currentColor"
                                         aria-hidden="true"
@@ -94,15 +97,15 @@ const user = await getUser(Astro.cookies.get("app_auth_token")?.value);
                     </ul>
                     <a
                         href={user ? "/dashboard" : "/login"}
-                        class="mt-8 block w-full rounded-lg bg-primary px-4 py-3 text-center text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+                        class="relative mt-8 flex h-12 w-full items-center justify-center rounded-xl bg-primary px-4 text-center text-sm font-semibold text-primary-foreground shadow-[inset_0_1px_0_0_rgb(255_255_255/0.2),0_8px_24px_-6px_var(--glow)] transition-colors hover:bg-primary/90"
                     >
                         {user ? "Open your dashboard" : "Sign in with GitHub"}
                     </a>
                 </div>
 
-                <div class="mt-16">
+                <div class="mt-20">
                     <h2
-                        class="text-center text-2xl font-semibold text-foreground"
+                        class="text-center text-2xl font-semibold tracking-tight text-foreground sm:text-3xl"
                     >
                         So what do I actually pay?
                     </h2>
@@ -131,7 +134,7 @@ const user = await getUser(Astro.cookies.get("app_auth_token")?.value);
                                     body: "The code is public. Audit how your keys are stored and exactly what leaves your machine.",
                                 },
                             ].map((card) => (
-                                <div class="rounded-3xl bg-card p-6 ring-1 ring-border">
+                                <div class="rounded-2xl border border-border bg-card p-6 shadow-sm">
                                     <h3 class="text-sm font-semibold text-foreground">
                                         {card.title}
                                     </h3>

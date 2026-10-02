@@ -32,25 +32,27 @@ export default function LoginModal({ isOpen, onClose, next }: LoginModalProps) {
     return createPortal(
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
             <div
-                className="absolute inset-0 bg-background/80 backdrop-blur-sm transition-opacity"
+                className="absolute inset-0 bg-black/50 backdrop-blur-md transition-opacity animate-in fade-in duration-200"
                 onClick={onClose}
             />
-            <div className="relative w-full max-w-md transform overflow-hidden rounded-3xl bg-card border border-border p-6 shadow-2xl transition-all animate-in fade-in zoom-in-95 duration-200">
-                <div className="absolute right-4 top-4">
+            <div className="relative w-full max-w-md transform overflow-hidden rounded-3xl bg-popover border border-border p-6 sm:p-8 shadow-2xl transition-all animate-in fade-in zoom-in-95 slide-in-from-bottom-2 duration-200">
+                <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-glow" />
+                <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-grid opacity-60" />
+                <div className="absolute right-4 top-4 z-10">
                     <button
                         onClick={onClose}
-                        className="rounded-full p-1 text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+                        className="inline-flex size-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
                     >
-                        <X className="h-5 w-5" />
+                        <X className="h-4 w-4" />
                         <span className="sr-only">Close</span>
                     </button>
                 </div>
 
-                <div className="flex flex-col items-center text-center">
-                    <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-full bg-brand/10">
+                <div className="relative flex flex-col items-center text-center">
+                    <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl border border-brand/25 bg-card shadow-lg">
                         <Github className="h-6 w-6 text-brand" />
                     </div>
-                    <h2 className="text-2xl font-bold tracking-tight text-foreground">
+                    <h2 className="text-2xl font-semibold tracking-tight text-foreground">
                         Welcome back
                     </h2>
                     <p className="mt-2 text-sm text-muted-foreground">
@@ -58,11 +60,11 @@ export default function LoginModal({ isOpen, onClose, next }: LoginModalProps) {
                     </p>
                 </div>
 
-                <div className="mt-8 space-y-4">
+                <div className="relative mt-8 space-y-4">
                     <a
                         href={`/api/auth/github${next ? `?next=${encodeURIComponent(next)}` : ""}`}
                         onClick={() => setIsLoading(true)}
-                        className={`flex w-full items-center justify-center gap-3 rounded-lg bg-[#24292F] px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-[#24292F]/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#24292F] transition-all ${isLoading ? "opacity-80 pointer-events-none" : ""}`}
+                        className={`flex h-12 w-full items-center justify-center gap-3 rounded-xl bg-[#24292F] px-4 text-sm font-semibold text-white shadow-md ring-1 ring-white/10 hover:bg-[#24292F]/90 active:scale-[0.99] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand transition-all ${isLoading ? "opacity-80 pointer-events-none" : ""}`}
                     >
                         {isLoading ? (
                             <Loader className="h-5 w-5 text-white" />
@@ -84,7 +86,7 @@ export default function LoginModal({ isOpen, onClose, next }: LoginModalProps) {
                     </a>
                 </div>
 
-                <div className="mt-6 text-center text-xs text-muted-foreground">
+                <div className="relative mt-6 text-center text-xs leading-relaxed text-muted-foreground">
                     By clicking continue, you agree to our{" "}
                     <a
                         href="/terms"

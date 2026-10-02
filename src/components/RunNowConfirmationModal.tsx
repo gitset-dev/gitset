@@ -17,7 +17,7 @@ export function RunNowConfirmationModal({ isOpen, onClose, onConfirm, repoName, 
             <DialogContent className="sm:max-w-md">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
-                        <Play className="h-5 w-5" />
+                        <Play className="h-5 w-5 text-brand" />
                         Run Backup Now
                     </DialogTitle>
                     <DialogDescription>
@@ -34,7 +34,7 @@ export function RunNowConfirmationModal({ isOpen, onClose, onConfirm, repoName, 
                     </p>
                 </div>
 
-                <DialogFooter className="gap-2 sm:gap-0">
+                <DialogFooter className="gap-2">
                     <Button variant="outline" onClick={onClose} disabled={loading}>
                         Cancel
                     </Button>

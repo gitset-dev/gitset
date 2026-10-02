@@ -251,8 +251,8 @@ export function IssueManager({ user, backendUrl, repoContext: initialRepoContext
     return (
         <div className="space-y-4 h-full flex flex-col">
             {}
-            <div className="p-4 border rounded-lg bg-card shadow-sm space-y-2">
-                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Working Repository</label>
+            <div className="p-4 sm:p-5 border rounded-2xl bg-card shadow-sm space-y-2">
+                <label className="font-mono text-[11px] font-medium text-muted-foreground uppercase tracking-[0.12em]">Working Repository</label>
                 <RepositorySelector
                     githubToken={user.githubOauthToken}
                     value={localRepoContext}
@@ -263,12 +263,12 @@ export function IssueManager({ user, backendUrl, repoContext: initialRepoContext
             </div>
 
             {}
-            <div className="flex items-center justify-between gap-4 p-4 border rounded-lg bg-card shadow-sm">
+            <div className="flex flex-wrap items-center justify-between gap-4 p-4 sm:p-5 border rounded-2xl bg-card shadow-sm">
                 <div className="flex items-center gap-2">
-                    <div className="flex bg-muted rounded-lg p-1">
+                    <div className="flex rounded-xl border bg-muted/60 p-1">
                         <button
                             onClick={() => { setFilterState('open'); setPage(1); }}
-                            className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all ${filterState === 'open' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+                            className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all ${filterState === 'open' ? 'bg-card shadow-sm text-foreground ring-1 ring-border' : 'text-muted-foreground hover:text-foreground'}`}
                         >
                             <div className="flex items-center gap-2">
                                 <CheckCircle2 className="h-4 w-4 text-brand" />
@@ -277,7 +277,7 @@ export function IssueManager({ user, backendUrl, repoContext: initialRepoContext
                         </button>
                         <button
                             onClick={() => { setFilterState('closed'); setPage(1); }}
-                            className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all ${filterState === 'closed' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+                            className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all ${filterState === 'closed' ? 'bg-card shadow-sm text-foreground ring-1 ring-border' : 'text-muted-foreground hover:text-foreground'}`}
                         >
                             <div className="flex items-center gap-2">
                                 <CheckCircle2 className="h-4 w-4 text-purple-500" />
@@ -285,7 +285,7 @@ export function IssueManager({ user, backendUrl, repoContext: initialRepoContext
                             </div>
                         </button>
                     </div>
-                    <button onClick={fetchIssues} className="p-2 hover:bg-muted rounded-md" title="Refresh">
+                    <button onClick={fetchIssues} className="p-2 rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground" title="Refresh">
                         <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
                     </button>
                 </div>
@@ -298,7 +298,7 @@ export function IssueManager({ user, backendUrl, repoContext: initialRepoContext
                                 <button
                                     onClick={() => initiateBulkAction('close')}
                                     disabled={!!actionLoading}
-                                    className="inline-flex items-center gap-2 px-3 py-1.5 bg-destructive/10 text-destructive hover:bg-destructive/20 rounded-md text-sm font-medium transition-colors"
+                                    className="inline-flex items-center gap-2 px-3 py-1.5 border border-destructive/25 bg-destructive/10 text-destructive hover:bg-destructive/20 rounded-lg text-sm font-medium transition-colors"
                                 >
                                     {actionLoading === 'close' ? <Loader2 className="h-3 w-3 animate-spin" /> : <CheckCircle2 className="h-3 w-3" />}
                                     Close Selected
@@ -307,7 +307,7 @@ export function IssueManager({ user, backendUrl, repoContext: initialRepoContext
                                 <button
                                     onClick={() => initiateBulkAction('reopen')}
                                     disabled={!!actionLoading}
-                                    className="inline-flex items-center gap-2 px-3 py-1.5 bg-brand/10 text-brand hover:bg-brand/20 rounded-md text-sm font-medium transition-colors"
+                                    className="inline-flex items-center gap-2 px-3 py-1.5 border border-brand/25 bg-brand/10 text-brand hover:bg-brand/20 rounded-lg text-sm font-medium transition-colors"
                                 >
                                     {actionLoading === 'reopen' ? <Loader2 className="h-3 w-3 animate-spin" /> : <RefreshCw className="h-3 w-3" />}
                                     Reopen Selected
@@ -320,20 +320,20 @@ export function IssueManager({ user, backendUrl, repoContext: initialRepoContext
 
             {}
             {error && (
-                <div className="p-4 rounded-lg bg-destructive/10 text-destructive flex items-center gap-2">
+                <div className="p-4 rounded-xl border border-destructive/25 bg-destructive/5 text-destructive flex items-center gap-2">
                     <AlertCircle className="h-4 w-4" />
                     <span className="text-sm">{error}</span>
                 </div>
             )}
 
             {}
-            <div className="flex-1 border rounded-lg bg-card overflow-hidden flex flex-col">
-                <div className="p-3 border-b bg-muted/30 flex items-center gap-3">
+            <div className="flex-1 border rounded-2xl bg-card overflow-hidden flex flex-col shadow-sm">
+                <div className="px-4 py-3 border-b bg-surface/60 flex items-center gap-3">
                     <input
                         type="checkbox"
                         checked={issues.length > 0 && selectedIssues.length === issues.length}
                         onChange={toggleAll}
-                        className="h-4 w-4 rounded border-gray-300"
+                        className="h-4 w-4 rounded border-input"
                     />
                     <span className="text-sm font-medium text-muted-foreground">Title</span>
                 </div>
@@ -346,18 +346,18 @@ export function IssueManager({ user, backendUrl, repoContext: initialRepoContext
                         </div>
                     ) : issues.length === 0 ? (
                         <div className="flex flex-col items-center justify-center h-40 gap-2 text-muted-foreground">
-                            <Filter className="h-8 w-8 opacity-20" />
+                            <Filter className="h-11 w-11 p-2.5 rounded-xl border border-border bg-card text-brand shadow-sm" />
                             <p>No {filterState} issues found.</p>
                         </div>
                     ) : (
                         <div className="divide-y">
                             {issues.map(issue => (
-                                <div key={issue.number} className={`group flex items-start gap-3 p-4 hover:bg-muted/50 transition-colors ${selectedIssues.includes(issue.number) ? 'bg-muted/30' : ''}`}>
+                                <div key={issue.number} className={`group flex items-start gap-3 p-4 hover:bg-muted/40 transition-colors ${selectedIssues.includes(issue.number) ? 'bg-brand/5' : ''}`}>
                                     <input
                                         type="checkbox"
                                         checked={selectedIssues.includes(issue.number)}
                                         onChange={() => toggleSelection(issue.number)}
-                                        className="mt-1 h-4 w-4 rounded border-gray-300"
+                                        className="mt-1 h-4 w-4 rounded border-input"
                                     />
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center gap-2 mb-1 flex-wrap">
@@ -390,7 +390,7 @@ export function IssueManager({ user, backendUrl, repoContext: initialRepoContext
                                     <div className="flex items-center gap-1">
                                         <button
                                             onClick={() => openBranchModal(issue)}
-                                            className="p-2 hover:bg-background rounded-full border shadow-sm transition-all text-muted-foreground hover:text-brand"
+                                            className="p-2 bg-card hover:bg-accent rounded-lg border shadow-xs transition-all text-muted-foreground hover:text-brand"
                                             title="Create Git Branch for this Issue"
                                         >
                                             <GitBranch className="h-4 w-4" />
@@ -399,7 +399,7 @@ export function IssueManager({ user, backendUrl, repoContext: initialRepoContext
                                             href={issue.html_url}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="p-2 hover:bg-background rounded-full border shadow-sm transition-all"
+                                            className="p-2 bg-card hover:bg-accent rounded-lg border shadow-xs transition-all"
                                             title="Open on GitHub"
                                         >
                                             <ExternalLink className="h-4 w-4 text-muted-foreground" />
@@ -412,11 +412,11 @@ export function IssueManager({ user, backendUrl, repoContext: initialRepoContext
                 </div>
 
                 {}
-                <div className="p-3 border-t bg-muted/30 flex justify-between items-center">
+                <div className="px-4 py-3 border-t bg-surface/60 flex justify-between items-center">
                     <button
                         onClick={() => setPage(p => Math.max(1, p - 1))}
                         disabled={page === 1 || loading}
-                        className="text-sm px-3 py-1 rounded hover:bg-background disabled:opacity-50"
+                        className="text-sm px-3 py-1 rounded-md transition-colors hover:bg-card disabled:opacity-50"
                     >
                         Previous
                     </button>
@@ -424,7 +424,7 @@ export function IssueManager({ user, backendUrl, repoContext: initialRepoContext
                     <button
                         onClick={() => setPage(p => p + 1)}
                         disabled={issues.length < 30 || loading}
-                        className="text-sm px-3 py-1 rounded hover:bg-background disabled:opacity-50"
+                        className="text-sm px-3 py-1 rounded-md transition-colors hover:bg-card disabled:opacity-50"
                     >
                         Next
                     </button>
@@ -440,13 +440,13 @@ export function IssueManager({ user, backendUrl, repoContext: initialRepoContext
                     <>
                         <button
                             onClick={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
-                            className="px-4 py-2 rounded-md hover:bg-muted text-sm font-medium"
+                            className="px-4 py-2 rounded-lg hover:bg-accent text-sm font-medium transition-colors"
                         >
                             Cancel
                         </button>
                         <button
                             onClick={executeBulkAction}
-                            className={`px-4 py-2 rounded-md text-white text-sm font-medium ${confirmModal.action === 'close' ? 'bg-destructive hover:bg-destructive/90' : 'bg-primary hover:bg-primary/90'}`}
+                            className={`px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition-colors ${confirmModal.action === 'close' ? 'bg-destructive text-white hover:bg-destructive/90' : 'bg-primary text-primary-foreground hover:bg-primary/90'}`}
                         >
                             Yes, {confirmModal.action} {confirmModal.count} issues
                         </button>
@@ -454,7 +454,7 @@ export function IssueManager({ user, backendUrl, repoContext: initialRepoContext
                 }
             >
                 <div className="flex flex-col gap-4">
-                    <div className="flex items-center gap-3 text-amber-500 bg-amber-500/10 p-3 rounded-lg">
+                    <div className="flex items-center gap-3 text-amber-700 dark:text-amber-400 bg-amber-500/10 border border-amber-500/25 p-3 rounded-xl">
                         <AlertTriangle className="h-5 w-5" />
                         <p className="text-sm font-medium">This action will affect {confirmModal.count} issues.</p>
                     </div>
@@ -475,7 +475,7 @@ export function IssueManager({ user, backendUrl, repoContext: initialRepoContext
                     branchCreatedName ? (
                         <button
                             onClick={() => setBranchModalOpen(false)}
-                            className="px-4 py-2 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 text-sm font-medium"
+                            className="px-4 py-2 rounded-lg bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 text-sm font-medium transition-colors"
                         >
                             Done
                         </button>
@@ -483,14 +483,14 @@ export function IssueManager({ user, backendUrl, repoContext: initialRepoContext
                         <div className="flex justify-end gap-2 w-full">
                             <button
                                 onClick={() => setBranchModalOpen(false)}
-                                className="px-4 py-2 rounded-md hover:bg-muted text-sm font-medium"
+                                className="px-4 py-2 rounded-lg hover:bg-accent text-sm font-medium transition-colors"
                             >
                                 Cancel
                             </button>
                             <button
                                 onClick={createBranch}
                                 disabled={isCreatingBranch || !newBranchName || !sourceBranch}
-                                className="px-4 py-2 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 text-sm font-medium flex items-center gap-2"
+                                className="px-4 py-2 rounded-lg bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 text-sm font-medium transition-colors flex items-center gap-2"
                             >
                                 {isCreatingBranch ? <Loader2 className="h-4 w-4 animate-spin" /> : <GitBranch className="h-4 w-4" />}
                                 Create Branch
@@ -502,7 +502,7 @@ export function IssueManager({ user, backendUrl, repoContext: initialRepoContext
                 <div className="flex flex-col gap-4">
                     {!branchCreatedName ? (
                         <>
-                            <div className="p-3 bg-muted/30 rounded-md border text-sm">
+                            <div className="p-3 bg-surface/60 rounded-xl border text-sm">
                                 <span className="font-medium">Issue:</span> #{targetIssue?.number} {targetIssue?.title}
                             </div>
 
@@ -510,7 +510,7 @@ export function IssueManager({ user, backendUrl, repoContext: initialRepoContext
                                 <div className="space-y-2">
                                     <label className="text-xs font-medium text-muted-foreground">Source Branch</label>
                                     <select
-                                        className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+                                        className="w-full rounded-lg border border-input bg-card/60 px-3 py-2 text-sm shadow-xs focus-visible:outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/25"
                                         value={sourceBranch}
                                         onChange={(e) => setSourceBranch(e.target.value)}
                                         disabled={loadingBranches || isCreatingBranch}
@@ -523,7 +523,7 @@ export function IssueManager({ user, backendUrl, repoContext: initialRepoContext
                                 <div className="space-y-2">
                                     <label className="text-xs font-medium text-muted-foreground">New Branch Name</label>
                                     <input
-                                        className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+                                        className="w-full rounded-lg border border-input bg-card/60 px-3 py-2 text-sm shadow-xs focus-visible:outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/25"
                                         value={newBranchName}
                                         onChange={(e) => setNewBranchName(e.target.value)}
                                         placeholder="feature/issue-slug"
@@ -533,7 +533,7 @@ export function IssueManager({ user, backendUrl, repoContext: initialRepoContext
                             </div>
 
                             {branchCreationError && (
-                                <div className="text-xs text-destructive bg-destructive/10 p-2 rounded flex items-center gap-2">
+                                <div className="text-xs text-destructive bg-destructive/5 border border-destructive/25 p-2.5 rounded-lg flex items-center gap-2">
                                     <AlertCircle className="h-4 w-4" />
                                     {branchCreationError}
                                 </div>
@@ -541,14 +541,14 @@ export function IssueManager({ user, backendUrl, repoContext: initialRepoContext
                         </>
                     ) : (
                         <div className="space-y-4">
-                            <div className="bg-brand/10 rounded-lg p-4 space-y-3 border border-brand/20">
+                            <div className="bg-brand/10 rounded-xl p-4 space-y-3 border border-brand/25">
                                 <div className="flex items-center gap-2 text-brand font-medium text-sm">
                                     <CheckCircle2 className="h-4 w-4" />
                                     Branch created successfully!
                                 </div>
                                 <div className="space-y-2">
                                     <p className="text-xs text-muted-foreground">Run this in your terminal:</p>
-                                    <div className="bg-black/90 text-white p-3 rounded-md font-mono text-xs flex items-center justify-between group">
+                                    <div className="bg-[#0b0e12] text-[#e6edf3] border border-white/10 p-3 rounded-xl font-mono text-xs flex items-center justify-between gap-3 group shadow-sm">
                                         <span>git fetch origin && git checkout {branchCreatedName}</span>
                                         <button
                                             onClick={() => copyToClipboard(`git fetch origin && git checkout ${branchCreatedName}`)}

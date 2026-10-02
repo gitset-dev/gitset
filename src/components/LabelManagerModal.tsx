@@ -522,8 +522,8 @@ ${packLabels.map(l => `- name: "${l.name}"
     const selectedCount = selected.size;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4">
-            <div className="w-full max-w-3xl rounded-lg border bg-card shadow-lg max-h-[90vh] flex flex-col relative overflow-hidden">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-md sm:p-4 animate-in fade-in duration-200">
+            <div className="w-full max-w-3xl rounded-t-3xl sm:rounded-2xl border bg-popover shadow-2xl max-h-[94dvh] sm:max-h-[90vh] flex flex-col relative overflow-hidden animate-in slide-in-from-bottom-4 sm:slide-in-from-bottom-0 sm:zoom-in-95 duration-200">
 
                 {showAutoGenerateConfirm && (
                     <ConfirmOverlay
@@ -575,7 +575,7 @@ ${packLabels.map(l => `- name: "${l.name}"
                     />
                 )}
 
-                <div className="flex items-start justify-between gap-4 border-b px-6 py-4">
+                <div className="flex items-start justify-between gap-4 border-b bg-surface/60 px-5 py-4 sm:px-6">
                     <div className="min-w-0">
                         <h2 className="text-lg font-semibold">Labels</h2>
                         <p className="text-xs text-muted-foreground truncate">
@@ -584,7 +584,7 @@ ${packLabels.map(l => `- name: "${l.name}"
                                 : <>Manage the labels in <span className="font-medium text-foreground">{repoContext || 'this repository'}</span></>}
                         </p>
                     </div>
-                    <button onClick={onClose} className="rounded-full p-1 hover:bg-muted shrink-0" aria-label="Close">
+                    <button onClick={onClose} className="inline-flex size-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground shrink-0" aria-label="Close">
                         <X className="h-4 w-4" />
                     </button>
                 </div>
@@ -600,7 +600,7 @@ ${packLabels.map(l => `- name: "${l.name}"
                     {/* ── THIS REPOSITORY ─────────────────────────────────── */}
                     <TabsContent value="repo" className="flex-1 flex flex-col overflow-hidden data-[state=inactive]:hidden px-6 pb-2 pt-4 mt-0">
                         {repoError && (
-                            <div className="mb-3 rounded bg-destructive/10 px-3 py-2 text-sm text-destructive">{repoError}</div>
+                            <div className="mb-3 rounded-lg border border-destructive/25 bg-destructive/5 px-3 py-2 text-sm text-destructive">{repoError}</div>
                         )}
 
                         <div className="mb-3 flex items-center gap-2">
@@ -619,7 +619,7 @@ ${packLabels.map(l => `- name: "${l.name}"
                         </div>
 
                         {(isCreatingRepoLabel || editingRepoLabel) && (
-                            <form onSubmit={handleRepoSubmit} className="mb-3 space-y-2 rounded-lg border bg-muted/30 p-3">
+                            <form onSubmit={handleRepoSubmit} className="mb-3 space-y-2 rounded-xl border bg-surface/60 p-3">
                                 <div className="flex items-center gap-2">
                                     <Input
                                         value={repoFormData.name}
@@ -628,7 +628,7 @@ ${packLabels.map(l => `- name: "${l.name}"
                                         className="h-8 flex-1 text-sm"
                                         required
                                     />
-                                    <label className="flex h-8 shrink-0 items-center gap-1.5 rounded-md border px-2" title="Label colour">
+                                    <label className="flex h-8 shrink-0 items-center gap-1.5 rounded-lg border bg-card px-2" title="Label colour">
                                         <input
                                             type="color"
                                             value={`#${repoFormData.color.replace('#', '')}`}
@@ -685,7 +685,7 @@ ${packLabels.map(l => `- name: "${l.name}"
                                             <li key={label.id ?? label.name} className="group relative">
                                                 <Row
                                                     {...(selectable ? { type: 'button' as const, onClick: () => toggleSelected(label.name), 'aria-pressed': isSelected } : {})}
-                                                    className={`flex w-full items-center gap-3 rounded-md border px-3 py-2 text-left transition-colors ${
+                                                    className={`flex w-full items-center gap-3 rounded-lg border px-3 py-2 text-left transition-colors ${
                                                         selectable ? 'hover:border-brand/50 hover:bg-accent/50' : ''
                                                     } ${isSelected ? 'border-brand/60 bg-brand/5' : 'border-transparent'}`}
                                                 >
@@ -711,7 +711,7 @@ ${packLabels.map(l => `- name: "${l.name}"
                                                     <button
                                                         type="button"
                                                         onClick={() => startRepoEdit(label)}
-                                                        className="rounded p-1 text-muted-foreground hover:bg-background hover:text-brand"
+                                                        className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-card hover:text-brand"
                                                         title={`Edit "${label.name}"`}
                                                     >
                                                         <Edit2 className="h-3 w-3" />
@@ -719,7 +719,7 @@ ${packLabels.map(l => `- name: "${l.name}"
                                                     <button
                                                         type="button"
                                                         onClick={() => handleRepoDelete(label.name)}
-                                                        className="rounded p-1 text-muted-foreground hover:bg-background hover:text-destructive"
+                                                        className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-card hover:text-destructive"
                                                         title={`Delete "${label.name}"`}
                                                     >
                                                         <Trash2 className="h-3 w-3" />
@@ -748,7 +748,7 @@ ${packLabels.map(l => `- name: "${l.name}"
                     {/* ── MY LABEL PACK ───────────────────────────────────── */}
                     <TabsContent value="pack" className="flex-1 flex flex-col overflow-hidden data-[state=inactive]:hidden px-6 pb-2 pt-4 mt-0">
                         {packError && (
-                            <div className="mb-3 rounded bg-destructive/10 px-3 py-2 text-sm text-destructive">{packError}</div>
+                            <div className="mb-3 rounded-lg border border-destructive/25 bg-destructive/5 px-3 py-2 text-sm text-destructive">{packError}</div>
                         )}
 
                         <p className="mb-3 text-xs text-muted-foreground">
@@ -791,7 +791,7 @@ ${packLabels.map(l => `- name: "${l.name}"
                         </div>
 
                         {importNotice && (
-                            <div className="mb-3 flex items-start gap-2 rounded border border-brand/30 bg-brand/5 px-3 py-2 text-xs">
+                            <div className="mb-3 flex items-start gap-2 rounded-lg border border-brand/25 bg-brand/5 px-3 py-2 text-xs">
                                 <span className="flex-1">{importNotice}</span>
                                 <button onClick={() => setImportNotice(null)} className="shrink-0 text-muted-foreground hover:text-foreground">
                                     <X className="h-3 w-3" />
@@ -800,7 +800,7 @@ ${packLabels.map(l => `- name: "${l.name}"
                         )}
 
                         {isImporting && (
-                            <div className="mb-3 space-y-2 rounded-lg border bg-muted/30 p-3">
+                            <div className="mb-3 space-y-2 rounded-xl border bg-surface/60 p-3">
                                 <Textarea
                                     placeholder={'Paste labels as YAML:\n- name: "bug"\n  color: "d73a4a"\n  description: "Something is broken"'}
                                     className="min-h-[110px] font-mono text-xs"
@@ -828,7 +828,7 @@ ${packLabels.map(l => `- name: "${l.name}"
                             ) : (
                                 <ul className="space-y-1">
                                     {packLabels.map((label, i) => (
-                                        <li key={`${label.name}-${i}`} className="group flex items-center gap-3 rounded-md border border-transparent px-3 py-2 hover:bg-accent/40">
+                                        <li key={`${label.name}-${i}`} className="group flex items-center gap-3 rounded-lg border border-transparent px-3 py-2 transition-colors hover:bg-accent/60">
                                             {editingPackLabel === i ? (
                                                 <>
                                                     <Input className="h-7 w-32 text-xs" value={packFormData.name} onChange={(e) => setPackFormData({ ...packFormData, name: e.target.value })} placeholder="Name" />
@@ -848,10 +848,10 @@ ${packLabels.map(l => `- name: "${l.name}"
                                                         {label.description || <span className="italic opacity-60">No description</span>}
                                                     </span>
                                                     <span className="flex shrink-0 items-center gap-1 opacity-0 transition-opacity focus-within:opacity-100 group-hover:opacity-100">
-                                                        <button type="button" onClick={() => { setEditingPackLabel(i); setPackFormData(label); }} className="rounded p-1 text-muted-foreground hover:text-brand" title={`Edit "${label.name}"`}>
+                                                        <button type="button" onClick={() => { setEditingPackLabel(i); setPackFormData(label); }} className="rounded-md p-1 text-muted-foreground transition-colors hover:text-brand" title={`Edit "${label.name}"`}>
                                                             <Edit2 className="h-3 w-3" />
                                                         </button>
-                                                        <button type="button" onClick={() => handlePackDelete(i)} className="rounded p-1 text-muted-foreground hover:text-destructive" title={`Remove "${label.name}" from the pack`}>
+                                                        <button type="button" onClick={() => handlePackDelete(i)} className="rounded-md p-1 text-muted-foreground transition-colors hover:text-destructive" title={`Remove "${label.name}" from the pack`}>
                                                             <Trash2 className="h-3 w-3" />
                                                         </button>
                                                     </span>
@@ -913,10 +913,10 @@ function ConfirmOverlay({ icon, title, body, actions }: {
     actions: { label: string; onClick: () => void; variant?: 'outline' | 'ghost' | 'destructive' }[];
 }) {
     return (
-        <div className="absolute inset-0 z-[60] flex items-center justify-center rounded-lg bg-background/60 p-4 backdrop-blur-[2px]">
-            <div className="w-full max-w-sm space-y-4 rounded-lg border bg-background p-6 shadow-xl animate-in fade-in zoom-in duration-200">
+        <div className="absolute inset-0 z-[60] flex items-center justify-center bg-background/70 p-4 backdrop-blur-sm animate-in fade-in duration-150">
+            <div className="w-full max-w-sm space-y-4 rounded-2xl border bg-popover p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
                 <div className="flex flex-col items-center space-y-2 text-center">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">{icon}</div>
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl border bg-muted">{icon}</div>
                     <h3 className="text-lg font-semibold">{title}</h3>
                     <p className="text-sm text-muted-foreground">{body}</p>
                 </div>

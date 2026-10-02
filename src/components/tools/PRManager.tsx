@@ -203,8 +203,8 @@ export function PRManager({ user, backendUrl, repoContext: initialRepoContext }:
     return (
         <div className="space-y-4 h-full flex flex-col">
             {}
-            <div className="p-4 border rounded-lg bg-card shadow-sm space-y-2">
-                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Working Repository & Base Branch</label>
+            <div className="p-4 sm:p-5 border rounded-2xl bg-card shadow-sm space-y-2">
+                <label className="font-mono text-[11px] font-medium text-muted-foreground uppercase tracking-[0.12em]">Working Repository & Base Branch</label>
                 <RepositorySelector
                     githubToken={user.githubOauthToken}
                     value={localRepoContext}
@@ -217,12 +217,12 @@ export function PRManager({ user, backendUrl, repoContext: initialRepoContext }:
             </div>
 
             {}
-            <div className="flex items-center justify-between gap-4 p-4 border rounded-lg bg-card shadow-sm">
+            <div className="flex flex-wrap items-center justify-between gap-4 p-4 sm:p-5 border rounded-2xl bg-card shadow-sm">
                 <div className="flex items-center gap-2">
-                    <div className="flex bg-muted rounded-lg p-1">
+                    <div className="flex rounded-xl border bg-muted/60 p-1">
                         <button
                             onClick={() => { setFilterState('open'); setPage(1); }}
-                            className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all ${filterState === 'open' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+                            className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all ${filterState === 'open' ? 'bg-card shadow-sm text-foreground ring-1 ring-border' : 'text-muted-foreground hover:text-foreground'}`}
                         >
                             <div className="flex items-center gap-2">
                                 <GitPullRequest className="h-4 w-4 text-brand" />
@@ -231,7 +231,7 @@ export function PRManager({ user, backendUrl, repoContext: initialRepoContext }:
                         </button>
                         <button
                             onClick={() => { setFilterState('closed'); setPage(1); }}
-                            className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all ${filterState === 'closed' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+                            className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all ${filterState === 'closed' ? 'bg-card shadow-sm text-foreground ring-1 ring-border' : 'text-muted-foreground hover:text-foreground'}`}
                         >
                             <div className="flex items-center gap-2">
                                 <GitMerge className="h-4 w-4 text-purple-500" />
@@ -240,12 +240,12 @@ export function PRManager({ user, backendUrl, repoContext: initialRepoContext }:
                         </button>
                         <button
                             onClick={() => { setFilterState('all'); setPage(1); }}
-                            className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all ${filterState === 'all' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+                            className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all ${filterState === 'all' ? 'bg-card shadow-sm text-foreground ring-1 ring-border' : 'text-muted-foreground hover:text-foreground'}`}
                         >
                             All
                         </button>
                     </div>
-                    <button onClick={fetchPRs} className="p-2 hover:bg-muted rounded-md" title="Refresh">
+                    <button onClick={fetchPRs} className="p-2 rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground" title="Refresh">
                         <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
                     </button>
                 </div>
@@ -259,7 +259,7 @@ export function PRManager({ user, backendUrl, repoContext: initialRepoContext }:
                                     <button
                                         onClick={() => initiateBulkAction('close')}
                                         disabled={!!actionLoading}
-                                        className="inline-flex items-center gap-2 px-3 py-1.5 bg-destructive/10 text-destructive hover:bg-destructive/20 rounded-md text-sm font-medium transition-colors"
+                                        className="inline-flex items-center gap-2 px-3 py-1.5 border border-destructive/25 bg-destructive/10 text-destructive hover:bg-destructive/20 rounded-lg text-sm font-medium transition-colors"
                                     >
                                         {actionLoading === 'close' ? <Loader2 className="h-3 w-3 animate-spin" /> : <XCircle className="h-3 w-3" />}
                                         Close
@@ -267,7 +267,7 @@ export function PRManager({ user, backendUrl, repoContext: initialRepoContext }:
                                     <button
                                         onClick={() => initiateBulkAction('merge')}
                                         disabled={!!actionLoading}
-                                        className="inline-flex items-center gap-2 px-3 py-1.5 bg-brand/10 text-brand hover:bg-brand/20 rounded-md text-sm font-medium transition-colors"
+                                        className="inline-flex items-center gap-2 px-3 py-1.5 border border-brand/25 bg-brand/10 text-brand hover:bg-brand/20 rounded-lg text-sm font-medium transition-colors"
                                     >
                                         {actionLoading === 'merge' ? <Loader2 className="h-3 w-3 animate-spin" /> : <GitMerge className="h-3 w-3" />}
                                         Merge
@@ -275,7 +275,7 @@ export function PRManager({ user, backendUrl, repoContext: initialRepoContext }:
                                     <button
                                         onClick={() => initiateBulkAction('draft')}
                                         disabled={!!actionLoading}
-                                        className="inline-flex items-center gap-2 px-3 py-1.5 bg-amber-500/10 text-amber-600 hover:bg-amber-500/20 rounded-md text-sm font-medium transition-colors"
+                                        className="inline-flex items-center gap-2 px-3 py-1.5 border border-amber-500/25 bg-amber-500/10 text-amber-700 dark:text-amber-400 hover:bg-amber-500/20 rounded-lg text-sm font-medium transition-colors"
                                     >
                                         {actionLoading === 'draft' ? <Loader2 className="h-3 w-3 animate-spin" /> : <FileText className="h-3 w-3" />}
                                         Convert to Draft
@@ -286,7 +286,7 @@ export function PRManager({ user, backendUrl, repoContext: initialRepoContext }:
                                 <button
                                     onClick={() => initiateBulkAction('reopen')}
                                     disabled={!!actionLoading}
-                                    className="inline-flex items-center gap-2 px-3 py-1.5 bg-brand/10 text-brand hover:bg-brand/20 rounded-md text-sm font-medium transition-colors"
+                                    className="inline-flex items-center gap-2 px-3 py-1.5 border border-brand/25 bg-brand/10 text-brand hover:bg-brand/20 rounded-lg text-sm font-medium transition-colors"
                                 >
                                     {actionLoading === 'reopen' ? <Loader2 className="h-3 w-3 animate-spin" /> : <RefreshCw className="h-3 w-3" />}
                                     Reopen
@@ -299,20 +299,20 @@ export function PRManager({ user, backendUrl, repoContext: initialRepoContext }:
 
             {}
             {error && (
-                <div className="p-4 rounded-lg bg-destructive/10 text-destructive flex items-center gap-2">
+                <div className="p-4 rounded-xl border border-destructive/25 bg-destructive/5 text-destructive flex items-center gap-2">
                     <AlertCircle className="h-4 w-4" />
                     <span className="text-sm">{error}</span>
                 </div>
             )}
 
             {}
-            <div className="flex-1 border rounded-lg bg-card overflow-hidden flex flex-col">
-                <div className="p-3 border-b bg-muted/30 flex items-center gap-3">
+            <div className="flex-1 border rounded-2xl bg-card overflow-hidden flex flex-col shadow-sm">
+                <div className="px-4 py-3 border-b bg-surface/60 flex items-center gap-3">
                     <input
                         type="checkbox"
                         checked={prs.length > 0 && selectedPRs.length === prs.length}
                         onChange={toggleAll}
-                        className="h-4 w-4 rounded border-gray-300"
+                        className="h-4 w-4 rounded border-input"
                     />
                     <span className="text-sm font-medium text-muted-foreground">Title</span>
                 </div>
@@ -325,18 +325,18 @@ export function PRManager({ user, backendUrl, repoContext: initialRepoContext }:
                         </div>
                     ) : prs.length === 0 ? (
                         <div className="flex flex-col items-center justify-center h-40 gap-2 text-muted-foreground">
-                            <Filter className="h-8 w-8 opacity-20" />
+                            <Filter className="h-11 w-11 p-2.5 rounded-xl border border-border bg-card text-brand shadow-sm" />
                             <p>No {filterState} pull requests found.</p>
                         </div>
                     ) : (
                         <div className="divide-y">
                             {prs.map(pr => (
-                                <div key={pr.number} className={`group flex items-start gap-3 p-4 hover:bg-muted/50 transition-colors ${selectedPRs.includes(pr.number) ? 'bg-muted/30' : ''}`}>
+                                <div key={pr.number} className={`group flex items-start gap-3 p-4 hover:bg-muted/40 transition-colors ${selectedPRs.includes(pr.number) ? 'bg-brand/5' : ''}`}>
                                     <input
                                         type="checkbox"
                                         checked={selectedPRs.includes(pr.number)}
                                         onChange={() => toggleSelection(pr.number)}
-                                        className="mt-1 h-4 w-4 rounded border-gray-300"
+                                        className="mt-1 h-4 w-4 rounded border-input"
                                     />
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center gap-2 mb-1 flex-wrap">
@@ -349,12 +349,12 @@ export function PRManager({ user, backendUrl, repoContext: initialRepoContext }:
                                                 {pr.title}
                                             </a>
                                             {pr.draft && (
-                                                <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-gray-500/10 text-gray-600 border border-gray-500/20 shrink-0">
+                                                <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-muted text-muted-foreground border border-border shrink-0">
                                                     DRAFT
                                                 </span>
                                             )}
                                             {pr.merged && (
-                                                <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-purple-500/10 text-purple-600 border border-purple-500/20 shrink-0">
+                                                <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/25 shrink-0">
                                                     MERGED
                                                 </span>
                                             )}
@@ -380,7 +380,7 @@ export function PRManager({ user, backendUrl, repoContext: initialRepoContext }:
                                         href={pr.html_url}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="p-2 hover:bg-background rounded-full border shadow-sm transition-all"
+                                        className="p-2 bg-card hover:bg-accent rounded-lg border shadow-xs transition-all"
                                     >
                                         <ExternalLink className="h-4 w-4 text-muted-foreground" />
                                     </a>
@@ -391,11 +391,11 @@ export function PRManager({ user, backendUrl, repoContext: initialRepoContext }:
                 </div>
 
                 {}
-                <div className="p-3 border-t bg-muted/30 flex justify-between items-center">
+                <div className="px-4 py-3 border-t bg-surface/60 flex justify-between items-center">
                     <button
                         onClick={() => setPage(p => Math.max(1, p - 1))}
                         disabled={page === 1 || loading}
-                        className="text-sm px-3 py-1 rounded hover:bg-background disabled:opacity-50"
+                        className="text-sm px-3 py-1 rounded-md transition-colors hover:bg-card disabled:opacity-50"
                     >
                         Previous
                     </button>
@@ -403,7 +403,7 @@ export function PRManager({ user, backendUrl, repoContext: initialRepoContext }:
                     <button
                         onClick={() => setPage(p => p + 1)}
                         disabled={prs.length < 30 || loading}
-                        className="text-sm px-3 py-1 rounded hover:bg-background disabled:opacity-50"
+                        className="text-sm px-3 py-1 rounded-md transition-colors hover:bg-card disabled:opacity-50"
                     >
                         Next
                     </button>
@@ -419,13 +419,13 @@ export function PRManager({ user, backendUrl, repoContext: initialRepoContext }:
                     <>
                         <button
                             onClick={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
-                            className="px-4 py-2 rounded-md hover:bg-muted text-sm font-medium"
+                            className="px-4 py-2 rounded-lg hover:bg-accent text-sm font-medium transition-colors"
                         >
                             Cancel
                         </button>
                         <button
                             onClick={executeBulkAction}
-                            className={`px-4 py-2 rounded-md text-sm font-medium ${confirmModal.action === 'close' ?
+                            className={`px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition-colors ${confirmModal.action === 'close' ?
                                 'bg-destructive hover:bg-destructive/90 text-destructive-foreground' :
                                 confirmModal.action === 'merge' ?
                                     'bg-primary hover:bg-primary/90 text-primary-foreground' :
@@ -438,7 +438,7 @@ export function PRManager({ user, backendUrl, repoContext: initialRepoContext }:
                 }
             >
                 <div className="flex flex-col gap-4">
-                    <div className="flex items-center gap-3 text-amber-500 bg-amber-500/10 p-3 rounded-lg">
+                    <div className="flex items-center gap-3 text-amber-700 dark:text-amber-400 bg-amber-500/10 border border-amber-500/25 p-3 rounded-xl">
                         <AlertTriangle className="h-5 w-5" />
                         <p className="text-sm font-medium">This action will affect {confirmModal.count} pull requests.</p>
                     </div>
@@ -456,14 +456,14 @@ export function PRManager({ user, backendUrl, repoContext: initialRepoContext }:
                 footer={
                     <button
                         onClick={() => setConflictModal({ isOpen: false, prNumber: 0, htmlUrl: '' })}
-                        className="px-4 py-2 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 text-sm font-medium"
+                        className="px-4 py-2 rounded-lg bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 text-sm font-medium transition-colors"
                     >
                         Understood
                     </button>
                 }
             >
                 <div className="flex flex-col gap-4">
-                    <div className="flex items-start gap-3 text-destructive bg-destructive/10 p-3 rounded-lg">
+                    <div className="flex items-start gap-3 text-destructive bg-destructive/5 border border-destructive/25 p-3 rounded-xl">
                         <AlertTriangle className="h-5 w-5 shrink-0 mt-0.5" />
                         <div className="space-y-1">
                             <p className="text-sm font-medium">Automatic merge failed.</p>
@@ -484,7 +484,7 @@ export function PRManager({ user, backendUrl, repoContext: initialRepoContext }:
                             href={conflictModal.htmlUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center justify-center gap-2 p-2 bg-secondary hover:bg-secondary/80 rounded-md text-sm font-medium transition-colors mt-2"
+                            className="flex items-center justify-center gap-2 h-9 px-3 bg-secondary hover:bg-secondary/70 rounded-lg text-sm font-medium transition-colors mt-2"
                         >
                             Resolve on GitHub <ExternalLink className="h-4 w-4" />
                         </a>

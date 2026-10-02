@@ -23,8 +23,8 @@ export default function DashboardActions() {
 
     return (
         <>
-            <div className="rounded-3xl border border-destructive/20 bg-destructive/5 text-card-foreground shadow-sm p-6">
-                <h3 className="font-semibold text-destructive flex items-center gap-2 mb-2">
+            <div className="rounded-2xl border border-destructive/25 bg-[linear-gradient(135deg,color-mix(in_oklch,var(--destructive)_7%,transparent),transparent_70%)] text-card-foreground p-6">
+                <h3 className="font-semibold tracking-tight text-destructive flex items-center gap-2 mb-1.5">
                     <Shield className="h-4 w-4" /> Danger Zone
                 </h3>
                 <p className="text-sm text-muted-foreground mb-4">
@@ -42,7 +42,7 @@ export default function DashboardActions() {
                     <button
                         type="submit"
                         disabled={isDeleting}
-                        className="w-full sm:w-auto inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-destructive text-destructive-foreground hover:bg-destructive/90 h-9 px-4 py-2"
+                        className="w-full sm:w-auto inline-flex items-center justify-center rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/25 disabled:pointer-events-none disabled:opacity-50 bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-sm h-10 px-4 py-2"
                     >
                         {isDeleting ? <Loader className="mr-2 h-4 w-4" /> : <Trash2 className="mr-2 h-4 w-4" />}
                         {isDeleting ? "Deleting..." : "Delete Account"}

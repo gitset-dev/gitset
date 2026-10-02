@@ -168,15 +168,15 @@ export async function getScheduledMaintenances(): Promise<{
 export function getStatusColor(status: string): string {
     switch (status) {
         case "operational":
-            return "text-green-600 bg-green-50 border-green-200";
+            return "text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/25";
         case "degraded_performance":
-            return "text-yellow-600 bg-yellow-50 border-yellow-200";
+            return "text-yellow-700 dark:text-yellow-400 bg-yellow-500/10 border border-yellow-500/25";
         case "partial_outage":
-            return "text-orange-600 bg-orange-50 border-orange-200";
+            return "text-orange-700 dark:text-orange-400 bg-orange-500/10 border border-orange-500/25";
         case "major_outage":
-            return "text-red-600 bg-red-50 border-red-200";
+            return "text-red-700 dark:text-red-400 bg-red-500/10 border border-red-500/25";
         case "under_maintenance":
-            return "text-blue-600 bg-blue-50 border-blue-200";
+            return "text-blue-700 dark:text-blue-400 bg-blue-500/10 border border-blue-500/25";
         default:
             return "text-gray-600 bg-gray-50 border-gray-200";
     }
@@ -219,15 +219,15 @@ export function getStatusLabel(status: string): string {
 export function getImpactColor(impact: string): string {
     switch (impact) {
         case "none":
-            return "text-green-600 bg-green-50";
+            return "text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/25";
         case "minor":
-            return "text-yellow-600 bg-yellow-50";
+            return "text-yellow-700 dark:text-yellow-400 bg-yellow-500/10 border border-yellow-500/25";
         case "major":
-            return "text-orange-600 bg-orange-50";
+            return "text-orange-700 dark:text-orange-400 bg-orange-500/10 border border-orange-500/25";
         case "critical":
-            return "text-red-600 bg-red-50";
+            return "text-red-700 dark:text-red-400 bg-red-500/10 border border-red-500/25";
         default:
-            return "text-gray-600 bg-gray-50";
+            return "text-muted-foreground bg-muted border border-border";
     }
 }
 

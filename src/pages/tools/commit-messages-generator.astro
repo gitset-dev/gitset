@@ -20,7 +20,7 @@ const BACKEND_URL = "/api/commit";
     <Fragment slot="head">
         <meta charset="utf-8" />
         <link rel="icon" type="image/png" href="/favicon-96.png" />
-        <meta name="viewport" content="width=device-width" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
         <meta name="generator" content={Astro.generator} />
         <meta
             name="description"
@@ -63,10 +63,12 @@ const BACKEND_URL = "/api/commit";
         class="bg-background text-foreground antialiased min-h-screen flex flex-col"
     >
         <SiteHeader client:load user={toClientUser(user.user)} />
+        <div aria-hidden="true" class="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[360px] bg-grid"></div>
+        <div aria-hidden="true" class="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[360px] bg-glow"></div>
 
-        <main class="flex-1 container mx-auto px-4 py-8 max-w-6xl">
-            <div class="mb-6 flex items-center gap-3">
-                <div class="p-2 bg-brand/10 rounded-lg">
+        <main class="flex-1 w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 max-w-7xl">
+            <div class="mb-6 flex items-center gap-4 border-b border-border pb-6 sm:pb-8">
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-brand/25 bg-gradient-to-b from-brand/20 to-brand/5 shadow-sm">
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="24"
@@ -84,48 +86,49 @@ const BACKEND_URL = "/api/commit";
                     </svg>
                 </div>
                 <div>
-                    <h1 class="text-2xl font-bold tracking-tight">
+                    <h1 class="text-2xl font-semibold tracking-[-0.035em] sm:text-3xl">
                         Commit Generator
                     </h1>
-                    <p class="text-sm text-muted-foreground">
+                    <p class="mt-1 text-sm text-muted-foreground sm:text-[15px]">
                         Turn your staged changes into a polished commit message
                         — then refine it until it's exactly right.
                     </p>
                 </div>
             </div>
 
-            <div class="grid gap-8 lg:grid-cols-2">
+            <div class="grid gap-6 lg:gap-8 lg:grid-cols-2">
 
-                <div class="space-y-6">
+                <div class="space-y-6 rounded-2xl border bg-card p-4 sm:p-6 shadow-sm">
 
                     <div
-                        class="rounded-lg border border-border bg-card p-4 space-y-3"
+                        class="rounded-xl border border-border bg-surface/60 p-4 space-y-3"
                     >
                         <div class="flex items-center justify-between gap-2">
-                            <p class="text-sm font-medium">
-                                1 · Copy your staged changes
+                            <p class="flex items-center gap-2 text-sm font-medium">
+                                <span class="flex h-6 w-6 items-center justify-center rounded-lg border border-brand/25 bg-brand/10 font-mono text-[11px] text-brand">1</span>
+                                Copy your staged changes
                             </p>
                             <div
-                                class="flex rounded-md border border-border overflow-hidden text-xs"
+                                class="flex rounded-lg border border-border bg-card p-0.5 text-xs"
                                 role="tablist"
                                 aria-label="Operating system"
                             >
                                 <button
                                     type="button"
                                     data-os="mac"
-                                    class="os-tab px-2.5 py-1 hover:bg-muted"
+                                    class="os-tab rounded-md px-2.5 py-1 transition-colors hover:bg-muted"
                                     role="tab">macOS</button
                                 >
                                 <button
                                     type="button"
                                     data-os="win"
-                                    class="os-tab px-2.5 py-1 hover:bg-muted border-l border-border"
+                                    class="os-tab rounded-md px-2.5 py-1 transition-colors hover:bg-muted"
                                     role="tab">Windows</button
                                 >
                                 <button
                                     type="button"
                                     data-os="linux"
-                                    class="os-tab px-2.5 py-1 hover:bg-muted border-l border-border"
+                                    class="os-tab rounded-md px-2.5 py-1 transition-colors hover:bg-muted"
                                     role="tab">Linux</button
                                 >
                             </div>
@@ -138,11 +141,11 @@ const BACKEND_URL = "/api/commit";
                         </p>
                         <div class="flex items-center gap-2">
                             <pre
-                                class="flex-1 rounded-md bg-muted px-3 py-2 text-xs font-mono overflow-x-auto"><code id="diff-command">git diff --cached | pbcopy</code></pre>
+                                class="flex-1 rounded-lg border border-border bg-muted/60 px-3 py-2 text-xs font-mono overflow-x-auto"><code id="diff-command">git diff --cached | pbcopy</code></pre>
                             <button
                                 id="copy-command-btn"
                                 type="button"
-                                class="shrink-0 inline-flex items-center rounded-md border border-input bg-background px-3 py-2 text-xs font-medium hover:bg-accent"
+                                class="shrink-0 inline-flex items-center rounded-lg border border-input bg-card px-3 py-2 text-xs font-medium shadow-xs transition-colors hover:bg-accent hover:border-brand/30"
                             >
                                 Copy
                             </button>
@@ -157,14 +160,15 @@ const BACKEND_URL = "/api/commit";
                     <div class="space-y-2">
                         <label
                             for="diff-input"
-                            class="text-sm font-medium leading-none"
+                            class="flex items-center gap-2 text-sm font-medium leading-none"
                         >
-                            2 · Paste the diff
+                            <span class="flex h-6 w-6 items-center justify-center rounded-lg border border-brand/25 bg-brand/10 font-mono text-[11px] text-brand">2</span>
+                            Paste the diff
                         </label>
                         <textarea
                             id="diff-input"
                             placeholder="diff --git a/src/app.js b/src/app.js..."
-                            class="field-sizing-content flex min-h-[220px] w-full rounded-md border border-input bg-transparent px-3 py-2 shadow-xs transition-[color,box-shadow] placeholder:text-muted-foreground focus-visible:outline-1 focus-visible:ring-4 focus-visible:ring-ring/10 focus-visible:outline-ring/50 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm font-mono text-xs resize-none"
+                            class="field-sizing-content flex min-h-[220px] w-full rounded-xl border border-input bg-card/60 px-3 py-2 shadow-xs transition-[color,box-shadow] placeholder:text-muted-foreground focus-visible:outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/25 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm font-mono text-xs resize-none"
                         ></textarea>
                     </div>
 
@@ -179,7 +183,7 @@ const BACKEND_URL = "/api/commit";
                                 </label>
                                 <select
                                     id="style-select"
-                                    class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs focus-visible:outline-1 focus-visible:ring-4 focus-visible:ring-ring/10"
+                                    class="flex h-9 w-full rounded-md border border-input bg-card/60 px-3 py-1 text-sm shadow-xs focus-visible:outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/25"
                                 >
                                     <option value="conventional"
                                         >Conventional (feat/fix/chore…)</option
@@ -197,7 +201,7 @@ const BACKEND_URL = "/api/commit";
                                 <input
                                     id="context-input"
                                     placeholder="e.g. fixes the login bug from issue #123"
-                                    class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-xs placeholder:text-muted-foreground focus-visible:outline-1 focus-visible:ring-4 focus-visible:ring-ring/10 md:text-sm"
+                                    class="flex h-9 w-full rounded-md border border-input bg-card/60 px-3 py-1 text-base shadow-xs placeholder:text-muted-foreground focus-visible:outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/25 md:text-sm"
                                 />
                             </div>
                         </div>
@@ -247,13 +251,13 @@ const BACKEND_URL = "/api/commit";
                                 <textarea
                                     id="template-input"
                                     placeholder={`e.g. Subject must start with [ACME-<ticket>]. Body: bullet list of changes, then "Refs:" line.`}
-                                    class="flex min-h-[80px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-xs font-mono shadow-xs placeholder:text-muted-foreground focus-visible:outline-1 focus-visible:ring-4 focus-visible:ring-ring/10 resize-none"
+                                    class="flex min-h-[80px] w-full rounded-md border border-input bg-card/60 px-3 py-2 text-xs font-mono shadow-xs placeholder:text-muted-foreground focus-visible:outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/25 resize-none"
                                 ></textarea>
                                 <div class="flex items-center gap-2">
                                     <button
                                         id="save-template-btn"
                                         type="button"
-                                        class="inline-flex items-center rounded-md border border-input bg-background px-3 py-1.5 text-xs font-medium hover:bg-accent"
+                                        class="inline-flex items-center rounded-md border border-input bg-card/60 px-3 py-1.5 text-xs font-medium hover:bg-accent"
                                     >
                                         Save template
                                     </button>
@@ -269,7 +273,7 @@ const BACKEND_URL = "/api/commit";
                     <div
                         id="form-error"
                         role="alert"
-                        class="hidden rounded-lg border border-red-500/40 bg-red-500/10 p-3 text-sm text-red-600 dark:text-red-400"
+                        class="hidden rounded-xl border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive"
                     >
                     </div>
 
@@ -301,7 +305,7 @@ const BACKEND_URL = "/api/commit";
                     </button>
 
                     <div
-                        class="rounded-lg border border-border bg-muted/40 p-4 text-sm space-y-1"
+                        class="rounded-2xl border border-border bg-surface/80 p-4 sm:p-5 text-sm space-y-1"
                     >
                         <p class="font-medium flex items-center gap-1.5">
                             <img
@@ -317,16 +321,16 @@ const BACKEND_URL = "/api/commit";
                             with your own key. Same templates, same styles.
                         </p>
                         <pre
-                            class="mt-2 rounded-md bg-muted px-3 py-2 text-xs font-mono overflow-x-auto"><code>npm i -g @gitset-dev/cli && gitset commit</code></pre>
+                            class="mt-2 rounded-lg border border-border bg-muted/60 px-3 py-2 text-xs font-mono overflow-x-auto"><code>npm i -g @gitset-dev/cli && gitset commit</code></pre>
                     </div>
                 </div>
 
                 <div class="space-y-6">
                     <div
-                        class="rounded-3xl border border-border bg-card text-card-foreground shadow-sm h-full flex flex-col"
+                        class="rounded-2xl border border-border bg-card text-card-foreground shadow-sm h-full flex flex-col"
                     >
                         <div
-                            class="p-4 border-b border-border flex justify-between items-center"
+                            class="px-4 py-3.5 sm:px-5 border-b border-border flex justify-between items-center gap-3"
                         >
                             <h3
                                 class="font-semibold leading-none tracking-tight"
@@ -338,7 +342,7 @@ const BACKEND_URL = "/api/commit";
                             </h3>
                             <button
                                 id="copy-btn-top"
-                                class="hidden items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium border border-input bg-background shadow-xs hover:bg-accent hover:text-accent-foreground h-8 px-3"
+                                class="hidden items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium border border-input bg-card/60 shadow-xs hover:bg-accent hover:text-accent-foreground hover:border-brand/30 h-8 px-3"
                             >
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"
@@ -366,19 +370,21 @@ const BACKEND_URL = "/api/commit";
                                 Copy
                             </button>
                         </div>
-                        <div class="p-6 flex-1 bg-muted/30 relative group">
+                        <div class="p-4 sm:p-6 flex-1 bg-surface/60 relative group">
                             <div
                                 id="loading-state"
-                                class="hidden absolute inset-0 items-center justify-center bg-background/50 backdrop-blur-sm z-10"
+                                class="hidden absolute inset-0 items-center justify-center bg-background/60 backdrop-blur-sm z-10"
+                                role="status"
+                                aria-live="polite"
                             >
-                                <div class="flex flex-col items-center gap-2">
-                                    <div
-                                        class="animate-spin rounded-full h-8 w-8 border-b-2 border-brand"
-                                    >
-                                    </div>
+                                <div class="flex flex-col items-center gap-4 px-6 text-center">
+                                    <span class="relative flex h-12 w-12 items-center justify-center rounded-2xl border border-brand/25 bg-card shadow-lg">
+                                        <span aria-hidden="true" class="absolute inset-0 rounded-2xl bg-brand/10 animate-pulse"></span>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="relative text-brand animate-[thin-pulse_1.6s_ease-in-out_infinite]"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"></path></svg>
+                                    </span>
                                     <p
                                         id="loading-text"
-                                        class="text-sm text-muted-foreground"
+                                        class="text-shimmer text-sm font-medium"
                                     >
                                         Analyzing diff...
                                     </p>
@@ -399,7 +405,7 @@ const BACKEND_URL = "/api/commit";
                                     stroke-width="2"
                                     stroke-linecap="round"
                                     stroke-linejoin="round"
-                                    class="h-12 w-12 mb-4 opacity-20"
+                                    class="h-14 w-14 mb-5 p-3.5 rounded-2xl border border-border bg-card text-brand shadow-sm"
                                 >
                                     <polyline points="4 17 10 11 4 5"
                                     ></polyline>
@@ -433,7 +439,7 @@ const BACKEND_URL = "/api/commit";
                                         <input
                                             id="refine-input"
                                             placeholder="e.g. mention the issue number, make it shorter…"
-                                            class="flex h-9 flex-1 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-xs placeholder:text-muted-foreground focus-visible:outline-1 focus-visible:ring-4 focus-visible:ring-ring/10"
+                                            class="flex h-9 flex-1 rounded-md border border-input bg-card/60 px-3 py-1 text-sm shadow-xs placeholder:text-muted-foreground focus-visible:outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/25"
                                         />
                                         <button
                                             id="refine-btn"
@@ -454,7 +460,7 @@ const BACKEND_URL = "/api/commit";
                                     </div>
                                     <button
                                         id="copy-btn-bottom"
-                                        class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium border border-input bg-background shadow-xs hover:bg-accent hover:text-accent-foreground h-8 px-3"
+                                        class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium border border-input bg-card/60 shadow-xs hover:bg-accent hover:text-accent-foreground hover:border-brand/30 h-8 px-3"
                                     >
                                         <svg
                                             xmlns="http://www.w3.org/2000/svg"
@@ -602,9 +608,30 @@ const BACKEND_URL = "/api/commit";
                 setTimeout(() => (templateStatus.textContent = ""), 4000);
             });
 
+            // Rotating status lines while the AI drafts; the caller's text leads.
+            const BUSY_STEPS = [
+                "Reading your diff…",
+                "Understanding the change…",
+                "Choosing a commit type and scope…",
+                "Writing the message…",
+                "Polishing the wording…",
+            ];
+            let busyTimer = null;
+
             function setBusy(busy, text) {
+                clearInterval(busyTimer);
                 if (busy) {
+                    const steps = [text, ...BUSY_STEPS];
+                    let step = 0;
                     loadingText.textContent = text;
+                    busyTimer = setInterval(() => {
+                        step = (step + 1) % steps.length;
+                        loadingText.textContent = steps[step];
+                        loadingText.animate(
+                            [{ opacity: 0, transform: "translateY(6px)" }, { opacity: 1, transform: "none" }],
+                            { duration: 350, easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
+                        );
+                    }, 2600);
                     loadingState.classList.remove("hidden");
                     loadingState.classList.add("flex");
                 } else {

@@ -50,17 +50,17 @@ const refreshedOn = updatedAt ? String(updatedAt).slice(0, 10) : null;
 {ordered.length > 0 && (
     <aside
         id="free-models-banner"
-        class="relative z-20 border-b border-border bg-card/60 backdrop-blur-sm"
+        class="relative z-20 border-b border-border/70 bg-gradient-to-r from-brand/[0.06] via-card/60 to-brand/[0.06] backdrop-blur-sm"
         aria-label="Free AI models available right now"
     >
-        <div class="container mx-auto flex max-w-6xl items-center gap-3 px-4 py-1.5 text-xs sm:gap-4">
+        <div class="mx-auto flex w-full max-w-7xl items-center gap-2 px-4 py-2 text-xs sm:gap-4 sm:px-6 lg:px-8">
             <p class="flex shrink-0 items-center gap-2">
                 <span class="relative flex h-1.5 w-1.5" aria-hidden="true">
                     <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand opacity-60 motion-reduce:hidden"></span>
                     <span class="relative inline-flex h-1.5 w-1.5 rounded-full bg-brand"></span>
                 </span>
                 <span class="font-medium text-foreground">
-                    {ordered.length} free models
+                    <span class="font-mono text-brand">{ordered.length}</span> free models
                     <span class="hidden text-muted-foreground sm:inline"> — no card required</span>
                 </span>
             </p>
@@ -75,7 +75,7 @@ const refreshedOn = updatedAt ? String(updatedAt).slice(0, 10) : null;
                     {[0, 1].map((copy) => (
                         <div class="fmb-copy flex items-center gap-2" aria-hidden={copy === 1 ? 'true' : undefined}>
                             {ordered.map((m) => (
-                                <span class="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-border/70 bg-background/60 px-2.5 py-0.5">
+                                <span class="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-border bg-card/80 px-2.5 py-0.5 shadow-xs">
                                     <span class="font-medium text-foreground">{m.label}</span>
                                     {contextLabel(m.contextTokens) && (
                                         <span class="font-mono text-[10px] text-muted-foreground">{contextLabel(m.contextTokens)}</span>
@@ -93,7 +93,7 @@ const refreshedOn = updatedAt ? String(updatedAt).slice(0, 10) : null;
                 type="button"
                 aria-expanded="false"
                 aria-controls="fmb-panel"
-                class="ml-auto flex shrink-0 items-center gap-1 rounded-full border border-border/70 px-2.5 py-1 font-medium text-muted-foreground transition-colors hover:border-brand/50 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+                class="ml-auto flex shrink-0 items-center gap-1 rounded-full border border-border bg-card/70 px-2.5 py-1 font-medium text-muted-foreground transition-colors hover:border-brand/50 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
             >
                 <span class="fmb-toggle-label">See all</span>
                 <svg class="fmb-chev h-3 w-3 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
@@ -101,17 +101,17 @@ const refreshedOn = updatedAt ? String(updatedAt).slice(0, 10) : null;
 
             <a
                 href={ctaHref}
-                class="shrink-0 rounded-full bg-brand/10 px-3 py-1 font-semibold text-brand ring-1 ring-inset ring-brand/30 transition-colors hover:bg-brand/20 hover:ring-brand/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+                class="shrink-0 rounded-full bg-primary px-3 py-1 font-semibold text-primary-foreground shadow-xs transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
             >
                 Set one up
             </a>
         </div>
 
-        <div id="fmb-panel" hidden class="border-t border-border/60 bg-background/40">
-            <div class="container mx-auto max-w-6xl px-4 py-3">
+        <div id="fmb-panel" hidden class="border-t border-border/60 bg-background/60">
+            <div class="mx-auto w-full max-w-7xl px-4 py-3 sm:px-6 lg:px-8">
                 <ul class="flex flex-wrap gap-2">
                     {ordered.map((m) => (
-                        <li class="inline-flex items-center gap-1.5 rounded-full border border-border/70 bg-background/60 px-2.5 py-0.5 text-xs">
+                        <li class="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-2.5 py-1 text-xs shadow-xs">
                             <span class="font-medium text-foreground">{m.label}</span>
                             {contextLabel(m.contextTokens) && (
                                 <span class="font-mono text-[10px] text-muted-foreground">{contextLabel(m.contextTokens)}</span>

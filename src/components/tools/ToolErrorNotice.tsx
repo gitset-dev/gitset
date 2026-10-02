@@ -3,7 +3,7 @@ import { KeyRound, AlertCircle } from 'lucide-react';
 export default function ToolErrorNotice({ error }: { error: string }) {
     if (/no ai provider configured|add your own ai provider key/i.test(error)) {
         return (
-            <div role="alert" className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-4 space-y-2">
+            <div role="alert" className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4 space-y-2">
                 <p className="flex items-center gap-2 text-sm font-medium text-amber-600 dark:text-amber-400">
                     <KeyRound className="h-4 w-4 shrink-0" /> No AI provider configured
                 </p>
@@ -22,8 +22,8 @@ export default function ToolErrorNotice({ error }: { error: string }) {
         );
     }
     return (
-        <div role="alert" className="rounded-lg border border-red-500/40 bg-red-500/10 p-4">
-            <p className="flex items-start gap-2 text-sm text-red-600 dark:text-red-400">
+        <div role="alert" className="rounded-xl border border-destructive/30 bg-destructive/5 p-4">
+            <p className="flex items-start gap-2 text-sm text-destructive">
                 <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" /> <span>{error}</span>
             </p>
         </div>

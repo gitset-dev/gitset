@@ -235,7 +235,7 @@ export function GitignoreBuilderTool({ user, backendUrl }: GitignoreBuilderToolP
 
                 <TabsContent value="composer" className="flex-1 flex flex-col gap-6 mt-0">
                     {}
-                    <div className="space-y-4 p-6 border rounded-3xl bg-card">
+                    <div className="space-y-4 p-4 sm:p-6 border rounded-2xl bg-card shadow-sm">
                         <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
                             <div>
                                 <h2 className="text-sm font-semibold flex items-center gap-2">
@@ -243,7 +243,7 @@ export function GitignoreBuilderTool({ user, backendUrl }: GitignoreBuilderToolP
                                 </h2>
                             </div>
                             {repoContext && branch && (
-                                <div className={`flex items-center gap-2 text-sm px-3 py-1.5 rounded-full border ${existingContent ? "bg-amber-500/10 border-amber-500/20 text-amber-600" : "bg-brand/10 border-brand/20 text-brand"}`}>
+                                <div className={`flex items-center gap-2 text-sm px-3 py-1.5 rounded-full border ${existingContent ? "bg-amber-500/10 border-amber-500/25 text-amber-700 dark:text-amber-400" : "bg-brand/10 border-brand/20 text-brand"}`}>
                                     {existingContent ? (
                                         <>
                                             <AlertTriangle className="h-3.5 w-3.5" />
@@ -276,7 +276,7 @@ export function GitignoreBuilderTool({ user, backendUrl }: GitignoreBuilderToolP
                         {}
                         <div className="flex flex-col gap-4 h-[600px] lg:h-full min-h-[500px]">
                             <div className="flex items-center justify-between">
-                                <h3 className="font-medium">Available Templates</h3>
+                                <h3 className="font-semibold tracking-tight">Available Templates</h3>
                                 <div className="flex items-center gap-2">
                                     <Badge variant="default" className="px-2 py-1">
                                         {selectedTemplates.size} selected
@@ -301,7 +301,7 @@ export function GitignoreBuilderTool({ user, backendUrl }: GitignoreBuilderToolP
                                 onChange={e => setSearchQuery(e.target.value)}
                             />
 
-                            <div className="flex-1 border rounded-md bg-muted/10 overflow-y-auto p-4 content-start min-h-[400px] max-h-[600px]">
+                            <div className="flex-1 border rounded-2xl bg-surface/60 overflow-y-auto p-4 content-start min-h-[400px] max-h-[600px]">
                                 {loadingTemplates ? (
                                     <div className="flex items-center justify-center h-40">
                                         <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -314,7 +314,7 @@ export function GitignoreBuilderTool({ user, backendUrl }: GitignoreBuilderToolP
                                             <Badge
                                                 key={t}
                                                 variant={selectedTemplates.has(t) ? "default" : "outline"}
-                                                className={`cursor-pointer hover:opacity-80 transition-all text-sm py-1 px-3 ${!selectedTemplates.has(t) && 'bg-background hover:bg-accent'}`}
+                                                className={`cursor-pointer transition-all text-sm py-1 px-3 font-mono ${selectedTemplates.has(t) ? 'hover:bg-brand/15' : 'bg-card hover:bg-accent hover:border-brand/30'}`}
                                                 onClick={() => toggleTemplate(t)}
                                             >
                                                 {t}
@@ -329,7 +329,7 @@ export function GitignoreBuilderTool({ user, backendUrl }: GitignoreBuilderToolP
                         {}
                         <div className="flex flex-col gap-4 h-[600px] lg:h-full min-h-[500px]">
                             <div className="flex items-center justify-between">
-                                <h3 className="font-medium">Generated Preview</h3>
+                                <h3 className="font-semibold tracking-tight">Generated Preview</h3>
                                 <div className="flex gap-2">
                                     <Button size="sm" variant="ghost" onClick={copyToClipboard} disabled={!generatedContent}>
                                         {copied ? <Check className="h-4 w-4 mr-1" /> : <Copy className="h-4 w-4 mr-1" />}
@@ -344,10 +344,10 @@ export function GitignoreBuilderTool({ user, backendUrl }: GitignoreBuilderToolP
                                 </div>
                             </div>
 
-                            <div className="flex-1 rounded-md border bg-card relative overflow-hidden flex flex-col h-full">
+                            <div className="flex-1 rounded-2xl border bg-card relative overflow-hidden flex flex-col h-full shadow-sm">
                                 {!generatedContent ? (
                                     <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground p-8 text-center min-h-[400px]">
-                                        <FileCode className="h-10 w-10 mb-2 opacity-20" />
+                                        <FileCode className="h-12 w-12 mb-3 p-3 rounded-2xl border border-border bg-card text-brand shadow-sm" />
                                         <p>Select templates to see the content here.</p>
                                     </div>
                                 ) : (
@@ -365,7 +365,7 @@ export function GitignoreBuilderTool({ user, backendUrl }: GitignoreBuilderToolP
 
                 <TabsContent value="review" className="flex-1 flex flex-col gap-6 mt-0">
                     <div className="flex items-center justify-between">
-                        <h2 className="text-xl font-bold">Review Changes</h2>
+                        <h2 className="text-xl font-semibold tracking-tight">Review Changes</h2>
                         <div className="flex items-center gap-2">
                             {}
                         </div>
@@ -373,7 +373,7 @@ export function GitignoreBuilderTool({ user, backendUrl }: GitignoreBuilderToolP
 
                     {existingContent && (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <label className={`cursor-pointer p-4 rounded-3xl border-2 transition-all ${mergeStrategy === 'replace' ? 'border-brand bg-brand/5' : 'border-border hover:border-brand/50'}`}>
+                            <label className={`cursor-pointer p-4 rounded-2xl border-2 transition-all ${mergeStrategy === 'replace' ? 'border-brand bg-brand/5' : 'border-border hover:border-brand/50'}`}>
                                 <div className="flex items-center gap-3 mb-2">
                                     <input
                                         type="radio"
@@ -389,7 +389,7 @@ export function GitignoreBuilderTool({ user, backendUrl }: GitignoreBuilderToolP
                                 </p>
                             </label>
 
-                            <label className={`cursor-pointer p-4 rounded-3xl border-2 transition-all ${mergeStrategy === 'append' ? 'border-brand bg-brand/5' : 'border-border hover:border-brand/50'}`}>
+                            <label className={`cursor-pointer p-4 rounded-2xl border-2 transition-all ${mergeStrategy === 'append' ? 'border-brand bg-brand/5' : 'border-border hover:border-brand/50'}`}>
                                 <div className="flex items-center gap-3 mb-2">
                                     <input
                                         type="radio"
@@ -408,32 +408,32 @@ export function GitignoreBuilderTool({ user, backendUrl }: GitignoreBuilderToolP
                     )}
 
                     {}
-                    <div className="flex-1 border rounded-lg overflow-hidden bg-card flex flex-col min-h-[500px]">
-                        <div className="p-3 bg-muted/30 border-b flex justify-between items-center">
+                    <div className="flex-1 border rounded-2xl overflow-hidden bg-card flex flex-col min-h-[500px] shadow-sm">
+                        <div className="px-4 py-3 bg-surface/60 border-b flex flex-wrap gap-2 justify-between items-center">
                             <span className="font-mono text-sm">.gitignore</span>
                             <span className="text-xs text-muted-foreground">
                                 {existingContent ? (mergeStrategy === 'append' ? 'Merging changes...' : 'Overwriting file...') : 'Creating new file...'}
                             </span>
                         </div>
-                        <div className="flex-1 flex relative">
+                        <div className="flex-1 flex flex-col md:flex-row relative">
                             {existingContent && (
-                                <div className="w-1/2 border-r flex flex-col">
-                                    <div className="p-2 text-xs font-semibold text-center bg-muted/20 border-b text-red-500">Current (Remote)</div>
+                                <div className="w-full md:w-1/2 border-b md:border-b-0 md:border-r flex flex-col">
+                                    <div className="px-3 py-2 font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-center bg-surface/60 border-b text-destructive">Current (Remote)</div>
                                     <textarea
                                         readOnly
                                         value={existingContent}
-                                        className="flex-1 p-4 font-mono text-xs bg-red-500/5 resize-none focus:outline-none"
+                                        className="flex-1 min-h-[240px] p-4 font-mono text-xs bg-destructive/5 resize-none focus:outline-none"
                                     />
                                 </div>
                             )}
-                            <div className={existingContent ? "w-1/2 flex flex-col" : "w-full flex flex-col"}>
-                                <div className="p-2 text-xs font-semibold text-center bg-muted/20 border-b text-brand">
+                            <div className={existingContent ? "w-full md:w-1/2 flex flex-col" : "w-full flex flex-col"}>
+                                <div className="px-3 py-2 font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-center bg-surface/60 border-b text-brand">
                                     {existingContent ? "Resulting File" : "New File Content"}
                                 </div>
                                 <textarea
                                     value={finalPreviewContent}
                                     onChange={(e) => setFinalPreviewContent(e.target.value)}
-                                    className="flex-1 p-4 font-mono text-xs bg-brand/5 resize-none focus:outline-none"
+                                    className="flex-1 min-h-[240px] p-4 font-mono text-xs bg-brand/5 resize-none focus:outline-none"
                                     placeholder="Final content..."
                                 />
                             </div>
@@ -441,7 +441,7 @@ export function GitignoreBuilderTool({ user, backendUrl }: GitignoreBuilderToolP
                     </div>
 
                     {}
-                    <div className="flex justify-end gap-4 py-4 border-t mt-4">
+                    <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 py-4 border-t mt-4">
                         <Button variant="outline" onClick={() => setActiveTab('composer')}>
                             Cancel
                         </Button>
@@ -454,7 +454,7 @@ export function GitignoreBuilderTool({ user, backendUrl }: GitignoreBuilderToolP
                     {error && <ToolErrorNotice error={error} />}
 
                     {successMessage && (
-                        <div className="p-4 bg-brand/10 border border-brand/20 rounded-lg text-brand flex items-center gap-2">
+                        <div className="p-4 bg-brand/10 border border-brand/25 rounded-xl text-brand flex items-center gap-2">
                             <Check className="h-5 w-5" />
                             {successMessage}
                         </div>

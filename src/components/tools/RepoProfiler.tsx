@@ -187,14 +187,14 @@ export function RepoProfiler({ user }: RepoProfilerProps) {
     return (
         <div className="space-y-6">
             <Tabs defaultValue="about" value={activeTab} onValueChange={setActiveTab}>
-                <TabsList className="grid w-full grid-cols-1">
+                <TabsList className="grid w-full grid-cols-1 sm:w-auto sm:inline-grid">
                     <TabsTrigger value="about">About & Topics</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="about" className="space-y-4">
                     <Card>
                         <CardHeader>
-                            <CardTitle>Repository Details</CardTitle>
+                            <CardTitle className="flex items-center gap-2.5"><span className="flex h-8 w-8 items-center justify-center rounded-lg border border-brand/25 bg-brand/10"><Globe className="h-4 w-4 text-brand" /></span>Repository Details</CardTitle>
                             <CardDescription>Analyze your project to generate an optimized description and topics.</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-6">
@@ -207,7 +207,7 @@ export function RepoProfiler({ user }: RepoProfilerProps) {
                                     githubToken={user.githubOauthToken}
                                 />
                             </div>
-                            <div className="flex gap-4 items-end">
+                            <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
                                 <div className="flex-1 space-y-2">
                                     <Label>Website URL</Label>
                                     <div className="relative">
@@ -220,7 +220,7 @@ export function RepoProfiler({ user }: RepoProfilerProps) {
                                         />
                                     </div>
                                 </div>
-                                <Button onClick={handleAnalyze} disabled={analyzing || !repo} variant="secondary">
+                                <Button onClick={handleAnalyze} disabled={analyzing || !repo} variant="secondary" className="w-full sm:w-auto border border-brand/25 bg-brand/10 text-brand hover:bg-brand/15">
                                     {analyzing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
                                     Analyze & Generate
                                 </Button>
@@ -229,7 +229,7 @@ export function RepoProfiler({ user }: RepoProfilerProps) {
                             <div className="space-y-2">
                                 <Label>Description</Label>
                                 <textarea
-                                    className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                    className="flex min-h-[80px] w-full rounded-xl border border-input bg-card/60 px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/25 disabled:cursor-not-allowed disabled:opacity-50"
                                     value={description}
                                     onChange={(e) => setDescription(e.target.value)}
                                     placeholder="Repository description..."
@@ -240,7 +240,7 @@ export function RepoProfiler({ user }: RepoProfilerProps) {
                                 <Label>Topics</Label>
                                 <div className="flex flex-wrap gap-2 mb-2">
                                     {topics.map((topic, i) => (
-                                        <Badge key={i} variant="secondary" className="flex items-center gap-1">
+                                        <Badge key={i} variant="default" className="flex items-center gap-1 font-mono">
                                             {topic}
                                             <X
                                                 className="h-3 w-3 cursor-pointer hover:text-destructive"
@@ -249,7 +249,7 @@ export function RepoProfiler({ user }: RepoProfilerProps) {
                                         </Badge>
                                     ))}
                                     <Input
-                                        className="w-32 h-6 text-xs"
+                                        className="h-7 w-36 rounded-full text-xs"
                                         placeholder="+ Add topic"
                                         onKeyDown={(e) => {
                                             if (e.key === 'Enter') {
@@ -264,7 +264,7 @@ export function RepoProfiler({ user }: RepoProfilerProps) {
                                 </div>
                             </div>
 
-                            <div className="flex gap-2 items-center p-4 bg-muted/50 rounded-md">
+                            <div className="flex gap-2 items-center p-3 border bg-surface/60 rounded-xl">
                                 <Input
                                     placeholder="Refinement instruction (e.g., 'Make it more formal', 'Focus on API')"
                                     value={refineInstruction}
@@ -275,7 +275,7 @@ export function RepoProfiler({ user }: RepoProfilerProps) {
                                 </Button>
                             </div>
                         </CardContent>
-                        <CardFooter className="justify-end">
+                        <CardFooter className="justify-end border-t bg-surface/60 pt-6 rounded-b-xl [&>button]:w-full sm:[&>button]:w-auto">
                             <Button onClick={handleSaveAbout} disabled={loading || !repo}>
                                 {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
                                 Save to GitHub

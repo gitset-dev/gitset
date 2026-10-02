@@ -91,7 +91,7 @@ const troubleshooting = [
     <Fragment slot="head">
         <meta charset="utf-8" />
         <link rel="icon" type="image/png" href="/favicon-96.png" />
-        <meta name="viewport" content="width=device-width" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
         <meta name="generator" content={Astro.generator} />
         <meta
             name="description"
@@ -155,25 +155,27 @@ const troubleshooting = [
         <SiteHeader client:load showBackButton={true} user={toClientUser(user?.user)} />
 
         <main class="flex-1">
-            <div class="border-b border-border">
-                <div class="container mx-auto px-4 py-10 max-w-5xl">
-                    <p class="font-mono text-xs text-muted-foreground tracking-wide uppercase">Documentation</p>
-                    <h1 class="mt-2 text-3xl sm:text-4xl font-bold tracking-tight">
+            <div class="relative isolate overflow-hidden border-b border-border">
+                <div aria-hidden="true" class="absolute inset-0 -z-10 bg-grid"></div>
+                <div aria-hidden="true" class="absolute inset-0 -z-10 bg-glow"></div>
+                <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 py-14 sm:py-20 max-w-7xl">
+                    <p class="eyebrow">Documentation</p>
+                    <h1 class="mt-3 text-4xl sm:text-5xl font-semibold tracking-[-0.04em]">
                         Everything you need to run Gitset
                     </h1>
-                    <p class="mt-3 max-w-[65ch] text-muted-foreground leading-relaxed">
+                    <p class="mt-4 max-w-[65ch] text-base sm:text-lg text-muted-foreground leading-relaxed">
                         One reference for the whole ecosystem — the web app and the CLI. No
                         marketing copy here, just what exists, why, and how to use it.
                     </p>
                 </div>
             </div>
 
-            <div class="container mx-auto px-4 py-10 max-w-5xl">
-                <div class="lg:hidden mb-8">
+            <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 py-10 sm:py-14 max-w-7xl">
+                <div class="lg:hidden mb-8 sticky top-[4.5rem] z-30">
                     <label for="docs-jump" class="sr-only">Jump to a section</label>
                     <select
                         id="docs-jump"
-                        class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono"
+                        class="h-11 w-full rounded-xl border border-input bg-popover/90 px-3 text-sm font-mono shadow-md backdrop-blur-xl"
                         onchange="if (this.value) window.location.hash = this.value"
                     >
                         <option value="">Jump to a section…</option>
@@ -181,13 +183,14 @@ const troubleshooting = [
                     </select>
                 </div>
 
-                <div class="lg:grid lg:grid-cols-[200px_1fr] lg:gap-12">
+                <div class="lg:grid lg:grid-cols-[220px_1fr] lg:gap-14">
                     <aside class="hidden lg:block">
-                        <nav class="sticky top-24 space-y-1 text-sm">
+                        <nav class="sticky top-24 space-y-0.5 border-l border-border text-sm">
+                            <p class="eyebrow mb-3 pl-4 !text-muted-foreground">On this page</p>
                             {nav.map((n) => (
                                 <a
                                     href={`#${n.id}`}
-                                    class="block rounded-md px-2 py-1.5 text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+                                    class="-ml-px block border-l border-transparent py-1.5 pl-4 text-muted-foreground transition-colors hover:border-brand hover:text-foreground"
                                 >
                                     {n.label}
                                 </a>
@@ -198,8 +201,8 @@ const troubleshooting = [
                     <div class="min-w-0 space-y-16">
                         {/* ── 01 · WHAT IS GITSET ─────────────────────────── */}
                         <section id="overview" class="scroll-mt-24 space-y-4">
-                            <h2 class="flex items-baseline gap-3 text-2xl font-semibold tracking-tight">
-                                <span class="font-mono text-sm text-muted-foreground">01</span>
+                            <h2 class="flex items-center gap-3 text-2xl font-semibold tracking-[-0.03em] sm:text-[1.7rem]">
+                                <span class="inline-flex h-7 min-w-7 items-center justify-center rounded-lg border border-brand/25 bg-brand/10 px-1.5 font-mono text-xs font-medium text-brand">01</span>
                                 What is Gitset
                             </h2>
                             <p class="max-w-[65ch] text-muted-foreground leading-relaxed">
@@ -221,8 +224,8 @@ const troubleshooting = [
 
                         {/* ── 02 · ECOSYSTEM ──────────────────────────────── */}
                         <section id="ecosystem" class="scroll-mt-24 space-y-4">
-                            <h2 class="flex items-baseline gap-3 text-2xl font-semibold tracking-tight">
-                                <span class="font-mono text-sm text-muted-foreground">02</span>
+                            <h2 class="flex items-center gap-3 text-2xl font-semibold tracking-[-0.03em] sm:text-[1.7rem]">
+                                <span class="inline-flex h-7 min-w-7 items-center justify-center rounded-lg border border-brand/25 bg-brand/10 px-1.5 font-mono text-xs font-medium text-brand">02</span>
                                 Ecosystem
                             </h2>
                             <p class="max-w-[65ch] text-muted-foreground leading-relaxed">
@@ -230,7 +233,7 @@ const troubleshooting = [
                                 the same templates:
                             </p>
                             <div class="grid gap-4 sm:grid-cols-2">
-                                <div class="rounded-lg border border-border p-5 space-y-2">
+                                <div class="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-sm space-y-2">
                                     <h3 class="font-semibold text-sm">The web app</h3>
                                     <p class="text-sm text-muted-foreground leading-relaxed">
                                         Sign in with GitHub, connect a repository, and every tool
@@ -238,7 +241,7 @@ const troubleshooting = [
                                         history per draft.
                                     </p>
                                 </div>
-                                <div class="rounded-lg border border-border p-5 space-y-2">
+                                <div class="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-sm space-y-2">
                                     <div class="flex items-center gap-2">
                                         <img
                                             src="https://raw.githubusercontent.com/gitset-dev/gitset/main/public/cli/favicon-48.png"
@@ -264,12 +267,12 @@ const troubleshooting = [
 
                         {/* ── 03 · INSTALLATION ───────────────────────────── */}
                         <section id="install" class="scroll-mt-24 space-y-4">
-                            <h2 class="flex items-baseline gap-3 text-2xl font-semibold tracking-tight">
-                                <span class="font-mono text-sm text-muted-foreground">03</span>
+                            <h2 class="flex items-center gap-3 text-2xl font-semibold tracking-[-0.03em] sm:text-[1.7rem]">
+                                <span class="inline-flex h-7 min-w-7 items-center justify-center rounded-lg border border-brand/25 bg-brand/10 px-1.5 font-mono text-xs font-medium text-brand">03</span>
                                 Installation
                             </h2>
                             <div class="grid gap-4 sm:grid-cols-2">
-                                <div class="rounded-lg border border-border p-5 space-y-3">
+                                <div class="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-sm space-y-3">
                                     <h3 class="font-semibold text-sm">Web</h3>
                                     <p class="text-sm text-muted-foreground leading-relaxed">
                                         Nothing to install. Go to
@@ -277,7 +280,7 @@ const troubleshooting = [
                                         and sign in with GitHub.
                                     </p>
                                 </div>
-                                <div class="rounded-lg border border-border p-5 space-y-3">
+                                <div class="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-sm space-y-3">
                                     <h3 class="font-semibold text-sm flex items-center gap-2">
                                         <img
                                             src="https://raw.githubusercontent.com/gitset-dev/gitset/main/public/cli/favicon-48.png"
@@ -286,7 +289,7 @@ const troubleshooting = [
                                         />
                                         CLI
                                     </h3>
-                                    <div class="rounded-md border border-border bg-muted/50 p-3">
+                                    <div class="rounded-xl border border-border bg-muted/60 p-3 overflow-x-auto">
                                         <code class="text-xs font-mono">npm install -g @gitset-dev/cli</code>
                                     </div>
                                     <p class="text-xs text-muted-foreground">
@@ -299,14 +302,14 @@ const troubleshooting = [
 
                         {/* ── 04 · AUTHENTICATION ─────────────────────────── */}
                         <section id="auth" class="scroll-mt-24 space-y-4">
-                            <h2 class="flex items-baseline gap-3 text-2xl font-semibold tracking-tight">
-                                <span class="font-mono text-sm text-muted-foreground">04</span>
+                            <h2 class="flex items-center gap-3 text-2xl font-semibold tracking-[-0.03em] sm:text-[1.7rem]">
+                                <span class="inline-flex h-7 min-w-7 items-center justify-center rounded-lg border border-brand/25 bg-brand/10 px-1.5 font-mono text-xs font-medium text-brand">04</span>
                                 Authentication
                             </h2>
                             <p class="max-w-[65ch] text-muted-foreground leading-relaxed">
                                 The web app uses GitHub OAuth — one sign-in, three scopes
-                                (<code class="text-xs">user:email</code>, <code class="text-xs">repo</code>,
-                                <code class="text-xs">read:org</code>), each used only for what it
+                                (<code class="rounded-md border border-border bg-muted px-1.5 py-0.5 text-xs text-foreground">user:email</code>, <code class="rounded-md border border-border bg-muted px-1.5 py-0.5 text-xs text-foreground">repo</code>,
+                                <code class="rounded-md border border-border bg-muted px-1.5 py-0.5 text-xs text-foreground">read:org</code>), each used only for what it
                                 says. Revoke it anytime from GitHub's own settings.
                             </p>
                             <p class="max-w-[65ch] text-muted-foreground leading-relaxed">
@@ -319,16 +322,16 @@ const troubleshooting = [
 
                         {/* ── 05 · CONFIGURATION ──────────────────────────── */}
                         <section id="config" class="scroll-mt-24 space-y-4">
-                            <h2 class="flex items-baseline gap-3 text-2xl font-semibold tracking-tight">
-                                <span class="font-mono text-sm text-muted-foreground">05</span>
+                            <h2 class="flex items-center gap-3 text-2xl font-semibold tracking-[-0.03em] sm:text-[1.7rem]">
+                                <span class="inline-flex h-7 min-w-7 items-center justify-center rounded-lg border border-brand/25 bg-brand/10 px-1.5 font-mono text-xs font-medium text-brand">05</span>
                                 Configuration
                             </h2>
                             <p class="max-w-[65ch] text-muted-foreground leading-relaxed">
-                                Everything lives locally in <code class="text-xs">~/.gitset</code>.
+                                Everything lives locally in <code class="rounded-md border border-border bg-muted px-1.5 py-0.5 text-xs text-foreground">~/.gitset</code>.
                                 Start with the interactive setup — it's the same entry point
                                 whether you're configuring your first provider or your fifth:
                             </p>
-                            <div class="rounded-md border border-border bg-muted/50 p-3">
+                            <div class="rounded-xl border border-border bg-muted/60 p-3 overflow-x-auto">
                                 <code class="text-xs font-mono">gitset config</code>
                             </div>
                             <p class="max-w-[65ch] text-sm text-muted-foreground leading-relaxed">
@@ -338,16 +341,16 @@ const troubleshooting = [
                                 default, or switch color themes for a light or dark terminal.
                                 Prefer flags for scripts or CI?
                             </p>
-                            <div class="rounded-md border border-border bg-muted/50 p-3">
+                            <div class="rounded-xl border border-border bg-muted/60 p-3 overflow-x-auto">
                                 <code class="text-xs font-mono">gitset config set anthropic --key sk-... --default</code>
                             </div>
                             <p class="max-w-[65ch] text-sm text-muted-foreground leading-relaxed">
                                 Templates work the same way on both surfaces: define your commit
                                 style, issue structure, PR format, README skeleton, or
                                 release-notes layout once, and every draft follows it. On the
-                                CLI, <code class="text-xs">gitset init</code> scaffolds editable
-                                files in <code class="text-xs">~/.gitset/templates</code>, and
-                                <code class="text-xs">gitset template edit &lt;tool&gt;</code>
+                                CLI, <code class="rounded-md border border-border bg-muted px-1.5 py-0.5 text-xs text-foreground">gitset init</code> scaffolds editable
+                                files in <code class="rounded-md border border-border bg-muted px-1.5 py-0.5 text-xs text-foreground">~/.gitset/templates</code>, and
+                                <code class="rounded-md border border-border bg-muted px-1.5 py-0.5 text-xs text-foreground">gitset template edit &lt;tool&gt;</code>
                                 opens one in your editor. On the web, each tool has a template
                                 manager with a curated library you can try without ever
                                 overwriting your own saved template.
@@ -355,7 +358,7 @@ const troubleshooting = [
                             <p class="max-w-[65ch] text-sm text-muted-foreground leading-relaxed">
                                 <strong class="text-foreground">Label Pack</strong> follows the
                                 same pattern for GitHub labels: define a reusable set once
-                                (locally via <code class="text-xs">gitset labelspack</code>, or
+                                (locally via <code class="rounded-md border border-border bg-muted px-1.5 py-0.5 text-xs text-foreground">gitset labelspack</code>, or
                                 on the web from Issue Crafter or PR Maker) and apply it to any
                                 repository, replacing GitHub's defaults.
                             </p>
@@ -363,16 +366,16 @@ const troubleshooting = [
 
                         {/* ── 06 · CLI COMMANDS ───────────────────────────── */}
                         <section id="commands" class="scroll-mt-24 space-y-6">
-                            <h2 class="flex items-baseline gap-3 text-2xl font-semibold tracking-tight">
-                                <span class="font-mono text-sm text-muted-foreground">06</span>
+                            <h2 class="flex items-center gap-3 text-2xl font-semibold tracking-[-0.03em] sm:text-[1.7rem]">
+                                <span class="inline-flex h-7 min-w-7 items-center justify-center rounded-lg border border-brand/25 bg-brand/10 px-1.5 font-mono text-xs font-medium text-brand">06</span>
                                 CLI commands
                             </h2>
 
                             <div class="space-y-3">
-                                <h3 class="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+                                <h3 class="eyebrow !text-muted-foreground">
                                     Drafting (uses your provider key)
                                 </h3>
-                                <div class="rounded-lg border border-border divide-y divide-border overflow-hidden">
+                                <div class="rounded-2xl border border-border bg-card divide-y divide-border overflow-hidden shadow-sm">
                                     {draftingCommands.map((c) => (
                                         <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 p-3">
                                             <code class="text-xs font-mono text-brand shrink-0 sm:w-56">{c.cmd}</code>
@@ -383,10 +386,10 @@ const troubleshooting = [
                             </div>
 
                             <div class="space-y-3">
-                                <h3 class="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+                                <h3 class="eyebrow !text-muted-foreground">
                                     Local (no AI)
                                 </h3>
-                                <div class="rounded-lg border border-border divide-y divide-border overflow-hidden">
+                                <div class="rounded-2xl border border-border bg-card divide-y divide-border overflow-hidden shadow-sm">
                                     {localCommands.map((c) => (
                                         <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 p-3">
                                             <code class="text-xs font-mono text-brand shrink-0 sm:w-56">{c.cmd}</code>
@@ -396,18 +399,18 @@ const troubleshooting = [
                                 </div>
                             </div>
                             <p class="text-xs text-muted-foreground">
-                                Common flags on drafting commands: <code class="text-xs">--provider</code>,
-                                <code class="text-xs">--model</code>, <code class="text-xs">--yes</code>,
-                                <code class="text-xs">--json</code>, <code class="text-xs">--print</code>.
-                                Run <code class="text-xs">gitset help &lt;command&gt;</code> for the full
+                                Common flags on drafting commands: <code class="rounded-md border border-border bg-muted px-1.5 py-0.5 text-xs text-foreground">--provider</code>,
+                                <code class="rounded-md border border-border bg-muted px-1.5 py-0.5 text-xs text-foreground">--model</code>, <code class="rounded-md border border-border bg-muted px-1.5 py-0.5 text-xs text-foreground">--yes</code>,
+                                <code class="rounded-md border border-border bg-muted px-1.5 py-0.5 text-xs text-foreground">--json</code>, <code class="rounded-md border border-border bg-muted px-1.5 py-0.5 text-xs text-foreground">--print</code>.
+                                Run <code class="rounded-md border border-border bg-muted px-1.5 py-0.5 text-xs text-foreground">gitset help &lt;command&gt;</code> for the full
                                 list on any command.
                             </p>
                         </section>
 
                         {/* ── 07 · TOOLS ──────────────────────────────────── */}
                         <section id="tools" class="scroll-mt-24 space-y-4">
-                            <h2 class="flex items-baseline gap-3 text-2xl font-semibold tracking-tight">
-                                <span class="font-mono text-sm text-muted-foreground">07</span>
+                            <h2 class="flex items-center gap-3 text-2xl font-semibold tracking-[-0.03em] sm:text-[1.7rem]">
+                                <span class="inline-flex h-7 min-w-7 items-center justify-center rounded-lg border border-brand/25 bg-brand/10 px-1.5 font-mono text-xs font-medium text-brand">07</span>
                                 Tools
                             </h2>
                             <p class="max-w-[65ch] text-muted-foreground leading-relaxed">
@@ -429,12 +432,12 @@ const troubleshooting = [
 
                         {/* ── 08 · KNOWLEDGE MAPPER ───────────────────────── */}
                         <section id="knowledge-mapper" class="scroll-mt-24 space-y-4">
-                            <h2 class="flex items-baseline gap-3 text-2xl font-semibold tracking-tight">
-                                <span class="font-mono text-sm text-muted-foreground">08</span>
+                            <h2 class="flex items-center gap-3 text-2xl font-semibold tracking-[-0.03em] sm:text-[1.7rem]">
+                                <span class="inline-flex h-7 min-w-7 items-center justify-center rounded-lg border border-brand/25 bg-brand/10 px-1.5 font-mono text-xs font-medium text-brand">08</span>
                                 Knowledge Mapper
                             </h2>
                             <p class="max-w-[65ch] text-muted-foreground leading-relaxed">
-                                Knowledge Mapper builds and maintains <code class="text-xs">docs/gitset-knowledge/</code> —
+                                Knowledge Mapper builds and maintains <code class="rounded-md border border-border bg-muted px-1.5 py-0.5 text-xs text-foreground">docs/gitset-knowledge/</code> —
                                 a structured, always-current map of your codebase (architecture, module
                                 boundaries, commands, dependency graph) that both developers and AI coding
                                 agents read before touching your code. It's generated from your source code,
@@ -449,7 +452,7 @@ const troubleshooting = [
                                 checks every generated link, command, and script before anything is written
                                 to disk.
                             </p>
-                            <div class="rounded-lg border border-border bg-[#0d1117] p-4 font-mono text-xs text-[#e6edf3] leading-relaxed overflow-x-auto space-y-1">
+                            <div class="rounded-2xl border border-white/10 bg-[#0b0e12] p-4 sm:p-5 shadow-lg font-mono text-xs text-[#e6edf3] leading-relaxed overflow-x-auto space-y-1">
                                 <div><span class="text-[#6CE0DB]">$</span> gitset knowledge scan</div>
                                 <div class="text-white/50">Zero AI calls — discovers files and prints the plan + cost estimate.</div>
                                 <div><span class="text-[#6CE0DB]">$</span> gitset knowledge generate</div>
@@ -460,21 +463,21 @@ const troubleshooting = [
                                 <div class="text-white/50">Writes a GitHub Actions workflow that keeps it fresh and opens a review PR.</div>
                             </div>
                             <div class="grid gap-3 sm:grid-cols-2">
-                                <div class="rounded-lg border border-border p-4">
+                                <div class="rounded-2xl border border-border bg-card p-5 shadow-sm">
                                     <p class="font-medium text-sm">Your model, not a preset one</p>
-                                    <p class="mt-1 text-xs text-muted-foreground leading-relaxed">Knowledge Mapper has no model of its own — it uses whatever provider and model you've already configured with <code class="text-xs">gitset config</code>, exactly like every other Gitset tool.</p>
+                                    <p class="mt-1 text-xs text-muted-foreground leading-relaxed">Knowledge Mapper has no model of its own — it uses whatever provider and model you've already configured with <code class="rounded-md border border-border bg-muted px-1.5 py-0.5 text-xs text-foreground">gitset config</code>, exactly like every other Gitset tool.</p>
                                 </div>
-                                <div class="rounded-lg border border-border p-4">
+                                <div class="rounded-2xl border border-border bg-card p-5 shadow-sm">
                                     <p class="font-medium text-sm">Secrets never leave your machine</p>
                                     <p class="mt-1 text-xs text-muted-foreground leading-relaxed">A local pass redacts API keys, tokens, and other high-entropy secrets before any file content is sent to your provider. Prose docs and test bodies are listed structurally but their content is never sent at all.</p>
                                 </div>
-                                <div class="rounded-lg border border-border p-4">
+                                <div class="rounded-2xl border border-border bg-card p-5 shadow-sm">
                                     <p class="font-medium text-sm">Cost-honest by design</p>
                                     <p class="mt-1 text-xs text-muted-foreground leading-relaxed">Every run shows the exact call and token estimate before spending anything, and reports real usage afterward. Two of the five generated documents are assembled locally at zero cost.</p>
                                 </div>
-                                <div class="rounded-lg border border-border p-4">
+                                <div class="rounded-2xl border border-border bg-card p-5 shadow-sm">
                                     <p class="font-medium text-sm">Keeping it fresh</p>
-                                    <p class="mt-1 text-xs text-muted-foreground leading-relaxed"><code class="text-xs">gitset knowledge automate</code> writes a CI workflow (per push, per release, or weekly) that runs the incremental update when mapped source actually changed — unaffected pushes cost nothing. By default it commits refreshed docs directly (zero setup, works on every repo and org); prefer reviewing each update as a pull request? <code class="text-xs">--sync pr</code> sets up the required access for you, no settings pages or manual tokens.</p>
+                                    <p class="mt-1 text-xs text-muted-foreground leading-relaxed"><code class="rounded-md border border-border bg-muted px-1.5 py-0.5 text-xs text-foreground">gitset knowledge automate</code> writes a CI workflow (per push, per release, or weekly) that runs the incremental update when mapped source actually changed — unaffected pushes cost nothing. By default it commits refreshed docs directly (zero setup, works on every repo and org); prefer reviewing each update as a pull request? <code class="rounded-md border border-border bg-muted px-1.5 py-0.5 text-xs text-foreground">--sync pr</code> sets up the required access for you, no settings pages or manual tokens.</p>
                                 </div>
                             </div>
                             <p class="max-w-[65ch] text-muted-foreground leading-relaxed">
@@ -496,15 +499,15 @@ const troubleshooting = [
 
                         {/* ── 09 · EXAMPLES ───────────────────────────────── */}
                         <section id="examples" class="scroll-mt-24 space-y-4">
-                            <h2 class="flex items-baseline gap-3 text-2xl font-semibold tracking-tight">
-                                <span class="font-mono text-sm text-muted-foreground">09</span>
+                            <h2 class="flex items-center gap-3 text-2xl font-semibold tracking-[-0.03em] sm:text-[1.7rem]">
+                                <span class="inline-flex h-7 min-w-7 items-center justify-center rounded-lg border border-brand/25 bg-brand/10 px-1.5 font-mono text-xs font-medium text-brand">09</span>
                                 Examples
                             </h2>
                             <p class="max-w-[65ch] text-muted-foreground leading-relaxed">
                                 A refinement instruction is just a plain-language sentence — no
                                 special syntax:
                             </p>
-                            <div class="rounded-lg border border-border bg-[#0d1117] p-4 font-mono text-xs text-[#e6edf3] leading-relaxed overflow-x-auto">
+                            <div class="rounded-2xl border border-white/10 bg-[#0b0e12] p-4 sm:p-5 shadow-lg font-mono text-xs text-[#e6edf3] leading-relaxed overflow-x-auto">
                                 <div><span class="text-[#6CE0DB]">$</span> gitset commit</div>
                                 <div class="text-white/50">Proposed: "fix(auth): handle null user in login"</div>
                                 <div><span class="text-[#6CE0DB]">&gt;</span> mention issue #128</div>
@@ -515,49 +518,49 @@ const troubleshooting = [
                             <p class="max-w-[65ch] text-muted-foreground leading-relaxed">
                                 Scripting or CI can skip the interactive loop entirely:
                             </p>
-                            <div class="rounded-md border border-border bg-muted/50 p-3">
+                            <div class="rounded-xl border border-border bg-muted/60 p-3 overflow-x-auto">
                                 <code class="text-xs font-mono">gitset commit --yes --print</code>
                             </div>
                         </section>
 
                         {/* ── 10 · TYPICAL WORKFLOW ───────────────────────── */}
                         <section id="workflows" class="scroll-mt-24 space-y-4">
-                            <h2 class="flex items-baseline gap-3 text-2xl font-semibold tracking-tight">
-                                <span class="font-mono text-sm text-muted-foreground">10</span>
+                            <h2 class="flex items-center gap-3 text-2xl font-semibold tracking-[-0.03em] sm:text-[1.7rem]">
+                                <span class="inline-flex h-7 min-w-7 items-center justify-center rounded-lg border border-brand/25 bg-brand/10 px-1.5 font-mono text-xs font-medium text-brand">10</span>
                                 Typical workflow
                             </h2>
                             <ol class="max-w-[65ch] space-y-3 text-sm text-muted-foreground leading-relaxed list-decimal list-inside">
-                                <li>Make changes, stage them, and run <code class="text-xs">gitset commit</code> to draft the message.</li>
-                                <li>Push the branch, then <code class="text-xs">gitset pr --create</code> to draft and open the pull request.</li>
+                                <li>Make changes, stage them, and run <code class="rounded-md border border-border bg-muted px-1.5 py-0.5 text-xs text-foreground">gitset commit</code> to draft the message.</li>
+                                <li>Push the branch, then <code class="rounded-md border border-border bg-muted px-1.5 py-0.5 text-xs text-foreground">gitset pr --create</code> to draft and open the pull request.</li>
                                 <li>Reviewers ask for changes on the web app, where you can see version history side by side.</li>
-                                <li>Merged and ready to ship? <code class="text-xs">gitset release</code> drafts the notes from the commit range since your last tag.</li>
+                                <li>Merged and ready to ship? <code class="rounded-md border border-border bg-muted px-1.5 py-0.5 text-xs text-foreground">gitset release</code> drafts the notes from the commit range since your last tag.</li>
                             </ol>
                         </section>
 
                         {/* ── 11 · BEST PRACTICES ─────────────────────────── */}
                         <section id="practices" class="scroll-mt-24 space-y-4">
-                            <h2 class="flex items-baseline gap-3 text-2xl font-semibold tracking-tight">
-                                <span class="font-mono text-sm text-muted-foreground">11</span>
+                            <h2 class="flex items-center gap-3 text-2xl font-semibold tracking-[-0.03em] sm:text-[1.7rem]">
+                                <span class="inline-flex h-7 min-w-7 items-center justify-center rounded-lg border border-brand/25 bg-brand/10 px-1.5 font-mono text-xs font-medium text-brand">11</span>
                                 Best practices
                             </h2>
                             <ul class="max-w-[65ch] space-y-2 text-sm text-muted-foreground leading-relaxed list-disc list-inside">
-                                <li>Run <code class="text-xs">gitset init</code> once per machine and adjust the scaffolded templates — the defaults are a reasonable starting point, not a house style.</li>
-                                <li>Prefer <code class="text-xs">gitset config</code>'s wizard over hand-typing keys; it validates the model choice for you.</li>
-                                <li>Use <code class="text-xs">--print</code> to preview a draft without writing or publishing anything, especially the first few times with a new template.</li>
-                                <li>Rotate provider keys the same way you'd rotate any API key — <code class="text-xs">gitset config</code> lets you replace one without touching anything else.</li>
-                                <li>In CI, always pass <code class="text-xs">--yes</code> (or read <code class="text-xs">--json</code> output) — interactive prompts will otherwise hang a non-interactive shell.</li>
+                                <li>Run <code class="rounded-md border border-border bg-muted px-1.5 py-0.5 text-xs text-foreground">gitset init</code> once per machine and adjust the scaffolded templates — the defaults are a reasonable starting point, not a house style.</li>
+                                <li>Prefer <code class="rounded-md border border-border bg-muted px-1.5 py-0.5 text-xs text-foreground">gitset config</code>'s wizard over hand-typing keys; it validates the model choice for you.</li>
+                                <li>Use <code class="rounded-md border border-border bg-muted px-1.5 py-0.5 text-xs text-foreground">--print</code> to preview a draft without writing or publishing anything, especially the first few times with a new template.</li>
+                                <li>Rotate provider keys the same way you'd rotate any API key — <code class="rounded-md border border-border bg-muted px-1.5 py-0.5 text-xs text-foreground">gitset config</code> lets you replace one without touching anything else.</li>
+                                <li>In CI, always pass <code class="rounded-md border border-border bg-muted px-1.5 py-0.5 text-xs text-foreground">--yes</code> (or read <code class="rounded-md border border-border bg-muted px-1.5 py-0.5 text-xs text-foreground">--json</code> output) — interactive prompts will otherwise hang a non-interactive shell.</li>
                             </ul>
                         </section>
 
                         {/* ── 12 · TROUBLESHOOTING ────────────────────────── */}
                         <section id="troubleshooting" class="scroll-mt-24 space-y-4">
-                            <h2 class="flex items-baseline gap-3 text-2xl font-semibold tracking-tight">
-                                <span class="font-mono text-sm text-muted-foreground">12</span>
+                            <h2 class="flex items-center gap-3 text-2xl font-semibold tracking-[-0.03em] sm:text-[1.7rem]">
+                                <span class="inline-flex h-7 min-w-7 items-center justify-center rounded-lg border border-brand/25 bg-brand/10 px-1.5 font-mono text-xs font-medium text-brand">12</span>
                                 Troubleshooting
                             </h2>
                             <div class="space-y-3">
                                 {troubleshooting.map((t) => (
-                                    <div class="rounded-lg border border-border p-4">
+                                    <div class="rounded-2xl border border-border bg-card p-5 shadow-sm">
                                         <p class="font-mono text-xs text-foreground">{t.problem}</p>
                                         <p class="mt-1.5 text-sm text-muted-foreground leading-relaxed">{t.fix}</p>
                                     </div>
