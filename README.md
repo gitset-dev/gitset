@@ -12,6 +12,10 @@
     <img src="https://img.shields.io/badge/model-BYOAI-white?style=flat-square" alt="BYOAI" />
     <a href="https://gitset.dev"><img src="https://img.shields.io/badge/web-gitset.dev-2dd4bf?style=flat-square" alt="gitset.dev" /></a>
   </p>
+
+  <a href="https://gitset.dev" target="_blank">
+    <img src="https://ivanluna.dev/images/assets/gitset-preview.webp" alt="Gitset web app — home page" width="640" />
+  </a>
 </div>
 
 ---
