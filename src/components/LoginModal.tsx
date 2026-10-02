@@ -37,7 +37,6 @@ export default function LoginModal({ isOpen, onClose, next }: LoginModalProps) {
             />
             <div className="relative w-full max-w-md transform overflow-hidden rounded-3xl bg-popover border border-border p-6 sm:p-8 shadow-2xl transition-all animate-in fade-in zoom-in-95 slide-in-from-bottom-2 duration-200">
                 <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-glow" />
-                <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-grid opacity-60" />
                 <div className="absolute right-4 top-4 z-10">
                     <button
                         onClick={onClose}

@@ -27,7 +27,6 @@ const user = await getUser(Astro.cookies.get("app_auth_token")?.value);
             showBackButton={true}
             user={toClientUser(user?.user)}
         />
-        <div aria-hidden="true" class="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[520px] bg-grid"></div>
         <div aria-hidden="true" class="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[520px] bg-glow"></div>
 
         <main class="flex-1">

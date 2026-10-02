@@ -156,7 +156,6 @@
     --ring: oklch(0.6 0.1 192);
     --radius: 0.5rem;
     --glow: oklch(0.75 0.12 190 / 0.18);
-    --grid-line: oklch(0.2 0.015 260 / 0.05);
     color-scheme: light;
   }
 
@@ -187,7 +186,6 @@
     --input: oklch(1 0 0 / 0.12);
     --ring: oklch(0.85 0.11 188);
     --glow: oklch(0.85 0.12 188 / 0.14);
-    --grid-line: oklch(1 0 0 / 0.045);
     color-scheme: dark;
   }
 
@@ -257,15 +255,6 @@ pre {
 }
 
 /* ---------- Signature utilities ---------- */
-
-/* Faint engineering grid that fades out toward the edges. */
-@utility bg-grid {
-  background-image:
-    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
-  background-size: 48px 48px;
-  mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 40%, transparent 100%);
-}
 
 /* Soft brand light that sits behind hero content. */
 @utility bg-glow {

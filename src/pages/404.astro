@@ -37,7 +37,6 @@ const user = await getUser(Astro.cookies.get("app_auth_token")?.value);
         class="bg-background text-foreground antialiased min-h-screen flex flex-col"
     >
         <SiteHeader client:load showBackButton={true} user={toClientUser(user?.user)} />
-        <div aria-hidden="true" class="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[520px] bg-grid"></div>
         <div aria-hidden="true" class="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[520px] bg-glow"></div>
         <main
             class="flex-1 w-full mx-auto px-4 py-24 sm:py-32 max-w-2xl flex flex-col items-center justify-center text-center gap-4"

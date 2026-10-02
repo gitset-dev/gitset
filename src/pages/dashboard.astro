@@ -123,7 +123,6 @@ const wantsProviderSetup = Astro.url.searchParams.get("setup") === "ai-provider"
         <SiteHeader client:load user={toClientUser(user.user)} />
 
         <main class="relative isolate flex-1">
-            <div aria-hidden="true" class="absolute inset-x-0 top-0 -z-10 h-80 bg-grid"></div>
             <div aria-hidden="true" class="absolute inset-x-0 top-0 -z-10 h-80 bg-glow"></div>
             <div class="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
             <div
@@ -177,7 +176,6 @@ const wantsProviderSetup = Astro.url.searchParams.get("setup") === "ai-provider"
                         <div
                             class="relative h-28 overflow-hidden bg-[radial-gradient(120%_120%_at_0%_0%,color-mix(in_oklch,var(--brand)_55%,transparent),transparent_60%),radial-gradient(100%_100%_at_100%_0%,color-mix(in_oklch,var(--info)_35%,transparent),transparent_60%)] bg-muted"
                         >
-                            <div class="absolute inset-0 bg-grid opacity-70 [mask-image:none]"></div>
                         </div>
                         <div class="px-6 pb-6">
                             <div class="relative -mt-12 mb-4">

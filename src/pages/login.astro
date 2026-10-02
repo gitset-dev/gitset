@@ -32,7 +32,6 @@ const signInHref = next ? `/api/auth/github?next=${encodeURIComponent(next)}` : 
 
     <div class="relative isolate flex min-h-screen flex-col bg-background">
         <SiteHeader client:load showBackButton={false} user={undefined} />
-        <div aria-hidden="true" class="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[520px] bg-grid"></div>
         <div aria-hidden="true" class="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[520px] bg-glow"></div>
 
         <main class="flex flex-1 items-center justify-center px-4 py-16 sm:p-6">
